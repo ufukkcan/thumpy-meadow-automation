@@ -1,0 +1,31 @@
+{
+  "status": "choosing",
+  "batch": "bf50c4a6",
+  "ideas": [
+    {
+      "working_title": "What Color Is It? Learn Colors with Balloons!",
+      "summary": "Renkli balonlar aracılığıyla temel renkleri öğreten, her renk için tekrarlayan şarkı ve sorularla pekiştirilen bir bölüm.",
+      "lessons": [
+        "Red balloon, blue balloon, yellow balloon – naming colors one by one",
+        "Picking the right color balloon when asked 'Can you find the red one?'"
+      ]
+    },
+    {
+      "working_title": "Yummy Fruits! Learn Fruit Names & Colors",
+      "summary": "Elma, muz, çilek gibi meyveler hem isimleriyle hem renkleriyle tanıtılır, 'What fruit is this? What color is it?' soruları ile öğrenme pekiştirilir.",
+      "lessons": [
+        "Naming fruits: apple, banana, orange, strawberry, grapes, pear, watermelon",
+        "Connecting fruits to their colors: 'The apple is red, the banana is yellow!'"
+      ]
+    },
+    {
+      "working_title": "1, 2, 3 Let's Count! Numbers with Fun Animals",
+      "summary": "Ördek, kurbağa ve tavşan gibi sevimli hayvanları sayarak 1'den 10'a kadar rakamlar eğlenceli bir şekilde öğretilir.",
+      "lessons": [
+        "Counting animals from 1 to 10: 'One duck, two ducks, three ducks!'",
+        "Recognizing number symbols while counting on screen"
+      ]
+    }
+  ],
+  "trigger_date": "2026-11-02"
+}
