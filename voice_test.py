@@ -1,40 +1,23 @@
-"""
-SES TESTI: ayni ornek bolumu iki farkli sesle uretir, out/ klasorune kaydeder.
-GitHub Actions bu videolari "artifact" olarak indirilebilir hale getirir.
-YouTube'a ya da baska bir yere HICBIR SEY yuklemez.
-"""
-import copy
+"""SES TESTI: ornek bolumu secili sesle uretir (out/ klasorune). Hicbir yere yukleme yapmaz."""
+import os
 from pathlib import Path
 
 import episode
 import voice
 from sample_episode import EPISODE
 
-VOICES = {
-    "ana_child_voice": "en-US-AnaNeural",
-    "jenny_narrator": "en-US-JennyNeural",
-}
-
-
-def build(name: str, voice_id: str, out_dir: Path) -> None:
-    ep = copy.deepcopy(EPISODE)
-    narration = {}
-    for i, seg in enumerate(ep["segments"]):
-        if seg["type"] != "narration":
-            continue
-        samples = voice.synthesize(seg["text"], voice_id, str(out_dir / f"tmp_{name}_{i}.mp3"))
-        seg["audio_seconds"] = len(samples) / voice.SR + episode.NARRATION_LEAD_IN + episode.NARRATION_TAIL
-        narration[i] = samples
-        print(f"  [{name}] segment {i}: {seg['audio_seconds']:.1f} sn")
-
-    total = episode.render(ep, str(out_dir / f"test_{name}.mp4"), str(out_dir / f"tmp_{name}.wav"), narration)
-    print(f"{name}: {total:.1f} sn video uretildi")
-
+VOICE = os.environ.get("TTS_VOICE", "en-US-AnaNeural")
 
 if __name__ == "__main__":
-    out = Path("out")
-    out.mkdir(exist_ok=True)
-    for name, voice_id in VOICES.items():
-        build(name, voice_id, out)
-    for tmp in out.glob("tmp_*"):
+    out = Path("out"); out.mkdir(exist_ok=True)
+    segments = episode.flatten(EPISODE)
+    narration = {}
+    for i, seg in enumerate(segments):
+        if seg["type"] == "narration":
+            samples = voice.synthesize(seg["text"], VOICE, str(out / f"tmp_{i}.mp3"))
+            seg["audio_seconds"] = len(samples) / voice.SR + episode.NARRATION_LEAD_IN + episode.NARRATION_TAIL
+            narration[i] = samples
+    total, _ = episode.render(segments, str(out / "test_voice.mp4"), str(out / "tmp.wav"), narration)
+    for tmp in out.glob("tmp*"):
         tmp.unlink()
+    print(f"{total:.1f} sn test videosu uretildi")
