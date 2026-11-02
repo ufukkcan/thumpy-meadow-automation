@@ -1,0 +1,56 @@
+name: Thumpy Meadow - kontrol ve uretim
+
+on:
+  schedule:
+    - cron: "1,6,11,16,21,26,31,36,41,46,51,56 * * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: thumpy-check-and-produce
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - name: Repoyu al
+        uses: actions/checkout@v4
+
+      - name: Python kurulumu
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Bagimliliklari kur
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          pip install -r requirements.txt
+
+      - name: Kontrol et, gerekiyorsa uret ve yukle
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          TTS_VOICE: "en-US-AnaNeural"
+          AUTO_TRIGGER_TIME: "11:00"
+        run: python check_and_produce.py
+
+      - name: State kaydet
+        if: always()
+        run: |
+          git config user.name "thumpy-bot"
+          git config user.email "thumpy-bot@users.noreply.github.com"
+          mkdir -p state
+          git add state
+          git diff --quiet --cached || git commit -m "State guncellendi"
+          git pull --rebase --autostash || true
+          git push
