@@ -81,14 +81,17 @@ def produce_and_upload(state: dict) -> dict:
         description = gen.build_description(ep, result["chapters"])
         publish_at, slot, human = scheduler.next_publish_time()
         video_id = yt.upload(result["video"], ep["title"], description, ep["tags"], publish_at)
-        thumb_ok, thumb_msg = yt.set_thumbnail(video_id, result["thumbnail"])
+        thumb_ok, thumb_msg = yt.set_thumbnail(video_id, result["thumbnails"][0])
         scheduler.record_upload(video_id, publish_at, slot)
-        tg.send_photo(result["thumbnail"], caption="Kucuk resim")
+        for label, path in zip("ABC", result["thumbnails"]):
+            tg.send_photo(path, caption=f"Kucuk resim {label}" + (" (YouTube'a yuklendi)" if label == "A" else ""))
     gen.remember_topic(ep["title"])
     tg.send_message(
         f"Yuklendi (gizli, zamanlanmis): https://youtu.be/{video_id}\n"
         f"Baslik: {ep['title']}\nSure: {result['total'] / 60:.1f} dk\n"
         f"Yayin: {human}\n{thumb_msg}\n\n"
+        f"Ipucu: B ve C varyasyonlarini Studio'da Thumbnail > 'Test & Compare' ile ekleyebilirsin; "
+        f"YouTube en cok tiklananini otomatik secer.\n\n"
         f"Yayindan once YouTube Studio'da izleyebilirsin; begenmezsen oradan silebilirsin."
     )
     return {**state, "status": "done", "video_id": video_id}

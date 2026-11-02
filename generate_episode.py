@@ -86,14 +86,17 @@ yaniltici metaveriyi cezalandirir):
 - tags: 12-15 etiket; ebeveynlerin gercekten aradigi ifadeler (or. "colors for toddlers",
   "learn colors", "preschool learning"). Alakasiz populer kelime YOK.
 - hashtags: TAM 3 tane, en alakalisi ilk sirada, # isareti OLMADAN, bosluksuz.
-- thumbnail_text: en fazla 3 kelime, en fazla 14 karakter, BUYUK HARF (or. "COLORS!").
-- thumbnail_prop: kutuphaneden bolumu en iyi temsil eden TEK obje.
+- thumbnail_text: en fazla 14 karakter, BUYUK HARF. Cocugu ve ebeveyni merakla tiklatan kisa bir SORU
+  ya da HEYECAN cumlesi olsun (or. "WHAT FRUIT?", "WHAT COLOR?", "COUNT WITH ME!", "WHO SAYS MOO?").
+  Videonun icerigiyle BIREBIR uyumlu olmali; videoda olmayan bir seyi vaat etme.
+- thumbnail_props: bolumde GERCEKTEN gecen, en renkli ve en kolay taninan 3-4 obje (kutuphaneden,
+  birbirinden farkli). Kucuk resimde karakterin yaninda sticker olarak gosterilecek.
 
 SADECE gecerli JSON dondur, baska hicbir sey yazma:
 {{
  "title": "...", "description_intro": "...", "learning_points": ["..."],
  "tags": ["..."], "hashtags": ["...","...","..."],
- "thumbnail_text": "...", "thumbnail_prop": {{...}},
+ "thumbnail_text": "...", "thumbnail_props": [{{...}}, {{...}}, {{...}}],
  "sections": [
    {{"title": "Hello Friends!", "segments": [
       {{"type": "narration", "text": "...", "prop": null}},
@@ -173,10 +176,21 @@ def normalize_episode(ep: dict) -> dict:
     hashtags = [h for h in hashtags if h][:3]
 
     thumb_text = str(ep.get("thumbnail_text", "LET'S LEARN!")).upper()[:14]
-    thumb_prop = props.validate_prop(ep.get("thumbnail_prop"))
-    if thumb_prop is None:
-        thumb_prop = next((sg["prop"] for sc in sections for sg in sc["segments"]
-                           if sg["type"] == "narration" and sg["prop"]), None)
+    # kucuk resimde SADECE senaryoda gercekten gecen objeler (yaniltici kucuk resim olmasin)
+    script_props = []
+    for sc in sections:
+        for sg in sc["segments"]:
+            if sg["type"] == "narration" and sg["prop"] and sg["prop"] not in script_props:
+                script_props.append(sg["prop"])
+    wanted = ep.get("thumbnail_props") or ([ep["thumbnail_prop"]] if ep.get("thumbnail_prop") else [])
+    thumb_props = []
+    for p in wanted:
+        vp = props.validate_prop(p)
+        if vp and vp in script_props and vp not in thumb_props:
+            thumb_props.append(vp)
+    if not thumb_props:
+        thumb_props = script_props[:3]
+    thumb_props = thumb_props[:4]
 
     return {
         "title": title,
@@ -185,7 +199,7 @@ def normalize_episode(ep: dict) -> dict:
         "tags": tags,
         "hashtags": hashtags,
         "thumbnail_text": thumb_text,
-        "thumbnail_prop": thumb_prop,
+        "thumbnail_props": thumb_props,
         "sections": sections,
     }
 
@@ -241,4 +255,5 @@ def script_as_text(ep: dict, est_minutes: float) -> str:
     out.append("ETIKETLER: " + ", ".join(ep["tags"]))
     out.append("HASHTAG: " + " ".join("#" + h for h in ep["hashtags"]))
     out.append("THUMBNAIL YAZISI: " + ep["thumbnail_text"])
+    out.append("THUMBNAIL OBJELERI: " + ", ".join(props.prop_label(p)[0] for p in ep["thumbnail_props"]))
     return "\n".join(out)

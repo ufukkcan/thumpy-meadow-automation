@@ -147,10 +147,11 @@ def draw_fruit(d, cx, cy, s, fruit):
         d.rounded_rectangle([cx - 5, cy - h * 1.2, cx + 5, cy - h * 0.85], radius=4, fill=(110, 80, 45))
         d.ellipse([cx - h * 0.45, cy, cx - h * 0.15, cy + h * 0.35], fill=_lighter(g, 50))
     elif fruit == "watermelon":
-        d.pieslice([cx - h * 1.15, cy - h * 1.0, cx + h * 1.15, cy + h * 1.3], 0, 180, fill=(80, 160, 80))
-        d.pieslice([cx - h * 1.0, cy - h * 0.85, cx + h * 1.0, cy + h * 1.15], 0, 180, fill=(240, 90, 100))
+        oy = -h * 0.6  # dilim elipsin alt yarisi oldugu icin yukari kaydir -> merkezde dursun
+        d.pieslice([cx - h * 1.15, cy - h * 1.0 + oy, cx + h * 1.15, cy + h * 1.3 + oy], 0, 180, fill=(80, 160, 80))
+        d.pieslice([cx - h * 1.0, cy - h * 0.85 + oy, cx + h * 1.0, cy + h * 1.15 + oy], 0, 180, fill=(240, 90, 100))
         for sx, sy in [(-0.5, 0.35), (0, 0.55), (0.5, 0.35), (-0.25, 0.75), (0.25, 0.75)]:
-            d.ellipse([cx + sx * h - 6, cy + sy * h - 9, cx + sx * h + 6, cy + sy * h + 9], fill=(50, 45, 50))
+            d.ellipse([cx + sx * h - 6, cy + sy * h - 9 + oy, cx + sx * h + 6, cy + sy * h + 9 + oy], fill=(50, 45, 50))
 
 
 # ---------------- hayvanlar ----------------

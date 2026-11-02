@@ -56,7 +56,7 @@ def _bush(draw: ImageDraw.ImageDraw, x: float, y: float, s: float, col) -> None:
 
 
 def _dino(draw: ImageDraw.ImageDraw, cx: float, cy: float, scale: float,
-          blink: bool, arm_swing: float) -> None:
+          blink: bool, arm_swing: float, mood: str = "happy") -> None:
     """OZGUN sevimli dinozor: yumurta govde, sirt pullari, buyuk gulen gozler.
     Hicbir mevcut karakterin kopyasi degil -- basit geometrik formlardan
     olusturulmus kendi tasarimimiz."""
@@ -88,8 +88,15 @@ def _dino(draw: ImageDraw.ImageDraw, cx: float, cy: float, scale: float,
     draw.ellipse([cx - body_w * 0.30, cy - body_h * 0.08,
                   cx + body_w * 0.30, cy + body_h * 0.46], fill=(230, 250, 215))
 
-    # kollar (sallanan)
+    # kollar (sallanan; heyecanliyken havada)
     for side in (-1, 1):
+        if mood == "excited":  # omuzdan capraz yukari uzanan kol + yuvarlak el
+            x0, y0 = cx + side * body_w * 0.40, cy - body_h * 0.02
+            x1, y1 = cx + side * body_w * 0.70, cy - body_h * 0.36
+            draw.line([(x0, y0), (x1, y1)], fill=(132, 212, 158), width=int(48 * s))
+            for (px, py, r) in ((x0, y0, 24), (x1, y1, 30)):
+                draw.ellipse([px - r * s, py - r * s, px + r * s, py + r * s], fill=(132, 212, 158))
+            continue
         ax = cx + side * body_w * 0.46
         ay = cy + body_h * 0.02
         swing = math.sin(arm_swing + (0 if side > 0 else math.pi)) * 16 * s
@@ -111,8 +118,11 @@ def _dino(draw: ImageDraw.ImageDraw, cx: float, cy: float, scale: float,
                      start=200, end=340, fill=(40, 45, 50), width=int(9 * s))
         else:
             draw.ellipse([ex - 27 * s, ey - 31 * s, ex + 27 * s, ey + 31 * s], fill=(255, 255, 255))
-            draw.ellipse([ex - 16 * s, ey - 18 * s, ex + 16 * s, ey + 20 * s], fill=(45, 50, 58))
+            pr = 19 if mood == "excited" else 16
+            draw.ellipse([ex - pr * s, ey - (pr + 2) * s, ex + pr * s, ey + (pr + 4) * s], fill=(45, 50, 58))
             draw.ellipse([ex - 4 * s, ey - 13 * s, ex + 10 * s, ey + 1 * s], fill=(255, 255, 255))
+            if mood == "excited":  # gozde ikinci parilti
+                draw.ellipse([ex - 10 * s, ey + 6 * s, ex - 3 * s, ey + 13 * s], fill=(255, 255, 255))
 
     # yanak lekeleri
     for side in (-1, 1):
@@ -120,9 +130,15 @@ def _dino(draw: ImageDraw.ImageDraw, cx: float, cy: float, scale: float,
         draw.ellipse([chx - 22 * s, cy - body_h * 0.03, chx + 22 * s, cy + body_h * 0.08],
                      fill=(255, 175, 180))
 
-    # gulumseme
-    draw.arc([cx - 44 * s, cy - body_h * 0.10, cx + 44 * s, cy + body_h * 0.10],
-             start=15, end=165, fill=(60, 60, 68), width=int(8 * s))
+    # agiz: mutlu = gulumseme, heyecanli = kocaman acik agiz + dil
+    if mood == "excited":
+        draw.pieslice([cx - 52 * s, cy - body_h * 0.14, cx + 52 * s, cy + body_h * 0.17],
+                      start=0, end=180, fill=(115, 45, 62))
+        draw.pieslice([cx - 30 * s, cy + body_h * 0.03, cx + 30 * s, cy + body_h * 0.16],
+                      start=180, end=360, fill=(245, 120, 140))
+    else:
+        draw.arc([cx - 44 * s, cy - body_h * 0.10, cx + 44 * s, cy + body_h * 0.10],
+                 start=15, end=165, fill=(60, 60, 68), width=int(8 * s))
 
 
 def _caption(draw: ImageDraw.ImageDraw, text: str, bounce: float) -> None:

@@ -32,6 +32,6 @@ def produce(ep: dict, work_dir: Path) -> dict:
     total, timeline = episode.render(segments, video_path, str(work_dir / "audio.wav"), narration)
     print(f"Render tamam: {total / 60:.1f} dakika")
 
-    thumb_path = thumbnail.make_thumbnail(ep["thumbnail_text"], ep["thumbnail_prop"], str(work_dir / "thumb.jpg"))
-    return {"video": video_path, "thumbnail": thumb_path, "total": total,
+    thumbs = thumbnail.make_variants(ep["thumbnail_text"], ep["thumbnail_props"], str(work_dir / "thumb"))
+    return {"video": video_path, "thumbnails": thumbs, "total": total,
             "chapters": episode.chapters(timeline)}
