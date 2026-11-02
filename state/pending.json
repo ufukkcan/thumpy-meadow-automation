@@ -1,5 +1,5 @@
 {
-  "status": "choosing",
+  "status": "reviewing",
   "batch": "bf50c4a6",
   "ideas": [
     {
@@ -27,5 +27,645 @@
       ]
     }
   ],
-  "trigger_date": "2026-11-02"
+  "trigger_date": "2026-11-02",
+  "idea": {
+    "working_title": "Yummy Fruits! Learn Fruit Names & Colors",
+    "summary": "Elma, muz, çilek gibi meyveler hem isimleriyle hem renkleriyle tanıtılır, 'What fruit is this? What color is it?' soruları ile öğrenme pekiştirilir.",
+    "lessons": [
+      "Naming fruits: apple, banana, orange, strawberry, grapes, pear, watermelon",
+      "Connecting fruits to their colors: 'The apple is red, the banana is yellow!'"
+    ]
+  },
+  "rewrites": 0,
+  "episode": {
+    "title": "Learn Fruit Names & Colors | Yummy Fruits for Kids | Thumpy Meadow",
+    "description_intro": "Learn fruit names and colors with Dino! Apple, banana, orange, strawberry, grapes, pear, and watermelon — all in one fun video for toddlers and preschoolers.",
+    "learning_points": [
+      "Name seven fruits: apple, banana, orange, strawberry, grapes, pear, watermelon",
+      "Connect each fruit to its color",
+      "Answer 'What fruit is this?' and 'What color is it?'",
+      "Practice simple English words in a playful way"
+    ],
+    "tags": [
+      "learn fruit names for kids",
+      "fruit colors for toddlers",
+      "preschool learning video",
+      "fruits in English",
+      "learn English for kids",
+      "toddler learning video",
+      "apple banana orange for kids",
+      "what color is it preschool",
+      "kids educational video",
+      "fruit vocabulary kids",
+      "colors for toddlers",
+      "early learning English",
+      "kindergarten fruits",
+      "learn fruits preschool",
+      "Thumpy Meadow",
+      "Thumpy Meadow"
+    ],
+    "hashtags": [
+      "learnfruits",
+      "toddlerlearning",
+      "preschoolEnglish"
+    ],
+    "thumbnail_text": "YUMMY FRUITS!",
+    "thumbnail_prop": {
+      "kind": "fruit",
+      "fruit": "watermelon"
+    },
+    "sections": [
+      {
+        "title": "Hello Friends!",
+        "segments": [
+          {
+            "type": "narration",
+            "text": "Hello, friends! I am Dino. Welcome to Thumpy Meadow!",
+            "prop": null
+          },
+          {
+            "type": "narration",
+            "text": "Today we are going to learn about fruits. Yummy fruits!",
+            "prop": null
+          },
+          {
+            "type": "narration",
+            "text": "We will learn their names and their colors. So exciting!",
+            "prop": null
+          },
+          {
+            "type": "narration",
+            "text": "Are you ready? Let's go, friends! Here we go!",
+            "prop": null
+          }
+        ]
+      },
+      {
+        "title": "Apple & Strawberry",
+        "segments": [
+          {
+            "type": "narration",
+            "text": "Our first fruit is here! Look at this. What is it?",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "apple"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "It is an apple! Can you say apple? Apple!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "apple"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Great job! Now, what color is the apple?",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "apple"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "The apple is red! Can you say red? Red!",
+            "prop": {
+              "kind": "shape",
+              "shape": "circle",
+              "color": "red"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "The apple is red. Red apple! Well done, friend!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "apple"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Now look! A new fruit is coming. What is this?",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "strawberry"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "It is a strawberry! Can you say strawberry? Strawberry!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "strawberry"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Strawberry is red too! Can you see the color?",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "strawberry"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "The strawberry is red. Red strawberry! Wonderful!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "strawberry"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Let's count some apples together! One apple. Can you say one?",
+            "prop": {
+              "kind": "count",
+              "item": "apple",
+              "n": 1
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Two apples! One, two. Two red apples. Nice counting!",
+            "prop": {
+              "kind": "count",
+              "item": "apple",
+              "n": 2
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Three apples! One, two, three. You are so good!",
+            "prop": {
+              "kind": "count",
+              "item": "apple",
+              "n": 3
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Apple is red. Strawberry is red. Two red fruits! Amazing!",
+            "prop": null
+          },
+          {
+            "type": "music_break",
+            "lines": [
+              "Apple, apple, red and round,",
+              "The yummiest fruit to be found!",
+              "Strawberry, strawberry, red as can be,",
+              "Come and sing along with me!",
+              "Red, red, what a color so bright,",
+              "Red fruits make the day feel right!"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Banana & Pear",
+        "segments": [
+          {
+            "type": "narration",
+            "text": "A new fruit is here! Look carefully. What could it be?",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "banana"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "It is a banana! Can you say banana? Banana!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "banana"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "What color is the banana? Hmm, can you guess?",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "banana"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "The banana is yellow! Can you say yellow? Yellow!",
+            "prop": {
+              "kind": "balloon",
+              "color": "yellow"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Yellow banana! The banana is yellow. Great answer, friend!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "banana"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Now here comes another fruit. What is this one?",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "pear"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "It is a pear! Can you say pear? Pear!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "pear"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "The pear is green! Can you say green? Green!",
+            "prop": {
+              "kind": "shape",
+              "shape": "oval",
+              "color": "green"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Green pear! The pear is green. You are doing so well!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "pear"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Banana is yellow. Pear is green. Two yummy fruits!",
+            "prop": null
+          },
+          {
+            "type": "narration",
+            "text": "Let's count bananas! One banana. One! Can you say it?",
+            "prop": {
+              "kind": "count",
+              "item": "apple",
+              "n": 1
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Two bananas! One, two. Two yellow bananas. Wonderful!",
+            "prop": {
+              "kind": "count",
+              "item": "apple",
+              "n": 2
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Which do you like: banana or pear? Tell a friend!",
+            "prop": null
+          },
+          {
+            "type": "music_break",
+            "lines": [
+              "Banana, banana, yellow and long,",
+              "Sing the yellow fruit song!",
+              "Pear, pear, so green and sweet,",
+              "A lovely little fruit to meet!",
+              "Yellow, green, what colors we see,",
+              "Fruits are as happy as can be!"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Orange & Grapes",
+        "segments": [
+          {
+            "type": "narration",
+            "text": "Ooh, look! A round and bright fruit is here. What is it?",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "orange"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "It is an orange! Can you say orange? Orange!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "orange"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "And the color? The orange is orange! Orange colored!",
+            "prop": {
+              "kind": "balloon",
+              "color": "orange"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "The fruit and the color have the same name! So fun!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "orange"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Can you say orange again? Orange! You are amazing!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "orange"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Now, look at these little round fruits. What are they?",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "grapes"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "They are grapes! Can you say grapes? Grapes!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "grapes"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "What color are the grapes? Hmm, let's look together!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "grapes"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "The grapes are purple! Can you say purple? Purple!",
+            "prop": {
+              "kind": "balloon",
+              "color": "purple"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Purple grapes! The grapes are purple. So pretty!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "grapes"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Let's count oranges! One, two, three oranges together!",
+            "prop": {
+              "kind": "count",
+              "item": "orange",
+              "n": 3
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Orange is orange. Grapes are purple. Two more fruits!",
+            "prop": null
+          },
+          {
+            "type": "narration",
+            "text": "Can you say both? Orange! Grapes! You are a star!",
+            "prop": {
+              "kind": "shape",
+              "shape": "star",
+              "color": "yellow"
+            }
+          },
+          {
+            "type": "music_break",
+            "lines": [
+              "Orange, orange, round and bright,",
+              "An orange color, what a sight!",
+              "Grapes, grapes, purple and small,",
+              "The prettiest color of them all!",
+              "Orange and purple, can you say?",
+              "We love learning fruit today!"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Watermelon!",
+        "segments": [
+          {
+            "type": "narration",
+            "text": "We have one more fruit! This one is very big. Ready?",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "watermelon"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "It is a watermelon! Can you say watermelon? Watermelon!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "watermelon"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Watermelon is a long word! Let's say it slowly. Wa-ter-me-lon!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "watermelon"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "What color is the watermelon outside? Look carefully!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "watermelon"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "The outside is green! Can you say green? Green!",
+            "prop": {
+              "kind": "balloon",
+              "color": "green"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "And inside the watermelon? The inside is red! So colorful!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "watermelon"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Green outside, red inside. Watermelon! Isn't that cool?",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "watermelon"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Let's count some stars while we celebrate! One star!",
+            "prop": {
+              "kind": "count",
+              "item": "star",
+              "n": 1
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Two stars! One, two. Two shiny stars for you!",
+            "prop": {
+              "kind": "count",
+              "item": "star",
+              "n": 2
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Three stars! One, two, three! You learned all the fruits!",
+            "prop": {
+              "kind": "count",
+              "item": "star",
+              "n": 3
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Watermelon is our last fruit today. Big and yummy!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "watermelon"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Can you say watermelon one more time? Watermelon! Yes!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "watermelon"
+            }
+          },
+          {
+            "type": "music_break",
+            "lines": [
+              "Watermelon, watermelon, big and wide,",
+              "Green outside and red inside!",
+              "Watermelon, watermelon, what a treat,",
+              "A big green fruit you love to meet!",
+              "Green and red, two colors we know,",
+              "Watch the watermelon grow and glow!"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Let's Remember!",
+        "segments": [
+          {
+            "type": "narration",
+            "text": "Great work today, friends! Let's remember all our fruits!",
+            "prop": null
+          },
+          {
+            "type": "narration",
+            "text": "First: apple! The apple is red. Can you say apple?",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "apple"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Strawberry! The strawberry is red too. Strawberry!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "strawberry"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Banana! The banana is yellow. Can you say banana?",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "banana"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Pear! The pear is green. Can you say pear? Pear!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "pear"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Orange! The orange is orange. Orange! What a fun word!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "orange"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Grapes! The grapes are purple. Can you say grapes?",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "grapes"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "Watermelon! Green outside, red inside. Watermelon!",
+            "prop": {
+              "kind": "fruit",
+              "fruit": "watermelon"
+            }
+          }
+        ]
+      },
+      {
+        "title": "Bye-Bye!",
+        "segments": [
+          {
+            "type": "narration",
+            "text": "You did it, friend! You learned seven fruits today! Hooray!",
+            "prop": null
+          },
+          {
+            "type": "narration",
+            "text": "Apple, banana, orange, strawberry, grapes, pear, watermelon!",
+            "prop": null
+          },
+          {
+            "type": "narration",
+            "text": "You are so clever! Dino is very proud of you today!",
+            "prop": {
+              "kind": "animal",
+              "animal": "frog"
+            }
+          },
+          {
+            "type": "narration",
+            "text": "See you next time at Thumpy Meadow! Bye-bye, dear friend!",
+            "prop": null
+          }
+        ]
+      }
+    ]
+  }
 }
