@@ -139,22 +139,25 @@ def _kick(dur=0.32):
     return 0.9 * np.sin(2 * np.pi * np.cumsum(freq) / SR) * np.exp(-t * 9)
 
 
-def _clap(dur=0.22):
+def _soft_noise(n, hp=10, lp=3):
+    """Kaba beyaz gurultu yerine bant sinirli (yumusak) gurultu -- 'cizirti' etkisi olmasin."""
+    noise = _rng.standard_normal(n)
+    noise = noise - np.convolve(noise, np.ones(hp) / hp, mode="same")   # basi al
+    return np.convolve(noise, np.ones(lp) / lp, mode="same")            # tizi yumusat
+
+
+def _clap(dur=0.18):
     n = int(SR * dur)
     t = np.arange(n) / SR
-    noise = _rng.standard_normal(n)
-    noise = noise - np.convolve(noise, np.ones(6) / 6, mode="same")  # kaba yuksek gecis
-    env = np.exp(-t * 22)
-    for k in (0.0, 0.011, 0.022):  # el cirpmanin "cift vurus" hissi
-        env += 0.6 * np.exp(-np.clip(t - k, 0, None) * 160) * (t >= k)
-    return 0.35 * noise * env
+    env = np.exp(-t * 26)
+    for k in (0.0, 0.010, 0.020):  # el cirpmanin "cift vurus" hissi
+        env += 0.5 * np.exp(-np.clip(t - k, 0, None) * 170) * (t >= k)
+    return 0.16 * _soft_noise(n, hp=12, lp=4) * env
 
 
-def _hat(dur=0.06):
+def _hat(dur=0.05):
     n = int(SR * dur)
-    noise = _rng.standard_normal(n)
-    noise = noise - np.convolve(noise, np.ones(3) / 3, mode="same")
-    return 0.10 * noise * np.exp(-np.arange(n) / SR * 70)
+    return 0.035 * _soft_noise(n, hp=6, lp=3) * np.exp(-np.arange(n) / SR * 80)
 
 
 def _bass(midi, dur):

@@ -1,13 +1,13 @@
 """
-Dogal sesle ritmik soyleme.
+Dogal sesle ritmik soyleme (v2).
 
-1) Ana her satiri DOGAL AKISIYLA tek seferde soyler (tonlama dogal kalir).
-2) edge-tts her kelimenin baslangic/bitis zamanini verir (WordBoundary); satir kelimelerine bolunur.
-3) Her kelime kendi notasinin vurusuna yerlestirilir. Nota suresine sigmiyorsa Rubber Band ile
-   (perdeyi ve ses karakterini koruyarak) hafifce hizlandirilir; yavaslatma yapilmaz.
-4) melody>0 ise: kelimenin dogal tonlamasi aynen korunur, sadece ortalama perdesi notaya dogru
-   'melody' oraninda kaydirilir (formant korunur -> cocuk sesi karakteri bozulmaz).
-Kelime sinirlari alinamazsa kelimeler tek tek seslendirilir (yedek yol).
+1) Ana her satiri DOGAL AKISIYLA tek seferde soyler; edge-tts kelime sinirlarini verir.
+2) Cok heceli kelimeler enerji zarfindan HECELERINE bolunur; her hece kendi notasina yerlesir.
+3) Hizalama hecenin basina degil UNLU BASLANGICINA yapilir (kulak vurusu orada algilar).
+4) Uzun notalarda hece en fazla %35 uzatilir (sarkiya yaklasir), sigmiyorsa hafif hizlandirilir.
+   Islem Rubber Band ile, perde ve ses karakteri korunarak; kenar bozulmasi olmasin diye bosluk eklenir.
+5) Her parcanin basinda/sonunda yumusak gecis var (kesik noktalarda 'cit' sesi olmasin).
+6) melody>0: dogal tonlama korunur, ortalama perde notaya dogru 'melody' oraninda kaydirilir.
 """
 import asyncio
 import subprocess
@@ -20,6 +20,8 @@ import music
 import songs
 
 SR = music.SR
+FADE_MS = 10
+LEAD = 0.35  # satir basinda on bosluk: ilk hecenin unsuzu vurustan once baslayabilsin
 
 
 def _decode(mp3_bytes: bytes) -> np.ndarray:
@@ -28,11 +30,11 @@ def _decode(mp3_bytes: bytes) -> np.ndarray:
     return np.frombuffer(raw, dtype=np.int16).astype(np.float64) / 32768
 
 
-async def _stream(text: str, voice: str, rate: str):
+async def _stream(text: str, voice: str, rate: str, pitch: str = "+0Hz"):
     try:
-        comm = edge_tts.Communicate(text, voice, rate=rate, boundary="WordBoundary")
-    except TypeError:  # eski surumlerde bu parametre yok, kelime sinirlari zaten gelir
-        comm = edge_tts.Communicate(text, voice, rate=rate)
+        comm = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch, boundary="WordBoundary")
+    except TypeError:
+        comm = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch)
     audio, bounds = bytearray(), []
     async for chunk in comm.stream():
         if chunk["type"] == "audio":
@@ -42,13 +44,21 @@ async def _stream(text: str, voice: str, rate: str):
     return bytes(audio), bounds
 
 
+def _fade(x: np.ndarray, ms: float = FADE_MS) -> np.ndarray:
+    x = x.copy()
+    f = min(len(x) // 3, int(ms / 1000 * SR))
+    if f > 1:
+        x[:f] *= np.linspace(0, 1, f) ** 2
+        x[-f:] *= np.linspace(1, 0, f) ** 2
+    return x
+
+
 def _trim(a: np.ndarray, thr: float = 0.015) -> np.ndarray:
     nz = np.where(np.abs(a) > thr)[0]
     return a[max(0, nz[0] - 150): nz[-1] + 300] if len(nz) else a
 
 
 def line_word_clips(text: str, voice: str, rate: str = "+0%") -> list[np.ndarray]:
-    """Satirdaki her kelime icin dogal ses parcasi (satirin akisindan kesilmis)."""
     words = text.split()
     audio, bounds = asyncio.run(_stream(text, voice, rate))
     x = _decode(audio)
@@ -58,63 +68,196 @@ def line_word_clips(text: str, voice: str, rate: str = "+0%") -> list[np.ndarray
             a = int(max(0.0, off - 0.02) * SR)
             end_t = bounds[i + 1][0] if i + 1 < len(bounds) else off + dur + 0.12
             b = int(min(len(x) / SR, end_t) * SR)
-            clips.append(_trim(x[a:b]))
+            clips.append(_fade(_trim(x[a:b])))
         print(f"   [kelime sinirlari OK] {text}")
         return clips
     print(f"   [yedek yol: {len(bounds)} sinir / {len(words)} kelime] {text}")
-    out = []
-    for w in words:  # yedek: kelimeleri tek tek seslendir
-        aud, _ = asyncio.run(_stream(w.strip(",.!?"), voice, rate))
-        out.append(_trim(_decode(aud)))
-    return out
+    return [_fade(_trim(_decode(asyncio.run(_stream(w.strip(",.!?"), voice, rate))[0]))) for w in words]
+
+
+def _envelope(x: np.ndarray, frame: int = 441) -> np.ndarray:
+    n = len(x) // frame
+    if n == 0:
+        return np.zeros(1)
+    e = np.sqrt(np.mean(x[: n * frame].reshape(n, frame) ** 2, axis=1))
+    return np.convolve(e, np.ones(5) / 5, mode="same")
+
+
+def split_syllables(x: np.ndarray, k: int) -> list[np.ndarray] | None:
+    """Kelimeyi enerji tepelerinden k heceye boler. Basaramazsa None."""
+    if k <= 1:
+        return [x]
+    env = _envelope(x)
+    peaks = [i for i in range(1, len(env) - 1) if env[i] >= env[i - 1] and env[i] > env[i + 1]
+             and env[i] > 0.25 * env.max()]
+    chosen = []
+    for p in sorted(peaks, key=lambda i: -env[i]):
+        if all(abs(p - c) >= 8 for c in chosen):  # tepeler arasi en az 80 ms
+            chosen.append(p)
+        if len(chosen) == k:
+            break
+    if len(chosen) < k:
+        return None
+    chosen.sort()
+    cuts = [int(np.argmin(env[a:b]) + a) * 441 for a, b in zip(chosen[:-1], chosen[1:])]
+    edges = [0] + cuts + [len(x)]
+    return [_fade(x[a:b], 8) for a, b in zip(edges[:-1], edges[1:])]
+
+
+def _vowel_onset(x: np.ndarray) -> float:
+    """Unlunun basladigi an (sn). Perdeli (titresimli) ve yeterince guclu ilk kare:
+    's', 't', 'k' gibi perdesiz unsuzler atlanir -> kulak vurusu unlunun basinda duyar."""
+    xc = np.ascontiguousarray(x, dtype=np.float64)
+    if len(xc) > SR * 0.04:
+        f0, t = pw.dio(xc, SR, frame_period=5, f0_floor=90, f0_ceil=650)
+        hop = int(SR * 0.005)
+        n = min(len(f0), len(xc) // hop)
+        if n > 0:
+            e = np.sqrt(np.mean(xc[: n * hop].reshape(n, hop) ** 2, axis=1))
+            ok = np.where((f0[:n] > 0) & (e >= 0.2 * e.max()))[0]
+            if len(ok):
+                return float(ok[0] * 0.005)
+    env = _envelope(x)  # yedek: enerji
+    idx = np.where(env >= 0.35 * env.max())[0]
+    return float(idx[0] * 441 / SR) if len(idx) else 0.0
 
 
 def _rubberband(x: np.ndarray, tempo: float = 1.0, pitch: float = 1.0) -> np.ndarray:
     if abs(tempo - 1) < 0.01 and abs(pitch - 1) < 0.005:
         return x
+    pad = int(0.12 * SR)  # kenar bozulmasina karsi bosluk
+    xp = np.concatenate([np.zeros(pad), x, np.zeros(pad)])
     raw = subprocess.run(
         ["ffmpeg", "-v", "error", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", "pipe:0",
-         "-af", f"rubberband=tempo={tempo:.4f}:pitch={pitch:.4f}:formant=preserved:transients=crisp",
+         "-af", f"rubberband=tempo={tempo:.4f}:pitch={pitch:.4f}:formant=preserved:transients=mixed:window=standard",
          "-f", "f32le", "-ar", str(SR), "-ac", "1", "-"],
-        input=x.astype(np.float32).tobytes(), capture_output=True, check=True).stdout
-    return np.frombuffer(raw, dtype=np.float32).astype(np.float64)
+        input=xp.astype(np.float32).tobytes(), capture_output=True, check=True).stdout
+    y = np.frombuffer(raw, dtype=np.float32).astype(np.float64)
+    p_out = int(pad / tempo)
+    want = int(len(x) / tempo)
+    return _fade(y[p_out: p_out + want])
+
+
+def _write_wav16(path: str, x: np.ndarray) -> None:
+    import wave
+    data = (np.clip(x, -1, 1) * 32767).astype(np.int16)
+    with wave.open(path, "wb") as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes(data.tobytes())
+
+
+def _read_wav16(path: str) -> np.ndarray:
+    import wave
+    with wave.open(path, "rb") as w:
+        return np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float64) / 32768
+
+
+def rb3(x: np.ndarray, tempo: float = 1.0, semitones: float = 0.0) -> np.ndarray:
+    """Rubber Band R3 (finer) motoru + formant koruma: insan sesinde en temiz zaman/perde degisimi."""
+    if abs(tempo - 1) < 0.01 and abs(semitones) < 0.1:
+        return x
+    import os
+    import tempfile
+    pad = int(0.12 * SR)
+    xp = np.concatenate([np.zeros(pad), x, np.zeros(pad)])
+    with tempfile.TemporaryDirectory() as d:
+        a, b = os.path.join(d, "in.wav"), os.path.join(d, "out.wav")
+        _write_wav16(a, xp)
+        subprocess.run(["rubberband", "-q", "-3", "-F", "-T", f"{tempo:.4f}", "-p", f"{semitones:.3f}", a, b],
+                       check=True, capture_output=True)
+        y = _read_wav16(b)
+    p_out = int(pad / tempo)
+    return _fade(y[p_out: p_out + int(len(x) / tempo)])
+
+
+def native_word(word: str, voice: str, target_hz: float, strength: float, _cache={}) -> tuple[np.ndarray, float]:
+    """Kelimeyi, perdesi notaya yakin olacak sekilde DOGRUDAN seslendirme motoruna urettirir.
+    Donus: (ses, uygulanan perde orani). Perdeyi sonradan bozmaktan cok daha dogal."""
+    w = word.lower().strip(",.!?")
+    if (w, voice) not in _cache:
+        _cache[(w, voice)] = _fade(_trim(_decode(asyncio.run(_stream(w, voice, "+0%"))[0])))
+    base = _cache[(w, voice)]
+    med = _median_hz(base) or 280.0
+    offset = (target_hz - med) * strength
+    offset = float(np.clip(offset, -0.4 * med, 0.6 * med))
+    if abs(offset) < 3:
+        return base, 1.0
+    key = (w, voice, int(round(offset)))
+    if key not in _cache:
+        audio, _ = asyncio.run(_stream(w, voice, "+0%", pitch=f"{int(round(offset)):+d}Hz"))
+        _cache[key] = _fade(_trim(_decode(audio)))
+    return _cache[key], (med + offset) / med
 
 
 def _median_hz(x: np.ndarray) -> float | None:
     if len(x) < SR * 0.05:
         return None
-    f0, t = pw.dio(np.ascontiguousarray(x), SR, frame_period=5, f0_floor=90, f0_ceil=650)
-    f0 = pw.stonemask(np.ascontiguousarray(x), f0, t, SR)
+    xc = np.ascontiguousarray(x)
+    f0, t = pw.dio(xc, SR, frame_period=5, f0_floor=90, f0_ceil=650)
+    f0 = pw.stonemask(xc, f0, t, SR)
     v = f0[f0 > 0]
     return float(np.median(v)) if len(v) > 3 else None
 
 
-def render_line(text: str, notes: list[tuple], beat: float, voice: str, melody: float = 0.0) -> np.ndarray:
-    """Satiri ritme oturtur. Donus: satir uzunlugunda (8 vurus) ses."""
+def render_line(text: str, notes: list[tuple], beat: float, voice: str, melody: float = 0.0,
+                mode: str = "line", engine: str = "r3") -> np.ndarray:
+    """Donus: satirin sesi; basinda LEAD sn on bosluk var -> satir_baslangici - LEAD konumuna eklenmeli.
+    mode="line":   satir dogal akisiyla soylenir, kelimelere bolunur (perde sonradan 'melody' oraninda kaydirilir)
+    mode="native": her kelime perdesi notaya yakin olacak sekilde dogrudan seslendirme motorunda uretilir
+    engine="r3":   zaman/perde islemleri Rubber Band R3 (en kaliteli) ile; "r2": eski ffmpeg filtresi"""
     word_notes = songs.map_words_to_notes(text, notes)
-    clips = line_word_clips(text, voice)
-    if len(clips) != len(word_notes):  # birlestirilmis kelime olduysa yedek
-        clips = clips[: len(word_notes)] + [np.zeros(1)] * max(0, len(word_notes) - len(clips))
-    out = np.zeros(int(8 * beat * SR) + SR)
-    t = 0.0
-    for (word, wnotes), clip in zip(word_notes, clips):
-        slot = sum(b for _, b in wnotes) * beat
-        avail = max(0.12, slot - 0.03)
-        clip_len = len(clip) / SR
-        tempo = min(1.7, clip_len / avail) if clip_len > avail else 1.0
-        pitch = 1.0
-        if melody > 0:
-            med = _median_hz(clip)
-            if med:
-                target = 440.0 * 2 ** ((wnotes[0][0] - 69) / 12)
-                shift = float(np.clip(12 * np.log2(target / med) * melody, -4, 4))
-                pitch = 2 ** (shift / 12)
-        y = _rubberband(clip, tempo, pitch)
-        if len(y) / SR > slot:  # hala sigmiyorsa yumusakca kes
-            y = y[: int(slot * SR)]
-            f = min(len(y) // 4, int(0.02 * SR))
-            if f > 0:
-                y[-f:] *= np.linspace(1, 0, f)
-        music._add(out, y, t)
-        t += slot
-    return out[: int(8 * beat * SR)]
+    native_ratio = []
+    if mode == "native":
+        clips = []
+        for w, wn in word_notes:
+            target = 440.0 * 2 ** ((wn[0][0] - 69) / 12)
+            parts = [native_word(tok, voice, target, max(melody, 0.7)) for tok in w.split()]
+            clips.append(np.concatenate([p[0] for p in parts]))
+            native_ratio.append(True)
+    else:
+        raw_clips = line_word_clips(text, voice)
+        clips, i = [], 0
+        for w, _ in word_notes:  # birlestirilmis kelimeler (or. "a b") icin parcalari birlestir
+            n_tok = len(w.split())
+            clips.append(np.concatenate(raw_clips[i:i + n_tok]) if raw_clips[i:i + n_tok] else np.zeros(441))
+            i += n_tok
+            native_ratio.append(False)
+
+    out = np.zeros(int((9 * beat + LEAD) * SR) + SR)
+    t_note, prev_end = LEAD, 0.0   # zamanlar LEAD kadar kaydirilmis; cagiran satiri LEAD erken yerlestirir
+    for (word, wnotes), clip, is_native in zip(word_notes, clips, native_ratio):
+        segs = split_syllables(clip, len(wnotes)) or [clip] + [None] * (len(wnotes) - 1)
+        first_midi = wnotes[0][0]
+        for seg, (midi, beats) in zip(segs, wnotes):
+            slot = beats * beat
+            if seg is None or len(seg) < 200:
+                t_note += slot
+                continue
+            seg_len = len(seg) / SR
+            if seg_len > slot * 0.95:                        # sigmiyor: hafif hizlandir
+                tempo = min(1.6, seg_len / (slot * 0.95))
+            else:                                            # uzun nota: unluyu en fazla %35 uzat
+                tempo = 1.0 / float(np.clip(slot * 0.7 / seg_len, 1.0, 1.35))
+            semis = 0.0
+            if is_native:      # ilk hece motorda zaten notaya yakin; sonraki heceler icin kucuk fark
+                semis = float(np.clip((midi - first_midi) * 0.7, -3, 3))
+            elif melody > 0:
+                med = _median_hz(seg)
+                if med:
+                    target = 440.0 * 2 ** ((midi - 69) / 12)
+                    semis = float(np.clip(12 * np.log2(target / med) * melody, -4, 4))
+            if engine == "r3":
+                y = rb3(seg, tempo, semis)
+            else:
+                y = _rubberband(seg, tempo, 2 ** (semis / 12))
+            start = max(0.0, t_note - _vowel_onset(y))       # unlu basini vurusa hizala
+            if start < prev_end:                             # oncekinin kuyrugu tasiyorsa: ERTELEME,
+                a = max(0, int(start * SR) - int(0.012 * SR))  # onceki hecenin kuyrugunu yumusakca kes
+                b = int(prev_end * SR) + 1
+                k = int(start * SR) - a
+                if k > 1:
+                    out[a:a + k] *= np.linspace(1, 0, k) ** 2
+                out[a + max(k, 0): b] = 0.0
+            music._add(out, y, start)
+            prev_end = start + len(y) / SR
+            t_note += slot
+    return out[: int((8 * beat + LEAD) * SR)]
