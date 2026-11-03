@@ -4,7 +4,8 @@ SARKI TESTI v5 (Ana sesiyle, D'nin ritim hizalamasi + daha kaliteli ses):
      kucuk duzeltmeler Rubber Band R3 ile      -> out/sing_test_E_native_pitch.mp3
   F) D'nin aynisi, ama perde kaydirma eski motor yerine kaliteli R3 motoruyla
                                                 -> out/sing_test_F_r3_engine.mp3
-Ikisinde de vokale hafif yanki ve tiz parazit yumusatma uygulanir. Hicbir yere yukleme yapmaz.
+Ikisinde de: legato (heceler bagli), kucuk kelimeler dogal soylenisle, netlik ayari, azaltilmis yanki,
+Ana soylerken muzik hafifce kisilir. Hicbir yere yukleme yapmaz.
 """
 import subprocess
 from pathlib import Path
@@ -29,26 +30,37 @@ SONGS = [
 ]
 
 
-def soften_highs(x: np.ndarray, cutoff: float = 9500.0) -> np.ndarray:
-    """Sikistirilmis ses kaynagindaki tiz 'cizirti'yi yumusakca alcaltir."""
+def voice_eq(x: np.ndarray, cutoff: float = 9500.0) -> np.ndarray:
+    """Netlik: konusmanin anlasilirligini tasiyan 2-5 kHz bolgesi +3 dB, 120 Hz alti temizlenir,
+    sikistirilmis kaynaktaki tiz 'cizirti' yumusakca alcaltilir."""
     spec = np.fft.rfft(x)
     f = np.fft.rfftfreq(len(x), 1 / music.SR)
-    gain = 1 / np.sqrt(1 + (f / cutoff) ** 6)
-    return np.fft.irfft(spec * gain, len(x))
+    lowcut = 1 / np.sqrt(1 + (120 / np.maximum(f, 1)) ** 4)
+    highcut = 1 / np.sqrt(1 + (f / cutoff) ** 6)
+    presence = 1 + 0.41 * np.exp(-((np.log2(np.maximum(f, 1) / 3200)) ** 2) / (2 * 0.6 ** 2))  # ~+3 dB
+    return np.fft.irfft(spec * lowcut * highcut * presence, len(x))
+
+
+def duck(backing: np.ndarray, voice: np.ndarray, depth: float = 0.4) -> np.ndarray:
+    """Ana soylerken muzigi ~4 dB kisar (sozler net duyulsun)."""
+    env = np.convolve(np.abs(voice), np.ones(2205) / 2205, mode="same")  # 50 ms
+    env = env / (env.max() or 1)
+    gain = 1 - depth * np.clip(env / 0.15, 0, 1)
+    return backing * np.convolve(gain, np.ones(4410) / 4410, mode="same")  # yumusak gecis
 
 
 def render_song(key, lyrics, mode, melody):
-    backing, starts, beat, total, lines = songs.arrangement(key, len(lyrics), lead_vel=0.20)
+    backing, starts, beat, total, lines = songs.arrangement(key, len(lyrics), lead_vel=0.12)
     voice = np.zeros_like(backing)
     for li, (text, notes) in enumerate(zip(lyrics, lines)):
         line = rhythmic.render_line(text, notes, beat, VOICE, melody=melody, mode=mode, engine="r3")
         music._add(voice, line, max(0.0, starts[li] - rhythmic.LEAD))
-    voice = singer.vocal_fx(soften_highs(voice), reverb=0.10, chorus=0.12)
-    return backing * 0.7 + voice * 0.95
+    voice = singer.vocal_fx(voice_eq(voice), reverb=0.06, chorus=0.0)
+    return duck(backing, voice) * 0.7 + voice * 1.0
 
 
 if __name__ == "__main__":
-    for name, mode, melody in (("E_native_pitch", "native", 0.7), ("F_r3_engine", "line", 0.5)):
+    for name, mode, melody in (("G_legato", "native", 0.7),):
         print(f"--- {name} ---")
         parts = []
         for key, lyrics in SONGS:

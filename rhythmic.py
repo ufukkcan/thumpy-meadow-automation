@@ -21,7 +21,8 @@ import songs
 
 SR = music.SR
 FADE_MS = 10
-LEAD = 0.35  # satir basinda on bosluk: ilk hecenin unsuzu vurustan once baslayabilsin
+LEAD = 0.35    # satir basinda on bosluk: ilk hecenin unsuzu vurustan once baslayabilsin
+LEGATO = 0.80  # her hece notasinin ~%80'ini doldurur (kesik kesik degil, bagli soyleme)
 
 
 def _decode(mp3_bytes: bytes) -> np.ndarray:
@@ -188,6 +189,40 @@ def native_word(word: str, voice: str, target_hz: float, strength: float, _cache
     return _cache[key], (med + offset) / med
 
 
+FUNCTION_WORDS = {"a", "an", "the", "of", "to", "and", "for", "as", "at", "in", "on", "or", "is"}
+
+
+def sustain(seg: np.ndarray, target_s: float, max_factor: float = 3.2) -> np.ndarray:
+    """Heceyi hedef sureye uzatir: SADECE unlu (perdeli) kisim uzatilir, bastaki ve sondaki
+    unsuzler (s, t, k, p...) dogal hizinda kalir -> hem sarki gibi bagli, hem anlasilir."""
+    xc = np.ascontiguousarray(seg, dtype=np.float64)
+    need = target_s * SR
+    if len(xc) >= need or len(xc) < SR * 0.05:
+        return seg
+    f0, t = pw.dio(xc, SR, frame_period=5, f0_floor=90, f0_ceil=650)
+    hop = int(SR * 0.005)
+    n = min(len(f0), len(xc) // hop)
+    e = np.sqrt(np.mean(xc[: n * hop].reshape(n, hop) ** 2, axis=1)) if n else np.zeros(1)
+    voiced = np.where((f0[:n] > 0) & (e >= 0.15 * e.max()))[0] if n else []
+    if len(voiced) < 4:
+        return seg
+    a, b = int(voiced[0] * hop), int((voiced[-1] + 1) * hop)
+    onset, vowel, coda = xc[:a], xc[a:b], xc[b:]
+    factor = float(np.clip((need - len(onset) - len(coda)) / max(len(vowel), 1), 1.0, max_factor))
+    if factor < 1.05:
+        return seg
+    long_vowel = rb3(vowel, tempo=1.0 / factor)
+    x = 64  # birlesme noktalarinda cok kisa capraz gecis
+    parts = [onset, long_vowel, coda]
+    out = parts[0]
+    for p in parts[1:]:
+        if len(out) > x and len(p) > x:
+            out = np.concatenate([out[:-x], out[-x:] * np.linspace(1, 0, x) + p[:x] * np.linspace(0, 1, x), p[x:]])
+        else:
+            out = np.concatenate([out, p])
+    return _fade(out)
+
+
 def _median_hz(x: np.ndarray) -> float | None:
     if len(x) < SR * 0.05:
         return None
@@ -207,12 +242,21 @@ def render_line(text: str, notes: list[tuple], beat: float, voice: str, melody: 
     word_notes = songs.map_words_to_notes(text, notes)
     native_ratio = []
     if mode == "native":
-        clips = []
+        line_clips = line_word_clips(text, voice)   # kucuk kelimelerin dogal soylenisi icin
+        clips, ti = [], 0
         for w, wn in word_notes:
             target = 440.0 * 2 ** ((wn[0][0] - 69) / 12)
-            parts = [native_word(tok, voice, target, max(melody, 0.7)) for tok in w.split()]
-            clips.append(np.concatenate([p[0] for p in parts]))
-            native_ratio.append(True)
+            toks = w.split()
+            parts, all_func = [], True
+            for tok in toks:
+                if tok.lower().strip(",.!?'") in FUNCTION_WORDS and ti < len(line_clips):
+                    parts.append(line_clips[ti])          # "a" -> "uh", "the" -> "thuh" (dogal)
+                else:
+                    parts.append(native_word(tok, voice, target, max(melody, 0.7))[0])
+                    all_func = False
+                ti += 1
+            clips.append(np.concatenate(parts))
+            native_ratio.append(not all_func)  # tamamen kucuk kelimeyse perde sonradan ayarlanir
     else:
         raw_clips = line_word_clips(text, voice)
         clips, i = [], 0
@@ -235,8 +279,8 @@ def render_line(text: str, notes: list[tuple], beat: float, voice: str, melody: 
             seg_len = len(seg) / SR
             if seg_len > slot * 0.95:                        # sigmiyor: hafif hizlandir
                 tempo = min(1.6, seg_len / (slot * 0.95))
-            else:                                            # uzun nota: unluyu en fazla %35 uzat
-                tempo = 1.0 / float(np.clip(slot * 0.7 / seg_len, 1.0, 1.35))
+            else:
+                tempo = 1.0                                  # uzatma asagida 'sustain' ile (sadece unlu)
             semis = 0.0
             if is_native:      # ilk hece motorda zaten notaya yakin; sonraki heceler icin kucuk fark
                 semis = float(np.clip((midi - first_midi) * 0.7, -3, 3))
@@ -249,6 +293,7 @@ def render_line(text: str, notes: list[tuple], beat: float, voice: str, melody: 
                 y = rb3(seg, tempo, semis)
             else:
                 y = _rubberband(seg, tempo, 2 ** (semis / 12))
+            y = sustain(y, slot * LEGATO)                    # legato: notanin ~%80'ini doldur
             start = max(0.0, t_note - _vowel_onset(y))       # unlu basini vurusa hizala
             if start < prev_end:                             # oncekinin kuyrugu tasiyorsa: ERTELEME,
                 a = max(0, int(start * SR) - int(0.012 * SR))  # onceki hecenin kuyrugunu yumusakca kes
