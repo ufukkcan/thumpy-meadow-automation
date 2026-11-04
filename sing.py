@@ -334,8 +334,8 @@ class Vocoder:
         """DiffSinger mel (40-16000 Hz) -> BigVGAN mel (0-22050 Hz).
         Iki filtre bankasi da slaney (alan normalize) -> bant degeri ~ bant merkezindeki ortalama
         genlik; bu yuzden ln-degerler merkez frekanslar arasinda (mel olceginde) enterpole edilir.
-        16 kHz ustu: son degerden sessizlige (ln 1e-5) dogru dogrusal inis. DiffSinger tabani (-6)
-        sessizlige genisletilir, yoksa BigVGAN sessiz yerlerde hisirti uretir."""
+        16 kHz ustu: son degerden sessizlige (ln 1e-5) dogru dogrusal inis.
+        (Deneme 1'deki 'taban genisletme' kaldirildi: -4 altindaki tum harmonikleri eziyordu -- E13.)"""
         import librosa
         c_ds = librosa.mel_frequencies(mel.shape[1] + 2, fmin=fmin, fmax=fmax)[1:-1]
         x_ds, x_bv = librosa.hz_to_mel(c_ds), librosa.hz_to_mel(self.c_bv)
@@ -348,8 +348,6 @@ class Vocoder:
                 frac = (x_bv[hi] - x_ds[-1]) / (x_bv[-1] - x_ds[-1])
                 v[hi] = fr[-1] + (floor - fr[-1]) * frac
             out[i] = v
-        low = out < -4.0
-        out[low] = -4.0 + (out[low] + 4.0) * ((floor + 4.0) / (-6.0 + 4.0))   # [-6,-4] -> [-11.5,-4]
         return np.maximum(out, floor)
 
     def __call__(self, mel_bv: np.ndarray) -> np.ndarray:

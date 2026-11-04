@@ -1,5 +1,7 @@
 """
-VOKAL TESTI (deneme 1/3) -- hicbir yere yukleme yapmaz.
+VOKAL TESTI (deneme 2/3) -- hicbir yere yukleme yapmaz.
+Deneme 1: ritim ve perde dogru, ses kalitesi kotu; vocoder uyumu 2.1-2.4 (kok neden: mel
+'taban genisletme' harmonikleri eziyordu). Deneme 2: genisletme kaldirildi + kopya sentez olcumu.
 
 Uretir:  out/vocal_test.mp3         Twinkle (Root = normal ses) + London Bridge (Nectar = yumusak ses),
                                      muzikle birlikte
@@ -83,7 +85,7 @@ def mix(music: np.ndarray, vocal: np.ndarray) -> np.ndarray:
 
 def main() -> None:
     OUT.mkdir(exist_ok=True)
-    rep = ["== Vokal testi (deneme 1/3): DiffSinger Hanami + BigVGAN-v2 ==", sing.CREDIT]
+    rep = ["== Vokal testi (deneme 2/3): DiffSinger Hanami + BigVGAN-v2 ==", sing.CREDIT]
     samples.ensure()
     singer = sing.Singer()
     miss = sorted({w for lyr in LYRICS.values() for w in singer.missing_words(lyr)})
@@ -91,6 +93,15 @@ def main() -> None:
     if miss:
         raise SystemExit("\n".join(rep))
     voc = sing.Vocoder()
+
+    # Kopya sentez: bankadaki GERCEK kayit -> mel -> BigVGAN. Vocoder+donusumun tavanini olcer.
+    # (ToU/lisans: orijinal kayit degistirilip dagitilamaz -> sonuc SADECE sayi olarak raporlanir.)
+    import librosa
+    ref, _ = librosa.load(str(sing.ensure_voicebank() / "doremi.wav"), sr=sing.SR, mono=True)
+    ref_mel = sing.ds_mel(ref, singer.fmin, singer.fmax)
+    ref_y = voc(voc.ds_to_bigvgan(ref_mel, singer.fmin, singer.fmax))
+    rep.append(f"   Kopya sentez (gercek kayit, doremi.wav): vocoder uyumu = "
+               f"{mel_fit(ref_y, ref_mel, singer.fmin, singer.fmax):.2f}  <- vocoder+donusumun tavani")
 
     parts, dry = [], []
     for key, spk in SONGS:
@@ -116,6 +127,10 @@ def main() -> None:
                    f">50 cent: {(errs > 50).sum()}")
         rep.append(f"3) Ritim (tahmini): ortalama {mean_ms:.0f} ms, en kotu {max_ms:.0f} ms ({max_beat:.2f} vurus)")
         rep.append(f"4) Vocoder uyumu: ortalama |ln mel farki| = {fit:.2f} (0 = birebir)")
+        voiced = mel.max(axis=1) > -3.0
+        q = np.percentile(mel[voiced], [1, 10, 50, 90, 99]) if voiced.any() else [np.nan] * 5
+        rep.append(f"   Model mel dagilimi (sesli kareler) %1/%10/%50/%90/%99: "
+                   + " / ".join(f"{x:.1f}" for x in q) + f"; sessiz karelerde min {mel[~voiced].min() if (~voiced).any() else np.nan:.1f}")
         rep.append(f"5) Sure: akustik {singer.timing['acoustic_s']:.1f} sn, vocoder {voc.timing['vocoder_s']:.1f} sn "
                    f"({(singer.timing['acoustic_s'] + voc.timing['vocoder_s']) / audio_s:.2f} x gercek zaman)")
         rep.append("   Fonemler (ilk satir): " + " ".join(p for p, a, b in ph[:24]))

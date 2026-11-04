@@ -263,6 +263,15 @@ vurgu rakamı atılır. Bankanın girişleri yalnızca CMU'da olmayan kelimeler 
 **Kural:** Bir dosyanın "sözlük" olduğunu adından varsayma; keşifte giriş sayısına ve
 birkaç sıradan kelimeye bak (kural 2).
 
+### E13. Ölçmeden eklenen "iyileştirme" sesi bozdu (vokal deneme 1)
+**Hata (asistan):** DiffSinger mel'inin tabanının -6 olduğunu VARSAYIP, -4 altını sessizliğe
+genişleten bir dönüşüm ekledim. Yüksek harmonikler o aralıktaydı → ses boğuk/bozuk.
+Ölçüm (vocoder uyumu 2.1–2.4) bunu gösterdi; kullanıcı "ses kalitesi berbat" dedi.
+**Çözüm:** Genişletme kaldırıldı; rapora gerçek mel dağılımı ve kopya sentez (gerçek
+kayıt → mel → vocoder) tavan ölçümü eklendi.
+**Kural:** Sinyal zincirine "temizlik/gürültü kapısı" gibi bir adım eklemeden önce değer
+dağılımını ölç; her ara adım için kopya sentez gibi bir tavan testi koy (madde 2, 10).
+
 ---
 
 ## F. Kullanıcı ortamı kısıtları
