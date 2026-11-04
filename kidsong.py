@@ -103,8 +103,9 @@ def _glue(st: np.ndarray, thr_db: float = -20.0, ratio: float = 2.5) -> np.ndarr
     return st * gain[:, None]
 
 
-def arrange(key: str, n_lines: int, seed: int = 1) -> dict:
-    """Donus: {"audio": (n,2) stereo, "melody_stem": mono ksilofon (olcum icin),
+def arrange(key: str, n_lines: int, seed: int = 1, lead: float = 1.0) -> dict:
+    """lead: melodi enstrumanlarinin (ksilofon+glokenspiel) kazanci; vokal varken ~0.45.
+    Donus: {"audio": (n,2) stereo, "melody_stem": mono ksilofon (olcum icin),
     "note_times": [(satir, nota_index, t)], "line_starts": [...], "beat": sn, "total": sn}"""
     m = songs.MELODIES[key]
     beat = 60.0 / TEMPO.get(key, m["bpm"])
@@ -191,7 +192,7 @@ def arrange(key: str, n_lines: int, seed: int = 1) -> dict:
     # ---- miks: pan + yanki + yapistirma ----
     st = np.zeros((mix.n, 2))
     for name, (gain, pan) in LEVELS.items():
-        x = mix.bus[name] * gain
+        x = mix.bus[name] * gain * (lead if name in ("xylo", "glock") else 1.0)
         seed = sum(map(ord, name))   # sabit tohum: her calistirmada ayni yanki
         if name in TONAL:
             x = x + 0.18 * _reverb(x, seed=seed)

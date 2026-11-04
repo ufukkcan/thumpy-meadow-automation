@@ -133,5 +133,19 @@ lisans kanıtı `docs/kararlar.md`'ye eklenir.
 
 Tam SHA'lar `samples.py` içinde. Ticari marka: kaynak adları kanal tanıtımında
 "onaylıyor" izlenimi verecek şekilde kullanılmaz.
-**Seçim gerekçesi:** Ukulele (gitar yerine) — parlak, okul öncesi şarkılarının tipik
+**Seçim gerekçesi (ukulele):** Ukulele (gitar yerine) — parlak, okul öncesi şarkılarının tipik
 tınısı; kullanıcı "çocukların dikkatini en çok çekecek şekilde" dedi.
+
+### K-18 · 2026-11-04 · Vokal: Hanami akustik modeli + BigVGAN-v2 vocoder
+**Karar:** Şarkı vokali DiffSinger "Hoshino Hanami ~AI❤dol~ v1.0" (Lotte V) akustik
+modeliyle üretilir; ses dalgası NVIDIA BigVGAN-v2 44 kHz (MIT, HF rev `95a9d1d`) ile.
+**Gerekçe:** Melodiyi + sözü birebir alan, ticari kullanıma açık tek seçenek. Bankanın
+kendi vocoder'ı (AI❤dolGAN) **CC BY-NC-SA 4.0** → monetize kanalda kullanılamaz.
+**Lisans kanıtı (zip içindeki `__License/` ve repo `LotteV-Voicebank-Update-Repo` b866687):**
+voicebank "Use this voicebank for any creative purpose, even commercially", şart:
+kaynak gösterme, orijinal dosyaları yeniden dağıtmama; sözlükler MIT; logolar CC BY-NC
+(kullanılmıyor); karakter görseli ticari kullanılmaz (kullanılmıyor).
+**Şartlar:** (1) Ses bankası repoya/artifact'a asla konmaz, yalnızca actions/cache.
+(2) Vokalli her videonun açıklamasına `sing.CREDIT` satırı. (3) Zip sha256 ile sabit.
+**Risk:** Yazar 2026-07'de süresiz ara verdi; MediaFire linki kaybolabilir (cache 7 gün
+kullanılmazsa silinir). Vokal üretime girerse kalıcı saklama çözümü konuşulacak.

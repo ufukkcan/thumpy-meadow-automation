@@ -122,7 +122,11 @@ gerçek tepe -0,9 dBTP (hedef -1,0 → hedef -1,5'e çekilecek). Ksilofon örnek
       şart, orijinal dosyaları yeniden yüklemek yasak). **LICENSE-vocoder = CC BY-NC-SA 4.0
       (ticari kullanım YASAK)** → bankanın kendi vocoder'ı monetize kanalda kullanılamaz.
       Kullanıcı kararı bekleniyor.
-- [ ] 3a. Keşif (ses üretmez): ses bankasının resmi indirme adresi ve ToU metni
+- [x] 3a-sonuç (2026-11-04): keşif raporu alındı (zip sha256 91d9302c…, 550 MB, MediaFire).
+      acoustic.onnx ve pitch.onnx yalnızca ORT_DISABLE_ALL ile yükleniyor. Banka içindeki
+      vocoder de CC BY-NC-SA → BigVGAN-v2 (MIT, rev 95a9d1d) kullanılacak.
+- [~] 3b/3c. `sing.py` + `vocal_test.py` + `vocal_test.yml` yazıldı (deneme 1/3) — Actions bekleniyor
+- [x] 3a. Keşif (ses üretmez): ses bankasının resmi indirme adresi ve ToU metni
       Claude tarafından okunur; vocoder lisansı okunur. Actions'ta keşif workflow'u:
       bankayı indirir, dosya yapısını, `dsconfig.yaml`'ı, sözlüğü ve ONNX modellerin
       giriş/çıkış adlarını yazdırır. (Varsayımla kod yazılmaz — kural 2)
