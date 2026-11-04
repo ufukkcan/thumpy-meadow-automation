@@ -237,6 +237,23 @@ kaldırılır; kullanıcı açılan pencereye token'ı girer. Sonrası kayıtlı
 **Kural:** Push, yerel çalışma klasöründen değil scratchpad'deki temiz klondan yapılır
 (yerelde dal adı `master`, uzakta `main`; yerelde yüklenmemesi gereken kopya belgeler var).
 
+### E10. onnxruntime C++ içinde çökünce Python yakalayamıyor, rapor kayboluyor
+**Sorun:** `vocal_probe.py` bir DiffSinger modelini yüklerken onnxruntime 1.20.1
+`Assertion '__n < this->size()' failed` → süreç `Aborted (core dumped)`, kod 134.
+`try/except` işe yaramadı; rapor en sonda yazıldığı için hiçbir bilgi kalmadı.
+**Çözüm:** Rapor adım adım diske yazılır; model yapısı `onnx` paketiyle (çalıştırmadan)
+okunur; onnxruntime yüklemesi her model için ayrı alt süreçte denenir.
+**Kural:** Native kütüphane (onnxruntime, ffmpeg, torch) ile keşif/toplu iş yaparken
+her riskli adımı alt süreçte çalıştır ve sonucu anında diske yaz; artifact adımına
+`if: always()` koy.
+
+### E11. GitHub Actions logu public repoda bile kimlik istiyor
+**Sorun:** `actions/jobs/{id}/logs` → 403. Token'da "Actions: Read-only" yoktu.
+**Çözüm:** Token'a Actions okuma izni eklendi (kullanıcı, 2026-11-04). Log okurken token
+Credential Manager'dan `git credential fill` ile alınır (PowerShell'de girdi bir
+ASCII dosyadan `cmd /c "git credential fill < dosya"` ile verilir; boru BOM ekliyor ve
+"missing protocol field" hatası veriyor). Değer hiçbir zaman yazdırılmaz.
+
 ---
 
 ## F. Kullanıcı ortamı kısıtları

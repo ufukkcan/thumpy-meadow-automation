@@ -92,6 +92,14 @@ Format: `tarih · sistem · işlem · sonuç`
   Credential Manager'da. Kural: her push öncesi dosya listesi gösterilip onay alınır.
 - `11-04` · GitHub · Claude ilk push'u yaptı (`eff0441`, main): `samples.py`, `kidsong.py`,
   `music_test.py`, `.github/workflows/music_test.yml`, `todo.md`, `docs/kararlar.md`
+- `11-04` · GitHub Actions · Kullanıcı "Muzik molasi testi"ni çalıştırdı → başarılı,
+  kullanıcı dinledi ve onayladı
+- `11-04` · GitHub · Push `7d05e2a`: `vocal_probe.py`, `vocal_probe.yml`, `music_test.py`
+  (TP -1.5), belge güncellemeleri
+- `11-04` · GitHub Actions · "Vokal kesif" çalıştırması (run 41827925219) → **hata**:
+  onnxruntime C++ assertion, kod 134 (bkz. lessons E10)
+- `11-04` · GitHub · Kullanıcı `thumpy-claude-push` token'ına "Actions: Read-only" ekledi
+  (Claude'un hata loglarını okuyabilmesi için)
 
 ---
 

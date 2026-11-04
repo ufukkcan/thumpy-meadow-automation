@@ -10,6 +10,8 @@ artifact olarak yuklenmez, repoya konmaz. Sadece actions/cache (disariya kapali)
 """
 import hashlib
 import re
+import subprocess
+import sys
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -67,27 +69,46 @@ def main() -> None:
             rep.append(f"\n----- {p.relative_to(root)} ({len(lines)} satir) -----")
             rep += lines[:40]
 
-    rep.append("\n== ONNX MODELLER ==")
-    import onnxruntime as ort
-    for p in files:
-        if p.suffix.lower() != ".onnx":
-            continue
+    _flush(rep)   # onnx bolumunde bir sey cokse bile buraya kadarki bilgi kaybolmasin
+
+    rep.append("\n== ONNX MODELLER (onnx paketiyle dosyadan okunur -- calistirma motoru kullanilmaz) ==")
+    import onnx
+    onnx_files = [p for p in files if p.suffix.lower() == ".onnx"]
+    for p in onnx_files:
         rep.append(f"\n----- {p.relative_to(root)} -----")
         try:
-            s = ort.InferenceSession(str(p), providers=["CPUExecutionProvider"])
-            for i in s.get_inputs():
-                rep.append(f"  IN  {i.name:24s} {i.type:20s} {i.shape}")
-            for o in s.get_outputs():
-                rep.append(f"  OUT {o.name:24s} {o.type:20s} {o.shape}")
-            meta = s.get_modelmeta().custom_metadata_map
-            if meta:
-                rep.append(f"  META {meta}")
+            m = onnx.load(str(p), load_external_data=False)
+            opsets = ", ".join(f"{o.domain or 'ai.onnx'}:{o.version}" for o in m.opset_import)
+            rep.append(f"  ir={m.ir_version} opset=[{opsets}] producer={m.producer_name} {m.producer_version}")
+            inits = {i.name for i in m.graph.initializer}
+            for io, lst in (("IN ", m.graph.input), ("OUT", m.graph.output)):
+                for v in lst:
+                    if v.name in inits:
+                        continue
+                    t = v.type.tensor_type
+                    dims = [d.dim_param or d.dim_value for d in t.shape.dim]
+                    rep.append(f"  {io} {v.name:24s} {onnx.TensorProto.DataType.Name(t.elem_type):8s} {dims}")
+            if m.metadata_props:
+                rep.append(f"  META { {x.key: x.value for x in m.metadata_props} }")
         except Exception as exc:
-            rep.append(f"  ACILAMADI: {exc}")
+            rep.append(f"  OKUNAMADI: {exc}")
+        _flush(rep)
 
-    text = "\n".join(rep)
-    (OUT / "vocal_probe_report.txt").write_text(text + "\n", encoding="utf-8")
-    print(text[:20000])
+    rep.append("\n== onnxruntime yukleme testi (her model ayri surecte; cokme diger modelleri etkilemez) ==")
+    for p in onnx_files:
+        for level in ("ORT_ENABLE_ALL", "ORT_DISABLE_ALL"):
+            code = ("import onnxruntime as ort; o = ort.SessionOptions(); "
+                    f"o.graph_optimization_level = ort.GraphOptimizationLevel.{level}; "
+                    f"ort.InferenceSession({str(p)!r}, o, providers=['CPUExecutionProvider'])")
+            r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
+            msg = "OK" if r.returncode == 0 else f"HATA (kod {r.returncode}): {r.stderr.strip().splitlines()[-1][:160] if r.stderr.strip() else ''}"
+            rep.append(f"  {str(p.relative_to(root)):60s} {level:16s} {msg}")
+        _flush(rep)
+    print("\n".join(rep)[:30000])
+
+
+def _flush(rep: list[str]) -> None:
+    (OUT / "vocal_probe_report.txt").write_text("\n".join(rep) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
