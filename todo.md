@@ -128,7 +128,11 @@ gerçek tepe -0,9 dBTP (hedef -1,0 → hedef -1,5'e çekilecek). Ksilofon örnek
 - [x] 3b/3c deneme 1/3 (run 41831442626): ritim ✔ (ort. 16–28 ms), perde ✔ (ortanca 5–7 cent),
       **ses kalitesi ✘** (kullanıcı: "berbat"); vocoder uyumu 2.1–2.4. Kök neden: E13.
       Süre: akustik ~0.6x, BigVGAN ~5.5x gerçek zaman (CPU).
-- [~] Deneme 2/3: taban genişletme kaldırıldı + kopya sentez tavan ölçümü
+- [x] Deneme 2/3 (run 41834423965): vocoder uyumu 0.29–0.31 = kopya sentez tavanı (0.31);
+      perde ortanca 4–5 cent; ritim ort. 20–27 ms. Kullanıcı (vocal_test.mp3): "ritim
+      tutturması çok güzel, biraz robotik, ara sıra küçük cızırtılar".
+- [~] Deneme 3/3: Hanami'nin perde modeli (pitch.onnx, OpenUtau beslemesiyle aynı), satır
+      aralarında nefes (AP), fonem ≥2 kare, tık dedektörü. Olmazsa DUR → birlikte karar.
 - [x] 3a. Keşif (ses üretmez): ses bankasının resmi indirme adresi ve ToU metni
       Claude tarafından okunur; vocoder lisansı okunur. Actions'ta keşif workflow'u:
       bankayı indirir, dosya yapısını, `dsconfig.yaml`'ı, sözlüğü ve ONNX modellerin

@@ -134,6 +134,13 @@ class Singer:
         so = ort.SessionOptions()
         so.graph_optimization_level = ort.GraphOptimizationLevel.ORT_DISABLE_ALL   # E10: aciksa cokuyor
         self.sess = ort.InferenceSession(str(root / cfg["acoustic"]), so, providers=["CPUExecutionProvider"])
+
+        # otomatik perde (Hanami'nin kendi sarki soyleyisinden ogrenilmis): dspitch/
+        pcfg = _yaml(root / "dspitch/dsconfig.yaml")
+        self.pitch_ling = ort.InferenceSession(str(root / "dspitch" / pcfg["linguistic"]), so, providers=["CPUExecutionProvider"])
+        self.pitch_sess = ort.InferenceSession(str(root / "dspitch" / pcfg["pitch"]), so, providers=["CPUExecutionProvider"])
+        self.pitch_embs = {Path(s).name: np.fromfile(root / "dspitch" / f"{s}.emb", dtype=np.float32)
+                           for s in pcfg["speakers"]}
         self.timing = {}
 
     # ---- sozluk ----
@@ -240,14 +247,20 @@ class Singer:
                 d = co_len * self._cdur(p) / co_want if co_want else 0
                 out.append((p, t, t + d))
                 t += d
-        # siralama + bosluklari SP ile doldur
+        # siralama + bosluklar: satir aralarinda NEFES (AP), basta sessizlik + nefes
         filled, cur = [], 0.0
         for p, a, b in out:
             a = max(a, cur)
             if b <= a:
                 continue
-            if a - cur > 1e-4:
-                filled.append(("SP", cur, a))
+            gap = a - cur
+            if gap > 1e-4:
+                if not filled and gap > 0.5:
+                    filled += [("SP", cur, a - 0.3), ("AP", a - 0.3, a)]
+                elif filled and gap >= 0.08:
+                    filled.append(("AP", cur, a))
+                else:
+                    filled.append(("SP", cur, a))
             filled.append((p, a, b))
             cur = b
         filled.append(("SP", cur, cur + 0.4))
@@ -279,14 +292,70 @@ class Singer:
                 midi[sel] += VIB_DEPTH * ramp * np.sin(2 * np.pi * VIB_RATE * tt)
         return 440.0 * 2 ** ((midi - 69) / 12)
 
-    def render_mel(self, lyrics, lines, line_starts, beat, speaker: str | None = None):
-        """Donus: (mel [frames,128] ln, f0 [frames], ph listesi, slots). Kare 0 = zaman 0."""
-        emb = self.embs[speaker or self.speaker]
+    def auto_pitch(self, tokens: np.ndarray, durs: np.ndarray, slots: list[dict], speaker: str,
+                   expr: float = 1.0, steps: int = 10) -> np.ndarray:
+        """pitch.onnx ile dogal perde egrisi (MIDI, kare basina). OpenUtau DiffSingerPitch.cs ile
+        ayni besleme: baslangic perdesi 60, retake hepsi True, expr 1.0, sus notalari komsu
+        notanin perdesiyle doldurulur."""
+        n = int(durs.sum())
+        enc = self.pitch_ling.run(["encoder_out"], {"tokens": tokens, "ph_dur": durs})[0]
+        notes = sorted((a, b, m) for s in slots for a, b, m in s["notes"])
+        dur_s, midi, rest = [notes[0][0]], [notes[0][2]], [True]          # bas sessizlik
+        prev_end = notes[0][0]
+        for a, b, m in notes:
+            if a - prev_end > 1e-4:
+                dur_s.append(a - prev_end); midi.append(m); rest.append(True)
+            dur_s.append(b - a); midi.append(m); rest.append(False)
+            prev_end = b
+        dur_s.append(0.0); midi.append(notes[-1][2]); rest.append(True)  # son sessizlik (kalan kareler)
+        # sus gruplari: basta -> sonraki, sonda -> onceki, ortada -> yarisi once yarisi sonra
+        i = 0
+        while i < len(rest):
+            if not rest[i]:
+                i += 1
+                continue
+            j = i
+            while j < len(rest) and rest[j]:
+                j += 1
+            if i == 0 and j < len(rest):
+                midi[i:j] = [midi[j]] * (j - i)
+            elif j == len(rest):
+                midi[i:j] = [midi[i - 1]] * (j - i)
+            else:
+                mid = (i + j + 1) // 2
+                midi[i:mid] = [midi[i - 1]] * (mid - i)
+                midi[mid:j] = [midi[j]] * (j - mid)
+            i = j
+        edges = np.round(np.cumsum([0.0] + dur_s) * SR / HOP).astype(int)
+        nd = np.maximum(np.diff(edges), 0)
+        nd[-1] = max(0, n - int(nd[:-1].sum()))                           # FitDurationSum
+        if nd.sum() != n:
+            raise RuntimeError(f"nota kareleri {nd.sum()} != fonem kareleri {n}")
+        feeds = {
+            "encoder_out": enc, "ph_dur": durs,
+            "note_midi": np.array([midi], np.float32), "note_rest": np.array([rest], bool),
+            "note_dur": np.array([nd], np.int64),
+            "pitch": np.full((1, n), 60.0, np.float32), "expr": np.full((1, n), expr, np.float32),
+            "retake": np.ones((1, n), bool),
+            "spk_embed": np.tile(self.pitch_embs[speaker], (1, n, 1)).astype(np.float32),
+            "steps": np.array(steps, np.int64),
+        }
+        t = time.time()
+        out = self.pitch_sess.run(["pitch_pred"], feeds)[0][0]
+        self.timing["pitch_s"] = time.time() - t
+        return out
+
+    def render_mel(self, lyrics, lines, line_starts, beat, speaker: str | None = None,
+                   natural_pitch: bool = True):
+        """Donus: (mel [frames,128] ln, f0 [frames], ph listesi, slots). Kare 0 = zaman 0.
+        natural_pitch: perde Hanami'nin perde modelinden (True) ya da notalardan cizilir (False)."""
+        speaker = speaker or self.speaker
+        emb = self.embs[speaker]
         slots = self.score(lyrics, lines, line_starts, beat)
         ph, on_starts = self.phones(slots)
         bounds = [int(round(a * SR / HOP)) for _, a, _ in ph] + [int(round(ph[-1][2] * SR / HOP))]
         for i in range(1, len(bounds)):
-            bounds[i] = max(bounds[i], bounds[i - 1] + 1)
+            bounds[i] = max(bounds[i], bounds[i - 1] + 2)   # her fonem en az 2 kare (~23 ms): tik sesi olmasin
         tokens = np.array([[self.tok[p] for p, _, _ in ph]], dtype=np.int64)
         durs = np.array([np.diff(bounds)], dtype=np.int64)
         lead = bounds[0]                          # ilk fonemden onceki kareler (SP ile)
@@ -294,7 +363,11 @@ class Singer:
             tokens = np.concatenate([[[self.tok["SP"]]], tokens], axis=1)
             durs = np.concatenate([[[lead]], durs], axis=1)
         n = int(durs.sum())
-        f0 =self.f0_curve(slots, n, on_starts).astype(np.float32)
+        if natural_pitch:
+            midi = self.auto_pitch(tokens, durs, slots, speaker)
+            f0 = (440.0 * 2 ** ((midi - 69) / 12)).astype(np.float32)
+        else:
+            f0 = self.f0_curve(slots, n, on_starts).astype(np.float32)
         feeds = {
             "tokens": tokens, "durations": durs, "f0": f0[None, :],
             "gender": np.zeros((1, n), np.float32), "velocity": np.ones((1, n), np.float32),
