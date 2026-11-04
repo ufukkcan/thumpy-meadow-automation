@@ -40,7 +40,11 @@ VB_NAME = "Hoshino Hanami ~AIdol~ for DiffSinger v1.0"
 BIGVGAN_REPO = "nvidia/bigvgan_v2_44khz_128band_512x"
 BIGVGAN_REV = "95a9d1dcb12906c03edd938d77b9333d6ded7dfb"
 
-CREDIT = "Singing voice: Hoshino Hanami ~AI-dol~ by Lotte V (lottev.moe); vocoder: NVIDIA BigVGAN (MIT)"
+# Ingilizce telaffuz: CMU Pronouncing Dictionary (BSD lisansi), sabit surum. OpenUtau'nun
+# Ingilizce fonemleyicisi de bunu kullanir; bankanin dsdict-en.yaml'i sadece ek girisler icerir.
+CMUDICT_URL = "https://raw.githubusercontent.com/cmusphinx/cmudict/74790861f652b15e4ac49015a90074ad62a27690/cmudict.dict"
+
+CREDIT ="Singing voice: Hoshino Hanami ~AI-dol~ by Lotte V (lottev.moe); vocoder: NVIDIA BigVGAN (MIT)"
 
 # unsuz sureleri (sn), dsdict 'type' alanina gore
 CONS_DUR = {"stop": 0.055, "affricate": 0.08, "fricative": 0.085, "nasal": 0.065, "liquid": 0.055,
@@ -73,6 +77,27 @@ def ensure_voicebank() -> Path:
     return root
 
 
+def _load_cmudict() -> dict[str, list[str]]:
+    """'word  AH0 B AW1 T' -> {'word': ['ah','b','aw','t']} (vurgu rakamlari atilir, ilk telaffuz)."""
+    path = VB_DIR / "cmudict.dict"
+    if not path.exists():
+        VB_DIR.mkdir(exist_ok=True)
+        with urllib.request.urlopen(CMUDICT_URL, timeout=60) as r:
+            path.write_bytes(r.read())
+    out = {}
+    for line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        line = line.split("#")[0].strip()
+        if not line:
+            continue
+        word, *ph = line.split()
+        if "(" in word or word in out:      # 'word(2)' gibi alternatif telaffuzlar atlanir
+            continue
+        out[word] = [re.sub(r"\d", "", p).lower() for p in ph]
+    if len(out) < 100_000:
+        raise RuntimeError(f"CMU sozlugu eksik yuklendi ({len(out)} kelime).")
+    return out
+
+
 def _yaml(path: Path):
     import yaml
     loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
@@ -96,8 +121,7 @@ class Singer:
         d = _yaml(root / "dsdur/dsdict-en.yaml")
         self.types = {str(s["symbol"]): str(s["type"]) for s in d["symbols"]}
         self.lex = {str(e["grapheme"]).lower(): [str(p) for p in e["phonemes"]] for e in d.get("entries", [])}
-        if not self.lex:
-            raise RuntimeError("dsdict-en.yaml icinde 'entries' bulunamadi; anahtarlar: " + ", ".join(d.keys()))
+        self.cmu = _load_cmudict()
 
         # ses modlari: Root (normal), Fragrance (guclu), Nectar (yumusak)
         self.embs = {}
@@ -115,8 +139,11 @@ class Singer:
     # ---- sozluk ----
     def lookup(self, word: str) -> list[str]:
         w = re.sub(r"[^a-z']", "", word.lower().replace("’", "'"))
+        for cand in (w, w.strip("'")):
+            if cand in self.cmu:          # once CMU sozlugu (standart Ingilizce telaffuz)
+                return self.cmu[cand]
         for cand in (w, w.strip("'"), w.replace("'", "")):
-            if cand in self.lex:
+            if cand in self.lex:          # yoksa bankanin ek girisleri (isimler, ozel kelimeler)
                 return self.lex[cand]
         raise KeyError(word)
 

@@ -254,6 +254,15 @@ Credential Manager'dan `git credential fill` ile alınır (PowerShell'de girdi b
 ASCII dosyadan `cmd /c "git credential fill < dosya"` ile verilir; boru BOM ekliyor ve
 "missing protocol field" hatası veriyor). Değer hiçbir zaman yazdırılmaz.
 
+### E12. DiffSinger ses bankasının `dsdict-en.yaml`'ı tam sözlük değil
+**Sorun:** "the", "a", "apple" dahil neredeyse hiçbir kelime bulunamadı. Dosya yalnızca
+ek girişler içeriyor (isimler, semboller, sayılar); OpenUtau İngilizce telaffuzu kendi
+CMUdict tabanlı G2P'siyle yapıyor.
+**Çözüm:** CMU Pronouncing Dictionary (BSD, sabit commit) + ARPAbet → küçük harf,
+vurgu rakamı atılır. Bankanın girişleri yalnızca CMU'da olmayan kelimeler için.
+**Kural:** Bir dosyanın "sözlük" olduğunu adından varsayma; keşifte giriş sayısına ve
+birkaç sıradan kelimeye bak (kural 2).
+
 ---
 
 ## F. Kullanıcı ortamı kısıtları
