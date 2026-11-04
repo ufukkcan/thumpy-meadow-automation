@@ -1,0 +1,33 @@
+name: Muzik molasi testi (CC0 enstrumanlar)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  music-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - name: Bagimliliklari kur
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          pip install -r requirements.txt
+      - name: CC0 ses orneklerini onbellekten al
+        uses: actions/cache@v4
+        with:
+          path: sample_cache
+          key: cc0-samples-${{ hashFiles('samples.py') }}
+      - name: Muzigi uret ve olc
+        run: python music_test.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: muzik-testi
+          path: |
+            out/music_test.mp3
+            out/music_test_report.txt

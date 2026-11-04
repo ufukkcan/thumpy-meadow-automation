@@ -108,3 +108,30 @@ sesinde metalik tını bırakıyor. R3 ("finer") belirgin şekilde temiz.
 **Gerekçe:** Müzik molası vokalinde 7 versiyon denendi, hâlâ çözülmedi. Erken durup
 alternatifleri (sözsüz dans molası, elle kaydedilmiş şarkılar, ücretli servis)
 değerlendirmek daha verimli olurdu.
+
+### K-16 · 2026-11-04 · Vokal: edge-tts ile şarkı yolu kapatıldı, açık kaynak model araştırılacak
+**Karar:** edge-tts konuşmasını şarkıya çevirme denemeleri (A–G) sonlandırıldı.
+Açık kaynak şarkı söyleyen modeller araştırılacak (önce sadece rapor).
+**Gerekçe:** 7 deneme sonrası kullanıcı hem yayındaki molayı hem şarkı testini
+beğenmedi (ritim, melodi, ses kalitesi, vokal). Kural 8 (K-15).
+**Seçilmeyenler:** tezahürat+dans, insan sesiyle kayıt, vokalsiz.
+
+### K-17 · 2026-11-04 · Enstrüman sesi: CC0 örnek ses paketi
+**Karar:** Saf sinüs sentezi yerine kamu malı (CC0) kayıtlı enstrüman sesleri.
+**Gerekçe:** Kullanıcı ses kalitesini beğenmedi; sinüs dalgası ince/elektronik
+duyuluyor. "Her şey kodla sıfırdan" ilkesinden bilinçli sapma (kullanıcı onayı).
+**Şart:** Her paketin lisans sayfası doğrulanır; CC0 olmayan (CC-BY dahil) kullanılmaz,
+lisans kanıtı `docs/kararlar.md`'ye eklenir.
+**Lisans kanıtı (2026-11-04, her reponun `LICENSE` dosyası okundu: "CC0 1.0 Universal"):**
+
+| Kaynak | Commit (sabit) | Kullanılan |
+|---|---|---|
+| `github.com/sgossner/VCSL` | `c1ea7bcc3c73…` | ksilofon, glokenspiel, el çırpma, trampet, shaker, tef, zil ağacı, düdük, flexatone |
+| `github.com/freepats/ukulele1` | `86d345f6f7b7…` | ukulele (13 nota) |
+| `github.com/sfzinstruments/dsmolken.double-bass` | `c2985eb647109…` | kontrbas pizzicato |
+| `github.com/sfzinstruments/karoryfer.big-rusty-drums` | `f07ce00df34a…` | kick |
+
+Tam SHA'lar `samples.py` içinde. Ticari marka: kaynak adları kanal tanıtımında
+"onaylıyor" izlenimi verecek şekilde kullanılmaz.
+**Seçim gerekçesi:** Ukulele (gitar yerine) — parlak, okul öncesi şarkılarının tipik
+tınısı; kullanıcı "çocukların dikkatini en çok çekecek şekilde" dedi.

@@ -83,10 +83,40 @@
 - [x] Legato + küçük kelimeler (G) — sorun sürüyor
 - [x] Cızırtı kaynakları giderildi (yumuşak geçişler, davul yumuşatma, R3 motoru)
 - [x] Hece hizalaması ölçülerek doğrulandı (sapma ≤0,05 vuruş)
-- [ ] **SIRADAKİ:** Cümleyi bütün söylet + kelimeyi bölme (`SPLIT_SYLLABLES=False`) testi
-- [ ] Karar: yeterliyse sisteme bağla, değilse alternatiflerden birine geç
+- [-] ~~`SPLIT_SYLLABLES=False` testi~~ — İPTAL (2026-11-04): bu değişiklik repoda yok,
+      ayrıca kural 8 gereği edge-tts ile şarkı yolu kapatıldı (bkz. K-16)
+
+### 6b. Yeni plan (2026-11-04) — kullanıcı: "kalite, ritim, melodi, vokal hepsi kötü"
+
+Tespit (koddan): üretimdeki mola `music.music_break_track` kullanıyor — rastgele
+pentatonik melodi (K-12 kararı üretime hiç bağlanmamış), kelimeler 6 vuruşa eşit
+bölündüğü için notalar vuruş ızgarasına oturmuyor (`music.py:106`), davul yok,
+enstrümanlar saf sinüs, mastering yok (sadece tepe normalizasyonu).
+
+**Adım 1 — Araştırma (kod yok, sadece rapor)**
+- [x] 1a. Açık kaynak şarkı modelleri: aday listesi; her biri için ticari kullanım
+      lisansı, İngilizce kalite, söz+melodi kontrolü, GitHub Actions CPU'da süre/RAM
+- [x] 1b. CC0 enstrüman ses paketleri: aday listesi; lisans sayfası tek tek doğrulanır
+      (CC0 değilse elenir), boyut, enstrüman çeşitliliği
+- [ ] 1c. Rapor + birlikte seçim
+
+**Adım 2 — Enstrümantal mola (vokalden bağımsız)**
+- [~] 2-test. `samples.py` + `kidsong.py` + `music_test.py` + `music_test.yml` yazıldı
+      (2026-11-04). Yerelde çalıştırılmadı (kurumsal kısıt); GitHub Actions sonucu bekleniyor.
+- [ ] 2a. Kamu malı melodiler (`songs.py`) üretime bağlanır; her nota vuruş ızgarasında
+- [ ] 2b. Claude prompt'u: her satır için hece sayısı melodiye göre verilir
+- [ ] 2c. Seçilen CC0 seslerle düzenleme (davul grubu, bas, akor, melodi enstrümanı)
+- [ ] 2d. Mastering: kompresör + limiter + hedef ses yüksekliği (LUFS ölçülür)
+- [ ] 2e. Karaoke zamanlaması nota ızgarasından alınır
+- [ ] 2f. Kanıt: 1 dk örnek; nota başlangıçlarının ızgaradan sapması ölçülür, LUFS
+      ölçülür, kullanıcı dinler (hangi dosyayı dinlediği yazılır)
+
+**Adım 3 — Vokal (Adım 1a sonucuna göre ayrıca planlanır)**
+- [ ] 3a. Seçilen modelle tek melodilik deneme (GitHub Actions)
+- [ ] 3b. En fazla 3 deneme; olmazsa dur, birlikte karar (kural 8)
+
+**Sonra**
 - [ ] Müzik molası görselini zenginleştir (objeler dans etsin, sadece yazı+Dino olmasın)
-- [ ] Onaylanan yöntemi `episode.py`/`produce.py` içine entegre et
 
 ## 7. İzlenme süresi — SIRADA (hiçbiri yapılmadı)
 
@@ -110,6 +140,8 @@
 
 - [ ] **Sohbette paylaşılan tüm anahtarları yenile** (Claude API, Telegram bot token,
       Google client secret, refresh token) ve GitHub Secrets'ı güncelle
+- [ ] GitHub fine-grained token `thumpy-claude-push` yenile (2026-11-04'te 1 yıllık
+      oluşturuldu; yalnızca bu repo, Contents+Workflows yazma; Windows Credential Manager'da)
 - [ ] `astrologicalshorts` refresh token'ının doğru kanala ait olduğunu doğrula
       (`yt_oauth_exchange.py`'nin kanal yazdıran sürümüyle)
 - [ ] Deneysel dosyaları temizle (karar verilince: `singer.py`, `sing_test.py`,
@@ -162,3 +194,22 @@ Temmuz: 13:00 ABD = 20:00 TR).
 dört farklı satırda hedef vuruşlardan sapma 0,01–0,05 vuruş çıktı. Hece bölme
 ("banana" → 3 parça) ve legato sonrası hizanın bozulmadığı ayrıca doğrulandı.
 **Açık kalan:** Ses kalitesi ve anlaşılırlık (bkz. bölüm 6).
+
+### Müzik molası araştırması (Adım 1a/1b) — 2026-11-04
+**Sonuç (şarkı modeli):** Melodiyi (MIDI) + sözü birebir alan, ticari kullanıma açık tek
+aday: **DiffSinger (Apache-2.0) + "Hanami Hoshino" İngilizce ses bankası** (Lotte V).
+ToU: "allowed to use the voice ... in both commercial and noncommercial projects",
+"Please credit me (Lotte V)" — github.com/lottev1991/LotteV-Voicebank-Update-Repo.
+Yedek: SoulX-Singer (Apache-2.0, 2026-02) ama ticari hakkı temiz referans ses gerekiyor.
+Elenenler: ACE-Step (MIT, ama verilen melodiyi takip edemiyor), YuE / MuLaCover
+(CC BY-NC), DiffRhythm/HeartMuLa (melodi girdisi yok + GPU).
+**Belirsiz (ölçülmedi):** GitHub Actions CPU süresi; OpenUtau olmadan İngilizce
+komut satırı yolu kanıtlanmamış; vocoder lisansı (`LICENSE-vocoder`) okunamadı.
+**Sonuç (CC0 sesler):** VCSL (github.com/sgossner/VCSL, LICENSE CC0 1.0): glokenspiel,
+ksilofon, marimba, piyano, davul, el çırpma, shaker, tef, blok flüt. Bas:
+sfzinstruments/dsmolken.double-bass (CC0). Ukulele: freepats/ukulele1 (CC0, ama repo
+2026-08'de açılmış, tek katkıcı — orta risk; alternatif FreePats klasik gitar, CC0).
+Elenen: Salamander (CC-BY), GeneralUser GS, FluidR3 (MIT), Philharmonia, 99Sounds,
+Sonatina, Iowa MIS. Celesta/müzik kutusu için CC0 kaynak bulunamadı.
+**Kanıt:** Lisanslar ajanlar tarafından birincil kaynaktan (GitHub LICENSE/README)
+okundu; bağlantılar yukarıda. Ses kalitesi henüz dinlenmedi.
