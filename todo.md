@@ -111,9 +111,30 @@ enstrümanlar saf sinüs, mastering yok (sadece tepe normalizasyonu).
 - [ ] 2f. Kanıt: 1 dk örnek; nota başlangıçlarının ızgaradan sapması ölçülür, LUFS
       ölçülür, kullanıcı dinler (hangi dosyayı dinlediği yazılır)
 
-**Adım 3 — Vokal (Adım 1a sonucuna göre ayrıca planlanır)**
-- [ ] 3a. Seçilen modelle tek melodilik deneme (GitHub Actions)
-- [ ] 3b. En fazla 3 deneme; olmazsa dur, birlikte karar (kural 8)
+**Adım 2 sonucu (2026-11-04):** Kullanıcı dinledi: "gayet güzel olmuş".
+Ölçüm: ritim sapması ort. 2,0–2,3 ms, en kötü 6,7 ms (0,013 vuruş); -14,3 LUFS;
+gerçek tepe -0,9 dBTP (hedef -1,0 → hedef -1,5'e çekilecek). Ksilofon örnekleri adından
+1 oktav yüksek (tutarlı, akort sorunu yok).
+
+**Adım 3 — Vokal: DiffSinger + Hanami Hoshino (İngilizce, Lotte V)**
+- [!] 3a-bulgu (2026-11-04): `lottev1991/LotteV-Voicebank-Update-Repo` (commit b866687)
+      okundu. ToU ve LICENSE-voicebank ticari kullanıma izin veriyor (kaynak gösterme
+      şart, orijinal dosyaları yeniden yüklemek yasak). **LICENSE-vocoder = CC BY-NC-SA 4.0
+      (ticari kullanım YASAK)** → bankanın kendi vocoder'ı monetize kanalda kullanılamaz.
+      Kullanıcı kararı bekleniyor.
+- [ ] 3a. Keşif (ses üretmez): ses bankasının resmi indirme adresi ve ToU metni
+      Claude tarafından okunur; vocoder lisansı okunur. Actions'ta keşif workflow'u:
+      bankayı indirir, dosya yapısını, `dsconfig.yaml`'ı, sözlüğü ve ONNX modellerin
+      giriş/çıkış adlarını yazdırır. (Varsayımla kod yazılmaz — kural 2)
+- [ ] 3b. `sing.py`: söz → fonem (bankanın İngilizce sözlüğü) → süreler bizim nota
+      ızgarasına (ünlü başı vuruşta, ünsüz vuruştan önce) → perde notalardan (yumuşak
+      geçiş + hafif vibrato) → akustik model → vocoder. onnxruntime, sadece CPU.
+- [ ] 3c. `music_test.py`'ye vokal: Twinkle + London Bridge (mevcut özgün sözlerle),
+      vokal varken müzik hafif kısılır. Ölçüm: hece başlarının vuruştan sapması,
+      perde doğruluğu (cent), süre, LUFS. Kullanıcı dinler.
+- [ ] 3d. En fazla 3 deneme; olmazsa dur, birlikte karar (kural 8)
+- [ ] 3e. Onaylanırsa üretime bağlama (ayrı plan) + açıklamaya "Voice: Hanami Hoshino
+      by Lotte V" kaynak satırı
 
 **Sonra**
 - [ ] Müzik molası görselini zenginleştir (objeler dans etsin, sadece yazı+Dino olmasın)

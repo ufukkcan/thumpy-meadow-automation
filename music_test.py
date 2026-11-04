@@ -20,7 +20,7 @@ import samples
 
 OUT = Path("out")
 SONGS = [("twinkle", 6), ("london", 4)]
-TARGET_LUFS, TARGET_TP = -14.0, -1.0
+TARGET_LUFS, TARGET_TP = -14.0, -1.5   # -1.5: mp3 kodlamasi tepeyi ~0.1-0.4 dB tasirabiliyor
 
 
 def write_wav_stereo(path: Path, x: np.ndarray) -> None:

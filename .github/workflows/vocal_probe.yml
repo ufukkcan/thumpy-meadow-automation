@@ -1,0 +1,27 @@
+name: Vokal kesif (Hanami ses bankasi yapisi)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Bagimliliklari kur
+        run: pip install onnxruntime==1.20.1
+      - name: Ses bankasini onbellekten al (ASLA artifact yapilmaz -- ToU)
+        uses: actions/cache@v4
+        with:
+          path: voicebank_cache/hanami_v1.0.zip
+          key: hanami-diffsinger-v1.0
+      - name: Kesif
+        run: python vocal_probe.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vokal-kesif-raporu
+          path: out/vocal_probe_report.txt

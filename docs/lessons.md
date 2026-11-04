@@ -229,6 +229,16 @@ hesaba bağlı (linked) anahtar değil.
 
 ---
 
+### E9. Claude Code oturumunda git push kimlik penceresi açılmıyor
+**Sorun:** `fatal: Cannot prompt because user interactivity has been disabled`.
+Oturum `GCM_INTERACTIVE=never` ve `GIT_TERMINAL_PROMPT=0` ile başlıyor.
+**Çözüm:** İlk push'ta yalnızca o komut için `GCM_INTERACTIVE=always` + `GIT_ASKPASS`
+kaldırılır; kullanıcı açılan pencereye token'ı girer. Sonrası kayıtlı, pencere açılmaz.
+**Kural:** Push, yerel çalışma klasöründen değil scratchpad'deki temiz klondan yapılır
+(yerelde dal adı `master`, uzakta `main`; yerelde yüklenmemesi gereken kopya belgeler var).
+
+---
+
 ## F. Kullanıcı ortamı kısıtları
 
 ### F1. İş bilgisayarı script çalıştırmayı engelliyor

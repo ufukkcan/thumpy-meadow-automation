@@ -87,6 +87,11 @@ Format: `tarih · sistem · işlem · sonuç`
   - 3. deneme → başarılı, E/F versiyonları üretildi
   - 4. deneme → başarılı, G versiyonu üretildi
 - `11-03` · GitHub Actions · `rubberband-cli` sistem paketi workflow'a eklendi
+- `11-04` · GitHub · Kullanıcı fine-grained token `thumpy-claude-push` oluşturdu
+  (yalnızca bu repo, Contents + Workflows yazma, 1 yıl). Değer yalnızca Windows
+  Credential Manager'da. Kural: her push öncesi dosya listesi gösterilip onay alınır.
+- `11-04` · GitHub · Claude ilk push'u yaptı (`eff0441`, main): `samples.py`, `kidsong.py`,
+  `music_test.py`, `.github/workflows/music_test.yml`, `todo.md`, `docs/kararlar.md`
 
 ---
 
