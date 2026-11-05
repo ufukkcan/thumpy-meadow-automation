@@ -272,6 +272,12 @@ kayıt → mel → vocoder) tavan ölçümü eklendi.
 **Kural:** Sinyal zincirine "temizlik/gürültü kapısı" gibi bir adım eklemeden önce değer
 dağılımını ölç; her ara adım için kopya sentez gibi bir tavan testi koy (madde 2, 10).
 
+### E14. Yerel kopyalar CRLF, repo LF → tüm dosya "değişmiş" görünüyor
+**Sorun:** Proje klasöründeki eski dosyalar (episode.py vb.) Windows'ta CRLF; repoda LF.
+Scratchpad klonuna kopyalayınca 3 satırlık değişiklik 277 satır göründü.
+**Çözüm/Kural:** Push öncesi `git diff --cached --numstat` mutlaka kontrol; CRLF içeren
+dosyalar LF'ye çevrilip yeniden eklenir (BOM'suz UTF-8).
+
 ---
 
 ## F. Kullanıcı ortamı kısıtları

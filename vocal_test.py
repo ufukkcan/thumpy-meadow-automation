@@ -26,6 +26,7 @@ import music_test
 import samples
 import sing
 import songs
+import vocal_break
 
 OUT = Path("out")
 LYRICS = {   # ozgun sozler (sing_test.py'den); hece sayilari melodiye uyar
@@ -98,19 +99,6 @@ def mel_fit(y: np.ndarray, mel: np.ndarray, fmin: float, fmax: float) -> float:
     return best
 
 
-def mix(music: np.ndarray, vocal: np.ndarray) -> np.ndarray:
-    """Vokal: hafif yanki, muzigin ~4 dB ustunde; vokal varken muzik ~3 dB kisilir."""
-    vocal = vocal + 0.15 * kidsong._reverb(vocal, 0.9, seed=7)
-    env = np.convolve(np.abs(vocal), np.ones(2205) / 2205, mode="same")
-    active = env > 0.1 * env.max()
-    m_rms = np.sqrt(np.mean(music[active] ** 2)) or 1e-6
-    v_rms = np.sqrt(np.mean(vocal[active] ** 2)) or 1e-6
-    vocal = vocal * (m_rms / v_rms) * 10 ** (4 / 20)
-    duck = 1 - (1 - 10 ** (-3 / 20)) * np.clip(env / (0.1 * env.max()), 0, 1)
-    duck = np.convolve(duck, np.ones(4410) / 4410, mode="same")
-    return music * duck[:, None] + vocal[:, None] * np.array([0.71, 0.71])
-
-
 def main() -> None:
     OUT.mkdir(exist_ok=True)
     rep = ["== Vokal testi (deneme 3/3): DiffSinger Hanami + BigVGAN-v2, dogal perde ==", sing.CREDIT]
@@ -172,7 +160,7 @@ def main() -> None:
             rep.append("   muzik: " + ", ".join(f"{t:.2f}sn +{d:.0f}dB" for t, d in cm[:15]))
         (OUT / "vocal_test_report.txt").write_text("\n".join(rep) + "\n", encoding="utf-8")
 
-        parts += [mix(song["audio"], y), np.zeros((samples.SR, 2))]
+        parts += [vocal_break.mix(song["audio"], y), np.zeros((samples.SR, 2))]
         dry += [y / (np.max(np.abs(y)) or 1.0) * 0.5, np.zeros(samples.SR)]
 
     music_test.write_wav_stereo(OUT / "vocal_test.wav", np.concatenate(parts))

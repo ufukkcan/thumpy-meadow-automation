@@ -7,6 +7,21 @@ Tarihler sohbetin geçtiği günlere göredir.
 
 ---
 
+## 2026-11-04 — Yeni müzik molası: CC0 enstrümanlar + Hanami vokali (test, onaylı)
+
+- **Enstrümantal** (`samples.py`, `kidsong.py`, `music_test.yml`): CC0 kayıtlar (VCSL,
+  FreePats ukulele, D. Smolken kontrbas, Karoryfer kick; commit'e sabit), kamu malı
+  melodiler vuruş ızgarasında, ukulele tarama, el çırpma, "ta-da" girişi, durma + düdük,
+  yankı/kompresör, -14 LUFS. Ölçüm: ritim sapması ort. ~2 ms. Kullanıcı: "gayet güzel".
+- **Vokal** (`sing.py`, `vocal_test.yml`): DiffSinger "Hoshino Hanami ~AI❤dol~ v1.0"
+  (Lotte V) akustik + perde modeli, CMU sözlüğü, BigVGAN-v2 vocoder (bankanın vocoder'ı
+  CC BY-NC-SA olduğu için). 3 deneme: (1) mel dönüşüm hatası → kalite kötü, (2) düzeltildi,
+  "biraz robotik", (3) doğal perde modeli + nefes → kullanıcı: "süper olmuş".
+- Kararlar K-16/K-17/K-18; dersler E9–E13.
+- GitHub: fine-grained token `thumpy-claude-push` (Contents/Workflows yazma, Actions okuma).
+- Üretime bağlama ertelendi (todo 6c).
+
+---
 ## 2026-11-02 — Kanal kuruldu, sistem yazıldı, ilk video yayınlandı
 
 ### Araştırma ve stil kararı

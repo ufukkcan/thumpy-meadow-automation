@@ -102,11 +102,13 @@ def count_syllables(word: str) -> int:
     return max(1, n)
 
 
-def map_words_to_notes(line_text: str, notes: list[tuple]) -> list[tuple[str, list[tuple]]]:
+def map_words_to_notes(line_text: str, notes: list[tuple], counter=None) -> list[tuple[str, list[tuple]]]:
     """Her kelimeye hece sayisi kadar nota atar. Hece < nota ise son kelime uzar,
-    hece > nota ise fazla heceler son notalara sikistirilir."""
+    hece > nota ise fazla heceler son notalara sikistirilir.
+    counter: kelime -> hece sayisi (varsayilan: kural tabanli count_syllables; vokalde CMU sozlugu)."""
+    counter = counter or count_syllables
     words = [w for w in line_text.split() if re.search(r"[A-Za-z]", w)]
-    counts = [count_syllables(w) for w in words]
+    counts = [counter(w) for w in words]
     total = sum(counts)
     if total > len(notes):  # fazlaliklari sondan kirp
         overflow = total - len(notes)

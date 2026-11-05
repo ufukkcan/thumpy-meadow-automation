@@ -31,8 +31,10 @@ Geri kalanı okuma. `INDEX.md` hangi soru için hangi dosyanın açılacağını
 
 ## Hızlı bağlam
 
-**Durum:** Çalışıyor. 1 video üretildi ve yayınlandı. Şu an müzik molası vokal
-kalitesi üzerinde çalışılıyor.
+**Durum (2026-11-04):** Çalışıyor. 2 video yayınlandı (`WIEorW7zW10`, `H9epa9bfhhI`).
+Yeni müzik molası (CC0 enstrümanlar + Hanami DiffSinger vokali + BigVGAN) testte
+**kullanıcı onaylı**, henüz üretime BAĞLI DEĞİL → sıradaki iş `todo.md` 6c (U1–U8).
+Claude artık scratchpad klonundan push yapabiliyor (her push öncesi kullanıcı onayı).
 
 **Kimlikler**
 - Kanal: `@ThumpyMeadow` · `UC9_bFi-Pyp8hTlclZYkcz-Q` · made for kids · doğrulanmış

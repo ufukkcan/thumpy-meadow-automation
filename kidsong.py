@@ -103,6 +103,14 @@ def _glue(st: np.ndarray, thr_db: float = -20.0, ratio: float = 2.5) -> np.ndarr
     return st * gain[:, None]
 
 
+def timing(key: str, n_lines: int) -> tuple[float, list[float], float]:
+    """Ses uretmeden zamanlama: (vurus_sn, satir_baslangiclari, ses_uzunlugu_sn). arrange() ile ayni."""
+    beat = 60.0 / TEMPO.get(key, songs.MELODIES[key]["bpm"])
+    starts = [4 * beat + li * 8 * beat for li in range(n_lines)]
+    total = 4 * beat + 8 * beat * n_lines + 4 * beat
+    return beat, starts, int((total + 1.5) * SR) / SR
+
+
 def arrange(key: str, n_lines: int, seed: int = 1, lead: float = 1.0) -> dict:
     """lead: melodi enstrumanlarinin (ksilofon+glokenspiel) kazanci; vokal varken ~0.45.
     Donus: {"audio": (n,2) stereo, "melody_stem": mono ksilofon (olcum icin),
