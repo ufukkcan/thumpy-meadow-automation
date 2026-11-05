@@ -137,6 +137,17 @@ videoları yanlış kanala yüklenecekti.
 **Açık risk:** `astrologicalshorts` token'ı bu kontrol eklenmeden alındı; kullanıcı
 "sorun yok, çalışıyor" dedi ama resmen doğrulanmadı.
 
+### C4b. ⚠️ Refresh token public repo loguna yazıldı (2026-11-05'te fark edildi)
+**Hata (asistan, önceki oturumlar):** `yt_oauth_exchange.py` refresh token'ı `print` ile loga
+yazıyordu. Repo public; kayıtlı secret olmayan değerler maskelenmez → Thumpy Meadow ve
+Interesthings token'ları (run 41448523899, 41448204357) 3 gün açıkta kaldı.
+**Çözüm:** Çalıştırmalar silindi (11-05, API ile doğrulandı). Token iptali kullanıcı kararıyla
+genel anahtar yenilemesine ertelendi; yeni token OAuth Playground ile (tarayıcıda, loga/sohbete
+düşmeden) alınacak.
+**Kural:** Public repoda bir workflow ASLA secret niteliğinde değer yazdırmaz. Zorunluysa
+önce `::add-mask::`; tercihen değer hiç workflow'a girmez. Yeni workflow yazarken loglarda
+ne göründüğünü kontrol et.
+
 ### C5. Özel küçük resim telefon doğrulaması istiyor
 **Sorun:** "The authenticated user doesn't have permissions to upload and set custom
 video thumbnails"
@@ -277,6 +288,31 @@ dağılımını ölç; her ara adım için kopya sentez gibi bir tavan testi koy
 Scratchpad klonuna kopyalayınca 3 satırlık değişiklik 277 satır göründü.
 **Çözüm/Kural:** Push öncesi `git diff --cached --numstat` mutlaka kontrol; CRLF içeren
 dosyalar LF'ye çevrilip yeniden eklenir (BOM'suz UTF-8).
+
+### E15. Ortanca tabanlı eşik, sesin dosyayı kapladığı kayıtta hiçbir şey bulmadı (2026-11-05)
+**Hata (asistan):** `animal_sounds.calls` eşiği `max(0.2·zirve, 3·ortanca)`. Koyun #2343
+1 sn ve tamamı meleme → ortanca yüksek → eşik zirveyi aştı → 0 bölge → test run
+42022806206 durdu (3 kaydı denemiştim; yeni 8 kaydı render'dan önce denemedim).
+**Çözüm:** Eşik en fazla zirvenin yarısı; hiç çağrı yoksa kaydın sesli kısmı tek çağrı.
+Test başında 11 hayvanın tamamı kesiliyor (render'dan önce).
+**Kural:** Veri kaynağına yeni öğe eklenince (yeni ses, yeni nesne) hepsini ucuz bir ön
+adımda dene; sinyal eşiklerini göreli değerlere bağlarken uç durum (sinyal = tüm dosya) düşün.
+
+### E16. Claude sahne tarifini repliğe yazdı, kanal hashtag'ini yanlış yazdı (2026-11-05)
+**Sorun:** "Hmm? Up there? Dino jumps, jumps, jumps!" (üçüncü şahıs + sahne tarifi);
+hashtag "ThumypMeadow".
+**Çözüm:** İstemde "her satır Dino'nun ağzından, sahne tarifi yok" + yanlış/doğru örneği;
+kanal hashtag'i kodla düzeltilir. **Kural:** Sabit doğru olması gereken alanı (marka adı)
+modele bırakma, kodla zorla.
+
+### E17. Claude cevabından JSON'u "ilk { – son }" ile kesmek kırılgan (2026-11-05)
+**Hata (asistan, eski koddan):** `_ask` ilk `{` ile son `}` arasını `json.loads`'a veriyordu.
+Şarkı düzeltme cevabında JSON'un arkasına açıklama/ikinci nesne gelince "Extra data" →
+show_test run 42028706502 senaryo aşamasında durdu (deneme 3/3, kural 8 ile durup soruldu).
+**Çözüm:** `json.JSONDecoder().raw_decode` ile ilk tam nesne; yardımcı tur (şarkı düzeltme)
+başarısız olsa da bölüm üretilir, kalan sorun onay metninde görünür.
+**Kural:** Model çıktısını ayrıştırırken "ilk tam nesne"yi al; ana akışı yardımcı bir
+iyileştirme turunun hatasına bağlama.
 
 ---
 

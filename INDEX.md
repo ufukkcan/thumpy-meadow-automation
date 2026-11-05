@@ -29,6 +29,8 @@
 | Çocuk güvenliği ve anlatım kuralları | `docs/content-rules.md` | 77 |
 | SEO ve yayın saati mantığı | `docs/seo-and-scheduling.md` | 95 |
 | Uzmanlık yol haritası | `docs/roadmap.md` | 148 |
+| Başarılı 2D çocuk kanalları ne yapıyor? | `docs/arastirma-2d-kanallar.md` | 60 |
+| Çocuklar videoda neye bağlanır? (bilimsel) | `docs/arastirma-cocuk-izleme.md` | 230 |
 
 ---
 

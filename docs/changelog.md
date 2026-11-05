@@ -7,6 +7,31 @@ Tarihler sohbetin geçtiği günlere göredir.
 
 ---
 
+## 2026-11-05 — Yeni format üretim motoru (7d): show.py + SEO + 3 thumbnail
+
+- `show.py`: Claude senaryosu → 7 bulma oyunu (gerçek CC0 hayvan sesi, soru + bekleme, büyüyen şaka,
+  kelime 3 kez, hareket), 2 hareket molası, tekrar, çerçeve finali (birthday/picnic/rainbow), sonraki
+  bölüm silueti, sabit selam/veda şarkıları, kayan dünya, zaman damgalı bölümler.
+- `animal_sounds.py`: 11 hayvan (BigSoundBank CC0). `generate_episode.py`: katalog şeması + doğrulama,
+  şarkı hece düzeltme (kelime kelime sayım, 2 tur), `localizations` es/pt/tr/id, sonraki-arkadaş sözü.
+- `thumbs.py`: 3 konsept + telefon önizlemesi; A otomatik yüklenir, A/B/C `state/thumbs/`.
+- `upload_youtube.py`: kanal doğrulaması (UC9_bFi-Pyp8hTlclZYkcz-Q, "Thumpy Meadow") + localizations.
+- Kanıt: show_test run 42029359003 — 8:08 bölüm, 14 bölüm başlığı, 73 ms/kare, üretim 24 dk.
+  Testler: 42022806206 (ses kesimi, E15), 42023322949 (başarılı, sahne birikmesi bulundu),
+  42028706502 (JSON ayrıştırma, E17).
+
+## 2026-11-05 — Pilot bölüm "Dino'nun Saklambacı" (7b, test, yükleme yok)
+
+- **Araştırma:** `docs/arastirma-2d-kanallar.md`, `docs/arastirma-cocuk-izleme.md` → "Thumpy formülü".
+- **Çizgi film stili** (`render2.py`): koyu kontur (Fluent nesnelere alfa genişletme ile bir kez),
+  Dino ifadeleri (mutlu/şaşkın/dinliyor), iri gözler, kaş, düşme + baş dönmesi, çalı + bakan gözler,
+  soru balonu (bekleme sayacı), gülen güneş, konturlu parıltı, satıra sığan yazı.
+- **Bölüm** (`pilot.py`, `pilot.yml`): selam şarkısı 0. sn → soru + bekleme → 3 hayvan saklambaç
+  (her biri farklı gag) → hareket molası → tekrar → ipucu → veda. Sert kamera kesmeleri.
+  TTS baş/son sessizliği kırpılıyor; hayvan sesleri Ana sesinin perdesiyle.
+- **Kanıt:** push `ef1968d`, run 42010325985 ilk denemede başarılı: 3:19 (198,7 sn), 69 segment,
+  71 ms/kare (12 dk ≈ 20 dk render), ses hazırlığı 364 sn. 75 karenin 14'ü gözle kontrol edildi.
+
 ## 2026-11-04 — Yeni müzik molası: CC0 enstrümanlar + Hanami vokali (test, onaylı)
 
 - **Enstrümantal** (`samples.py`, `kidsong.py`, `music_test.yml`): CC0 kayıtlar (VCSL,

@@ -149,3 +149,49 @@ kaynak gösterme, orijinal dosyaları yeniden dağıtmama; sözlükler MIT; logo
 (2) Vokalli her videonun açıklamasına `sing.CREDIT` satırı. (3) Zip sha256 ile sabit.
 **Risk:** Yazar 2026-07'de süresiz ara verdi; MediaFire linki kaybolabilir (cache 7 gün
 kullanılmazsa silinir). Vokal üretime girerse kalıcı saklama çözümü konuşulacak.
+
+---
+
+## 2026-11-05
+
+### K-19 · Görseller: Fluent Emoji Color (MIT) + kendi Dino/arka planımız, Skia motoru
+**Karar:** Nesne çizimleri Microsoft Fluent UI Emoji "Color" SVG setinden alınır
+(github.com/microsoft/fluentui-emoji, commit `1ffb34c752ecf5d402f04cfb4b392c77f57c54bc`).
+Dino, arka planlar ve efektler kodla çizilir, Fluent stiline uyumlu. Çizim motoru
+Pillow'dan Skia'ya geçirilecek (kenar yumuşatma, gölge, gradyan). K-01'in "her şey
+kodla" ilkesi nesneler için değişti; K-01'in 2D kararı geçerli.
+**Gerekçe:** Analitik (WIEorW7zW10): CTR %2,3, izleme %16; kullanıcı "tekdüze, çizimler
+basit" dedi. El çizimi kütüphane ~30 obje ve tavanı düşük; Fluent 1285 obje, tek stil,
+vektör (1080p'de net). Telif riski K-17 mantığıyla çözülü: açık, ticari kullanıma
+izin veren lisans.
+**Lisans kanıtı:** repo kök LICENSE = MIT (Copyright Microsoft), görseller için ayrı
+lisans/istisna yok (2026-11-05 kontrol). Şart: MIT metni repoda saklanır; ekranda
+kaynak gösterme gerekmez.
+**Elenenler:** Noto 3D (görsel lisansı belirsiz), Twemoji (CC-BY, her açıklamada kaynak),
+OpenMoji (CC BY-SA, share-alike), Kenney (sabit indirme adresi yok), 3D Fluent PNG
+(256 px, büyütmede bulanık).
+**Kurallar:** Maskot asla emoji olmaz (marka korunamaz). Bayraklar ve marka benzeri
+semboller kullanılmaz. "Microsoft/emoji" adı ve logosu kullanılmaz. Kullanılabilir
+objeler yine beyaz listeden (`props.validate_prop`).
+
+### K-20 · Yeni bölüm formatı: "Thumpy formülü" saklambaç, 8–10 dk (kullanıcı onayı)
+**Karar:** Üretim `show.py` motoruna geçer. Sabit ritüeller (selam/veda şarkısı), hikâye
+çerçevesi (birthday/picnic/rainbow), 6 bulma oyunu (gerçek hayvan sesi → soru + bekleme →
+büyüyen şaka → kelime 3 kez + tekrar ettirme → hareket), 2 hareket molası, tekrar, ödül,
+sonraki bölüm silueti. Beyaz liste artık katalog: `animal_sounds.SOURCES` (gerçek CC0 sesi
+olan 11 hayvan), `show.HIDES/GAGS/ACTIONS/FRAMES`, `assets.NAMES`. Claude yalnızca
+katalogdan seçer, `generate_episode.normalize_episode` doğrular. Senaryo onayı aynen korunur.
+**Gerekçe:** `docs/arastirma-cocuk-izleme.md` (anlama, tekrar, katılım, karakter, müzik);
+kullanıcı pilotu (2 tur) onayladı; süre seçimi kullanıcıdan (8–10 dk).
+**Risk:** Tek oyun kalıbı → zamanla "inauthentic/repetitive" riski. Önlem: çerçeve, hayvan,
+şaka, şarkı sözleri her bölümde değişir; sonraki adım yeni oyun kalıpları (renk, sayı).
+
+### K-21 · Küçük resim: 3 konsept, A otomatik; B/C sıralı test (izin bekliyor)
+**Karar:** `thumbs.py` aynı motorla 3 konsept üretir (sürpriz / arkadaşlar / merak). A
+`thumbnails.set` ile yüklenir; A/B/C `state/thumbs/`'a saklanır.
+**Gerekçe:** Data API'de Test & compare yok; ayrıca YouTube made-for-kids videolarda
+Test & compare'i kapatıyor (support.google.com/youtube/answer/13861714: "You cannot use
+this feature on videos that are made for kids"). Kullanıcı sıralı otomatik testi seçti.
+CTR yalnızca Reporting API toplu raporlarında (`channel_reach_basic_a1`,
+`video_thumbnail_impressions(_ctr)`, 2026-01-15) → `yt-analytics.readonly` izinli yeni token
+gerekir (anahtar yenilemesiyle birlikte). O gelene kadar test başlamaz (durum: waiting_scope).

@@ -101,6 +101,31 @@ Format: `tarih · sistem · işlem · sonuç`
 - `11-04` · GitHub · Kullanıcı `thumpy-claude-push` token'ına "Actions: Read-only" ekledi
   (Claude'un hata loglarını okuyabilmesi için)
 
+- `11-05` · GitHub · Push `2d4ad73` (yeni dal `vocal-integration`) → `episode_test` run 41979380747 başarılı
+- `11-05` · GitHub · Kullanıcı onayıyla `vocal-integration` → `main` birleştirildi (`fb231c2`): yeni vokalli müzik molası üretimde
+- `11-05` · GitHub Actions · **Token sızıntısı bulundu**: `yt_oauth_exchange` run 41448523899 ve
+  41448204357 loglarında refresh token maskesiz (public repo). Kullanıcı iki run'ı sildi →
+  API doğruladı: run ve log 404, kalan run 0 (bkz. lessons C4b)
+- `11-05` · Karar (kullanıcı) · Sızan token'lar **iptal edilmedi**; risk kabul edildi.
+  Genel anahtar yenilemesinde (bekleyen işlemler) birlikte yenilenecek.
+- `11-05` · GitHub · Push `52a8f68` + `7839e80` (yeni dal `visual-proto`): Skia motoru, Fluent nesneler,
+  yeni Dino. Run 41987847621 hata (libEGL eksik) → apt paketleri eklendi → run 41989750327 başarılı:
+  65 sn video, 79 ms/kare (12 dk bölüm ≈ 23 dk render)
+- `11-05` · GitHub · Kullanıcı senaryoyu ("Dino'nun Saklambacı") ve push'u onayladı → push `ef1968d`
+  (`visual-proto`): `pilot.py`, `pilot.yml`, çizgi film stili `render2.py`; `visual_proto.yml` yalnızca elle
+- `11-05` · GitHub Actions · Pilot run 42010325985 başarılı (3:19). Kullanıcı tur 1 geri bildirimi verdi
+- `11-05` · GitHub · Kullanıcı tur 2 senaryosunu ("Doğum Günü Saklambacı"), beyaz listeye cake + crown
+  eklenmesini ve push'u onayladı (7c) → push `69212e6`; run 42016648248 başarılı (3:47, 65 ms/kare)
+- `11-05` · GitHub · Kullanıcı 7d push'unu onayladı → push `40bfc43` (`visual-proto`): show.py motoru,
+  yeni Claude şeması, SEO + localizations, thumbs.py, kanal doğrulaması, show_test.yml. main'e dokunulmadı
+- `11-05` · GitHub Actions · show_test run 42022806206 hata: koyun sesinden çağrı kesilemedi (lessons E15)
+- `11-05` · GitHub · Kullanıcı düzeltme push'unu onayladı ("pushla") → push `02e0625`; run 42023322949
+  başarılı (7:23, 78 ms/kare); karelerde eski saklanma yerlerinin birikmesi bulundu
+- `11-05` · GitHub · Kullanıcı son test push'unu onayladı ("tamam yapalim") → push `7c08a98`;
+  run 42028706502 hata: Claude cevabı ayrıştırılamadı (lessons E17). Kural 8: durup soruldu
+- `11-05` · GitHub · Kullanıcı öneriyle devam etti ("önerinle devam edelim") → push `ce3410c`;
+  run 42029359003 başarılı (8:08 bölüm, 3 thumbnail)
+- `11-05` · GitHub · Kullanıcı main'e birleştirmeyi onayladı → WALK düzeltmesi + `visual-proto` → `main`
 ---
 
 ## Bekleyen işlemler
