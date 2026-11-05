@@ -108,6 +108,9 @@ Format: `tarih · sistem · işlem · sonuç`
   API doğruladı: run ve log 404, kalan run 0 (bkz. lessons C4b)
 - `11-05` · Karar (kullanıcı) · Sızan token'lar **iptal edilmedi**; risk kabul edildi.
   Genel anahtar yenilemesinde (bekleyen işlemler) birlikte yenilenecek.
+- `11-05` · GitHub · Push `52a8f68` + `7839e80` (yeni dal `visual-proto`): Skia motoru, Fluent nesneler,
+  yeni Dino. Run 41987847621 hata (libEGL eksik) → apt paketleri eklendi → run 41989750327 başarılı:
+  65 sn video, 79 ms/kare (12 dk bölüm ≈ 23 dk render)
 ---
 
 ## Bekleyen işlemler

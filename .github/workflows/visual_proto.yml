@@ -1,9 +1,7 @@
 name: Gorsel prototip (Skia + Fluent, yukleme YOK)
 
 on:
-  push:
-    branches: [visual-proto]
-  workflow_dispatch: {}
+  workflow_dispatch: {}   # prototip tamamlandi (7a); visual-proto dalina push artik pilot.yml'i tetikler
 
 jobs:
   visual-proto:

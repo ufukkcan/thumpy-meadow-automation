@@ -219,25 +219,45 @@ içeriği cezalandırıyor. Her bölüm gerçekten farklı olmalı; senaryo onay
 Amaç: yeni görünümü üretime bağlamadan önce kullanıcıya izletmek. Üretim koduna
 dokunulmaz; ayrı dosyalar + ayrı workflow, ayrı dal (`visual-proto`).
 
-- [ ] P1. `assets.py`: Fluent Color SVG'leri commit `1ffb34c` ile sabit raw URL'den
+- [x] P1. `assets.py`: Fluent Color SVG'leri commit `1ffb34c` ile sabit raw URL'den
       indir, `asset_cache/`'e önbellekle; prop adı → Fluent klasör eşlemesi; MIT metni
       `licenses/fluentui-emoji-LICENSE` olarak repoya
-- [ ] P2. `render2.py`: Skia motoru; SVG'yi bir kez rasterleştirip önbellekle; katman
+- [x] P2. `render2.py`: Skia motoru; SVG'yi bir kez rasterleştirip önbellekle; katman
       birleştirme. Skia'nın SVG desteği Fluent gradyanlarını doğru çiziyor mu, karede
       gözle kontrol (olmazsa resvg)
-- [ ] P3. Yeni Dino (Skia, gölgeli/gradyanlı, Fluent stiline uyumlu): göz kırpma,
+- [x] P3. Yeni Dino (Skia, gölgeli/gradyanlı, Fluent stiline uyumlu): göz kırpma,
       sese göre ağız hareketi, nefes salınımı, el sallama, zıplama
-- [ ] P4. Arka plan: çayır, 3 katman paralaks, yumuşak gradyan gökyüzü
-- [ ] P5. Hareket araçları: yumuşak geçişler (easing), esneyerek belirme, parıltı ve
+- [x] P4. Arka plan: çayır, 3 katman paralaks, yumuşak gradyan gökyüzü
+- [x] P5. Hareket araçları: yumuşak geçişler (easing), esneyerek belirme, parıltı ve
       konfeti parçacıkları, kamera yakınlaşma/kayma, daire geçişi
-- [ ] P6. Prototip sahnesi (~30 sn): 0. sn şarkı nakaratı + zıplayan objeler →
+- [x] P6. Prototip sahnesi (~30 sn): 0. sn şarkı nakaratı + zıplayan objeler →
       3 sn selam → "hediye kutusu sürprizi" oyunu (3 obje) → kısa şarkı kapanışı.
       Ses: mevcut `vocal_break` + edge-tts
-- [ ] P7. `visual_proto.yml`: mp4 + örnek kareler artifact; kare başına render süresi
+- [x] P7. `visual_proto.yml`: mp4 + örnek kareler artifact; kare başına render süresi
       ölçülür → tam bölüm süresi tahmini (Actions 6 sa sınırı)
-- [ ] P8. Kareleri gözle kontrol, kullanıcı izler; en fazla 3 tur (kural 8)
+- [x] P8. Kareleri gözle kontrol, kullanıcı izledi (tur 1): "bir tık daha güzel ama
+      daha çizgi filmsel olsun" → 7b
 - [ ] P9. Onaylanırsa üretime bağlama planı (senaryo şeması: oyun kalıpları, sahneler,
       genişletilmiş beyaz liste) ayrıca yazılıp onaya sunulur
+
+### 7b. Pilot bölüm — "Thumpy formülü" (2026-11-05, kullanıcı: "bu formatta yeni video")
+
+Dayanak: `docs/arastirma-cocuk-izleme.md` §12, `docs/arastirma-2d-kanallar.md`.
+Ayrı dosya `pilot.py` + `pilot.yml`, dal `visual-proto`. Üretime bağlı değil, YÜKLEME YOK.
+Süre ~3–3,5 dk (tüm formül parçaları; tam 10–12 dk bölüm görünüm onayından sonra).
+Senaryo elle yazıldı → **kullanıcı onayı** push'tan önce (çocuk güvenliği kuralı).
+
+- [ ] B1. Çizgi film stili (`render2.py`): kalın koyu kontur (Dino + Fluent nesneleri,
+      alfa genişletme ile bir kez), bebek şemalı Dino (iri göz), doygun yanak/kuyruk,
+      ifadeler (mutlu/şaşkın/dinliyor), kaş, düşme pozu, hazırlık + ezilme, kol gecikmesi
+- [ ] B2. Konturlu çalı (göz kırpan gözler arkasından bakar), soru balonu (bekleme sayacı)
+- [ ] B3. Kamera planları: geniş/yakın/çalı yakını, sert kesme (yavaş zoom yok)
+- [ ] B4. Senaryo: selam şarkısı (0. sn, Frère Jacques) → saklambaç: inek, ördek, köpek
+      (ses ipucu → soru + 2,5 sn bekleme → yanlış çalı gag'i → "Peekaboo!" → kelime 3 kez)
+      → hareket molası (London Bridge: tavşan gibi zıpla, fil gibi tepin) → tekrar
+      (çocuk tamamlar) → sonraki bölüm ipucu → veda şarkısı (Twinkle)
+- [ ] B5. Duman testi + render + 15 kontrol karesi; kareler gözle kontrol, süre/ses ölçümü
+- [ ] B6. Kullanıcı izler; en fazla 3 tur
 
 ## 8. Büyüme — SONRA
 
