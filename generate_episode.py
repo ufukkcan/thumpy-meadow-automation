@@ -91,6 +91,9 @@ KATALOG (alan degerleri SADECE buradan, birebir ayni yazimla):
 {safety}
 ANLATIM: Dino (sevimli dinozor) cocukla dogrudan konusur. Cok basit Ingilizce, her satir 3-10 kelime,
 2-6 yas cocuklarin bildigi kelimeler. Ozel isim (Dino haric), rakam YOK.
+Her satir Dino'nun AGZINDAN CIKAN konusmadir (birinci tekil sahis: "I", "me"). Sahne tarifi, hareket
+anlatimi ya da kendinden ucuncu sahis olarak bahsetme YOK (YANLIS: "Dino jumps, jumps!"; DOGRU: "Up there?").
+Hareketleri motor canlandirir.
 
 BOLUM YAPISI (motor kurar, sen satirlari ve secimleri yazarsin):
 - Selam ve veda sarkilari sabit (sen yazmazsin).
@@ -240,6 +243,10 @@ def normalize_episode(ep: dict) -> dict:
         ff = _fix_find({}, used)
         used.add(ff["animal"])
         finds.append(ff)
+    # her yarida sakalar kucukten buyuge (uc kurali); esitlerde Claude'un sirasi korunur
+    half = show.N_FINDS // 2
+    finds = (sorted(finds[:half], key=lambda f: show.GAGS[f["gag"]][2])
+             + sorted(finds[half:], key=lambda f: show.GAGS[f["gag"]][2]))
 
     breaks, brs = [], ep.get("breaks") or []
     for k, melody in enumerate(show.BREAK_MELODIES):
@@ -271,6 +278,8 @@ def normalize_episode(ep: dict) -> dict:
             total += len(tg_) + 2
     tags = (tags + ["Thumpy Meadow"])[:16]
     hashtags = [h for h in (re.sub(r"[^\w]", "", str(h)) for h in ep.get("hashtags", [])) if h][:3]
+    # kanal adi hashtag'i her zaman dogru yazimla (Claude bir kez "ThumypMeadow" yazdi)
+    hashtags = ["ThumpyMeadow" if h.lower().startswith("thum") else h for h in hashtags]
     first = finds[0]
     thumbs_def = ["PEEKABOO!", "ANIMAL SOUNDS", f"WHO SAYS {animal_sounds.SOURCES[first['animal']]['says'].upper()}?"]
     texts = [str(x).upper().strip()[:16] for x in (ep.get("thumbnail_texts") or [])][:3]

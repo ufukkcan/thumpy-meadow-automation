@@ -36,7 +36,7 @@ def main():
     est = estimate_minutes(ep)
     (OUT / "senaryo.txt").write_text(gen.script_as_text(ep, est), encoding="utf-8")
     rep.append(f"Tahmini sure: {est:.2f} dk")
-    rep += animal_sounds.report([f["animal"] for f in ep["finds"]])
+    rep += animal_sounds.report()                   # 11 hayvanin hepsi: bir kayit bozuksa render'dan once ciksin
     print("\n".join(rep), flush=True)
 
     t0 = time.time()

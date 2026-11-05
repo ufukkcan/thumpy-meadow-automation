@@ -289,6 +289,22 @@ Scratchpad klonuna kopyalayınca 3 satırlık değişiklik 277 satır göründü
 **Çözüm/Kural:** Push öncesi `git diff --cached --numstat` mutlaka kontrol; CRLF içeren
 dosyalar LF'ye çevrilip yeniden eklenir (BOM'suz UTF-8).
 
+### E15. Ortanca tabanlı eşik, sesin dosyayı kapladığı kayıtta hiçbir şey bulmadı (2026-11-05)
+**Hata (asistan):** `animal_sounds.calls` eşiği `max(0.2·zirve, 3·ortanca)`. Koyun #2343
+1 sn ve tamamı meleme → ortanca yüksek → eşik zirveyi aştı → 0 bölge → test run
+42022806206 durdu (3 kaydı denemiştim; yeni 8 kaydı render'dan önce denemedim).
+**Çözüm:** Eşik en fazla zirvenin yarısı; hiç çağrı yoksa kaydın sesli kısmı tek çağrı.
+Test başında 11 hayvanın tamamı kesiliyor (render'dan önce).
+**Kural:** Veri kaynağına yeni öğe eklenince (yeni ses, yeni nesne) hepsini ucuz bir ön
+adımda dene; sinyal eşiklerini göreli değerlere bağlarken uç durum (sinyal = tüm dosya) düşün.
+
+### E16. Claude sahne tarifini repliğe yazdı, kanal hashtag'ini yanlış yazdı (2026-11-05)
+**Sorun:** "Hmm? Up there? Dino jumps, jumps, jumps!" (üçüncü şahıs + sahne tarifi);
+hashtag "ThumypMeadow".
+**Çözüm:** İstemde "her satır Dino'nun ağzından, sahne tarifi yok" + yanlış/doğru örneği;
+kanal hashtag'i kodla düzeltilir. **Kural:** Sabit doğru olması gereken alanı (marka adı)
+modele bırakma, kodla zorla.
+
 ---
 
 ## F. Kullanıcı ortamı kısıtları

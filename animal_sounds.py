@@ -70,7 +70,9 @@ def calls(name, max_n=6):
     hop = int(0.01 * SR)
     n = len(x) // hop
     env = np.sqrt(np.mean(x[: n * hop].reshape(n, hop) ** 2, axis=1))
-    thr = max(0.2 * env.max(), 3 * np.median(env))
+    # esik: sessizlige gore belirgin ama asla zirvenin yarisini gecmez (ses tum dosyayi kaplayan kisa
+    # kayitlarda ortanca yuksek -> eski esik zirveyi asiyor, hic cagri bulunmuyordu; lessons C6)
+    thr = min(max(0.2 * env.max(), 3 * np.median(env)), 0.5 * env.max())
     on = env > thr
     runs, i = [], 0
     while i < n:                                   # esik ustu bolgeler; 60 ms'den kisa bosluklar birlesir
@@ -96,8 +98,15 @@ def calls(name, max_n=6):
         seg[-fo:] *= np.linspace(1, 0, fo)
         out.append((score, seg))
     out.sort(key=lambda z: -z[0])
-    if not out:
-        raise RuntimeError(f"{name}: kayitta uygun cagri bulunamadi ({len(runs)} bolge)")
+    if not out:                                    # yedek: kaydin sesli kismi tek cagri (kayit zaten tek cagriysa)
+        loud = np.nonzero(env > 0.1 * env.max())[0]
+        if not len(loud):
+            raise RuntimeError(f"{name}: kayit sessiz")
+        a, b = max(0, loud[0] - 4) * hop, min(n, loud[-1] + 12) * hop
+        seg = x[a:b][: int(hi * SR)].copy()
+        fo = int(0.04 * SR)
+        seg[-fo:] *= np.linspace(1, 0, fo)
+        out = [(0.0, seg)]
     _calls[name] = [seg for _, seg in out[:max_n]]
     return _calls[name]
 
