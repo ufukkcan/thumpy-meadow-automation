@@ -143,6 +143,29 @@ gerçek tepe -0,9 dBTP (hedef -1,0 → hedef -1,5'e çekilecek). Ksilofon örnek
 - [ ] 3c. `music_test.py`'ye vokal: Twinkle + London Bridge (mevcut özgün sözlerle),
       vokal varken müzik hafif kısılır. Ölçüm: hece başlarının vuruştan sapması,
       perde doğruluğu (cent), süre, LUFS. Kullanıcı dinler.
+- [x] Deneme 3/3 (run 41836574820) — **KULLANICI ONAYLADI: "süper olmuş"**. Perde ortanca
+      10–11 cent (doğal perde), ritim ort. 20–27 ms, vocoder 0.30–0.33 (tavan 0.31), CPU ~7x
+      gerçek zaman. Tık dedektörü: 6 olay, 4'ü nefes (AP) anında → takip maddesi.
+- [ ] Takip: nefes (AP) anındaki kısa tıklar (dedektör 4 olay) — düşük öncelik
+
+### 6c. Yeni müzik molasını üretime bağlama (2026-11-04, kullanıcı: "akşam için video")
+> **2026-11-04 akşam: ERTELENDİ, ertesi gün devam.** Kod değişikliği başlamadı.
+> Bot `choosing` durumunda (11:00 fikirleri: Balloons / Shapes / Animal Sounds). Entegrasyon
+> bitmeden fikir seçilirse video ESKİ müzik molasıyla üretilir.
+> Kullanıcı onaysız yükleme istedi; senaryo onayı (⛔ kuralı) atlanmadı, plan: entegrasyon
+> sonrası bot "yeni format hazır" mesajı atar, kullanıcı telefondan seçer + onaylar.
+- [ ] U1. `generate_episode.py`: her müzik molasına melodi atanır (twinkle/london/mary/jacques
+      sırayla); Claude'a satır sayısı + satır başına HECE SAYISI verilir; sözler CMU sözlüğünde
+      olmalı (yoksa Claude'a bir kez eksik kelimelerle yeniden yazdırılır)
+- [ ] U2. `kidsong.duration()` (ucuz süre hesabı, senaryo onayında süre tahmini için)
+- [ ] U3. `vocal_break.py`: mola sesi = kidsong + Hanami vokali (modeller bir kez yüklenir);
+      karaoke kelime zamanları nota ızgarasından
+- [ ] U4. `episode.py`: build_timeline(with_audio) + mola ses seviyesi anlatımla eşitlenir
+- [ ] U5. Açıklamaya `sing.CREDIT` satırı (vokalli bölümlerde)
+- [ ] U6. `check_and_produce.yml`: vokal bağımlılıkları + 3 önbellek
+- [ ] U7. Kanıt: `episode_test.yml` — örnek kısa bölüm (gerçek Ana sesi + 1 vokalli mola),
+      YÜKLEME YOK; kareler gözle kontrol, ses ölçülür, kullanıcı izler
+- [ ] U8. Kullanıcı Telegram'dan fikir seçer → senaryo onayı (İNSAN ONAYI ŞART) → yayın
 - [ ] 3d. En fazla 3 deneme; olmazsa dur, birlikte karar (kural 8)
 - [ ] 3e. Onaylanırsa üretime bağlama (ayrı plan) + açıklamaya "Voice: Hanami Hoshino
       by Lotte V" kaynak satırı

@@ -34,4 +34,4 @@ def produce(ep: dict, work_dir: Path) -> dict:
 
     thumbs = thumbnail.make_variants(ep["thumbnail_text"], ep["thumbnail_props"], str(work_dir / "thumb"))
     return {"video": video_path, "thumbnails": thumbs, "total": total,
-            "chapters": episode.chapters(timeline)}
+            "chapters": episode.chapters(timeline), "timeline": timeline}

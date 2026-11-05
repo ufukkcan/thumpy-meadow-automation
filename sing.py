@@ -98,6 +98,36 @@ def _load_cmudict() -> dict[str, list[str]]:
     return out
 
 
+_CMU: dict | None = None
+ARPA_VOWELS = {"aa", "ae", "ah", "ao", "aw", "ay", "eh", "er", "ey", "ih", "iy", "ow", "oy", "uh", "uw"}
+
+
+def cmu() -> dict[str, list[str]]:
+    """CMU sozlugu (bir kez yuklenir). Ses modeli gerektirmez -> senaryo dogrulamasinda da kullanilir."""
+    global _CMU
+    if _CMU is None:
+        _CMU = _load_cmudict()
+    return _CMU
+
+
+def _norm(word: str) -> str:
+    return re.sub(r"[^a-z']", "", word.lower().replace("’", "'"))
+
+
+def cmu_phonemes(word: str) -> list[str] | None:
+    w = _norm(word)
+    for cand in (w, w.strip("'")):
+        if cand in cmu():
+            return cmu()[cand]
+    return None
+
+
+def syllable_count(word: str) -> int | None:
+    """Soylenen hece sayisi = CMU telaffuzundaki unlu sayisi (sozlukte yoksa None)."""
+    ph = cmu_phonemes(word)
+    return sum(p in ARPA_VOWELS for p in ph) if ph else None
+
+
 def _yaml(path: Path):
     import yaml
     loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
@@ -121,7 +151,7 @@ class Singer:
         d = _yaml(root / "dsdur/dsdict-en.yaml")
         self.types = {str(s["symbol"]): str(s["type"]) for s in d["symbols"]}
         self.lex = {str(e["grapheme"]).lower(): [str(p) for p in e["phonemes"]] for e in d.get("entries", [])}
-        self.cmu = _load_cmudict()
+        self.cmu = cmu()
 
         # ses modlari: Root (normal), Fragrance (guclu), Nectar (yumusak)
         self.embs = {}
@@ -145,10 +175,10 @@ class Singer:
 
     # ---- sozluk ----
     def lookup(self, word: str) -> list[str]:
-        w = re.sub(r"[^a-z']", "", word.lower().replace("’", "'"))
-        for cand in (w, w.strip("'")):
-            if cand in self.cmu:          # once CMU sozlugu (standart Ingilizce telaffuz)
-                return self.cmu[cand]
+        ph = cmu_phonemes(word)           # once CMU sozlugu (standart Ingilizce telaffuz)
+        if ph:
+            return ph
+        w = _norm(word)
         for cand in (w, w.strip("'"), w.replace("'", "")):
             if cand in self.lex:          # yoksa bankanin ek girisleri (isimler, ozel kelimeler)
                 return self.lex[cand]
@@ -195,7 +225,7 @@ class Singer:
                 times.append((t, t + b * beat, float(midi)))
                 t += b * beat
             ni = 0
-            for word, wnotes in songs.map_words_to_notes(text, notes):
+            for word, wnotes in songs.map_words_to_notes(text, notes, counter=lambda w: len(self.syllables(w))):
                 n = len(wnotes)
                 mine = times[ni:ni + n]
                 ni += n

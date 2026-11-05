@@ -19,6 +19,7 @@ from PIL import Image, ImageDraw, ImageFont
 import music
 import props
 import scene2d as s
+import vocal_break
 
 W, H = 1920, 1080
 FPS = 24
@@ -157,15 +158,24 @@ def estimate_speech_seconds(text: str) -> float:
     return len(text.split()) / 2.3 + 0.8
 
 
-def build_timeline(segments: list[dict], seed: int = 7):
+def build_timeline(segments: list[dict], with_audio: bool = False):
+    """with_audio=False: sadece zamanlama (senaryo onayinda sure tahmini, hizli).
+    with_audio=True: muzik molalarinin sesi de uretilir (vokal: birkac dakika surer)."""
     t = 0.0
     timeline = []
+    k = 0
     for i, seg in enumerate(segments):
         if seg["type"] == "narration":
             dur = seg.get("audio_seconds") or estimate_speech_seconds(seg["text"])
             timeline.append({**seg, "index": i, "start": t, "dur": dur})
         else:
-            audio, timings, dur = music.music_break_track(seg["lines"], seed=seed + i)
+            key = seg.get("melody") or vocal_break.melody_for(k)
+            k += 1
+            if with_audio:
+                audio, timings, dur = vocal_break.render(seg["lines"], key)
+            else:
+                audio, timings, dur = None, vocal_break.word_timings(seg["lines"], key), \
+                    vocal_break.duration(seg["lines"], key)
             timeline.append({**seg, "index": i, "start": t, "dur": dur, "audio": audio, "timings": timings})
         t += dur
     return timeline, t
@@ -190,16 +200,26 @@ def chapters(timeline) -> list[tuple[float, str]]:
     return cleaned if len(cleaned) >= 3 else []
 
 
+def _active_rms(x: np.ndarray) -> float:
+    """Sessiz kisimlar haric RMS (tepe degerin %5'inin ustundeki ornekler)."""
+    a = x[np.abs(x) > 0.05 * (np.max(np.abs(x)) or 1.0)]
+    return float(np.sqrt(np.mean(a ** 2))) if len(a) else 0.0
+
+
 def build_audio(timeline, total, narration_audio=None) -> np.ndarray:
     """Fon muzigi (anlatim sirasinda kisik) + muzik molalari + anlatim sesleri."""
     out = np.zeros(int(music.SR * total) + music.SR)
     bg = music.background_track(total)
     gain = np.ones_like(bg) * 0.55
+    # muzik molasi seviyesi = anlatim seviyesi (etkin bolumlerin RMS'i); yoksa mola cok sessiz/yuksek kalir
+    nar = [s for s in (narration_audio or {}).values() if s is not None and len(s)]
+    nar_rms = _active_rms(np.concatenate(nar)) * 0.9 if nar else 0.1
     for seg in timeline:
         if seg["type"] == "music_break":
             a, b = int(seg["start"] * music.SR), int((seg["start"] + seg["dur"]) * music.SR)
             gain[a:b] = 0.0
-            music._add(out, seg["audio"], seg["start"])
+            brk = seg["audio"]
+            music._add(out, brk * (nar_rms / (_active_rms(brk) or 1e-6)), seg["start"])
     out[: len(bg)] += bg * gain[: len(bg)]
     for seg in timeline:
         samples = (narration_audio or {}).get(seg["index"])
@@ -211,7 +231,7 @@ def build_audio(timeline, total, narration_audio=None) -> np.ndarray:
 # ---------------- render ----------------
 def render(segments: list[dict], out_mp4: str, audio_wav: str, narration_audio=None):
     """Donus: (toplam_sure, timeline)"""
-    timeline, total = build_timeline(segments)
+    timeline, total = build_timeline(segments, with_audio=True)
     music.write_wav(audio_wav, build_audio(timeline, total, narration_audio))
 
     bg = build_background()

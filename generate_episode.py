@@ -12,6 +12,8 @@ from pathlib import Path
 from anthropic import Anthropic
 
 import props
+import sing
+import vocal_break
 
 MODEL = "claude-sonnet-4-6"
 STATE_DIR = Path(__file__).resolve().parent / "state"
@@ -74,7 +76,13 @@ YAPI (toplam 10-13 dakika hedef):
 - 4 ders bolumu: her biri 12-16 anlatim segmenti + bolum sonunda 1 muzik molasi
 - "Let's Remember!" tekrar bolumu (6-8 segment, ogrenilenleri hizlica tekrar)
 - "Bye-Bye!" kapanis bolumu (3-4 segment)
-Muzik molasi: 4-6 satir, her satir 4-8 kelime, basit, ritmik, kafiyeli, OZGUN, o dersle ilgili.
+MUZIK MOLASI: her ders bolumunun sonunda 1 tane (toplam 4). Sarki bilinen bir kamu mali melodiyle
+SOYLENIR; sozler OZGUN, o dersle ilgili, neseli, kafiyeli ve tekrarli olmali. Her molanin satir sayisi
+ve satir basina HECE sayisi BIREBIR tutmali (hece = soylenen hece: ap-ple = 2, ba-na-na = 3, red = 1,
+yel-low = 2, ap-ples = 2):
+{patterns}
+Sadece 2-6 yas cocuklarin bildigi yaygin Ingilizce kelimeler. Ozel isim, uydurma kelime, kisaltma,
+rakam YOK (sayilari yaziyla yaz: "three"). Ses taklitleri sozlukte olanlar olsun (moo, quack, meow, oink).
 Bolum (section) basliklari kisa ve aranabilir olsun (YouTube chapters olarak gorunecek), or. "Red and Blue Balloons".
 
 SEO (amac: arama ve onerilerde one cikmak, ama YANILTICI OLMADAN -- YouTube cocuk iceriginde
@@ -143,6 +151,7 @@ def _clean_tag(tag: str) -> str:
 def normalize_episode(ep: dict) -> dict:
     """Claude ciktisini dogrular ve guvenli hale getirir."""
     sections = []
+    n_breaks = 0
     for sec in ep.get("sections", []):
         segs = []
         for seg in sec.get("segments", []):
@@ -150,10 +159,13 @@ def normalize_episode(ep: dict) -> dict:
                 segs.append({"type": "narration", "text": seg["text"].strip(),
                              "prop": props.validate_prop(seg.get("prop"))})
             elif seg.get("type") == "music_break":
-                lines = [str(x).strip() for x in seg.get("lines", []) if str(x).strip()]
-                lines = [" ".join(l.split()[:9]) for l in lines][:6]
+                lines = [" ".join(str(x).split()) for x in seg.get("lines", []) if str(x).strip()]
                 if len(lines) >= 2:
-                    segs.append({"type": "music_break", "lines": lines})
+                    key = vocal_break.melody_for(n_breaks)
+                    n_breaks += 1
+                    want = len(vocal_break.pattern(key))
+                    lines = (lines * want)[:want]          # eksikse tekrar (nakarat), fazlaysa kirp
+                    segs.append({"type": "music_break", "melody": key, "lines": lines})
         if segs:
             sections.append({"title": str(sec.get("title", "Learning Time"))[:60], "segments": segs})
     if len(sections) < 3:
@@ -214,10 +226,66 @@ def generate_ideas() -> list[dict]:
     return ideas
 
 
+FIX_PROMPT = """Bir cocuk sarkisinin sozlerinde hata var. Her satirin HECE sayisi hedefi TAM tutmali ve
+tum kelimeler yaygin Ingilizce sozlukte bulunmali. Anlami, kafiyeyi ve cocuk guvenligi kurallarini koru,
+sadece gerekeni duzelt.
+
+{items}
+
+SADECE gecerli JSON dondur (TUM molalar, sirasiyla, her biri hedef satir sayisinda):
+{{"music_breaks": [["satir", "..."], ["..."]]}}"""
+
+
+def _patterns_text() -> str:
+    return "\n".join(f"- {k + 1}. mola ({vocal_break.NAMES[vocal_break.melody_for(k)]}): "
+                     f"{len(vocal_break.pattern(vocal_break.melody_for(k)))} satir; satir basina hece: "
+                     + ", ".join(map(str, vocal_break.pattern(vocal_break.melody_for(k)))) for k in range(4))
+
+
+def _breaks(ep: dict) -> list[dict]:
+    return [sg for sc in ep["sections"] for sg in sc["segments"] if sg["type"] == "music_break"]
+
+
+def song_issues(ep: dict) -> list[str]:
+    """Sozlukte olmayan kelimeler ve hece sayisi tutmayan satirlar."""
+    out = []
+    for k, br in enumerate(_breaks(ep)):
+        pat = vocal_break.pattern(br["melody"])
+        for li, line in enumerate(br["lines"]):
+            missing = [w for w in line.split() if re.search(r"[A-Za-z]", w) and sing.syllable_count(w) is None]
+            got = sum(vocal_break.counter(w) for w in line.split() if re.search(r"[A-Za-z]", w))
+            if missing or got != pat[li]:
+                note = f"hece {got}, hedef {pat[li]}" + (f"; sozlukte yok: {', '.join(missing)}" if missing else "")
+                out.append(f"{k + 1}. mola, {li + 1}. satir: \"{line}\" ({note})")
+    return out
+
+
+def _fix_songs(ep: dict, issues: list[str]) -> None:
+    items = []
+    for k, br in enumerate(_breaks(ep)):
+        items.append(f"{k + 1}. mola, melodi {vocal_break.NAMES[br['melody']]}, satir basina hece: "
+                     + ", ".join(map(str, vocal_break.pattern(br["melody"]))))
+        items += [f"   {li + 1}) {line}" for li, line in enumerate(br["lines"])]
+    items.append("\nHATALAR:\n" + "\n".join(f"- {x}" for x in issues))
+    fixed = _ask(FIX_PROMPT.format(items="\n".join(items)), max_tokens=3000).get("music_breaks", [])
+    for br, new in zip(_breaks(ep), fixed):
+        lines = [" ".join(str(x).split()) for x in new if str(x).strip()]
+        if len(lines) >= 2:
+            want = len(vocal_break.pattern(br["melody"]))
+            br["lines"] = (lines * want)[:want]
+
+
 def generate_script(idea: dict) -> dict:
     raw = _ask(SCRIPT_PROMPT.format(idea=json.dumps(idea, ensure_ascii=False), library=LIBRARY_TEXT,
-                                    safety=SAFETY_RULES, style=STYLE_RULES), max_tokens=12000)
-    return normalize_episode(raw)
+                                    safety=SAFETY_RULES, style=STYLE_RULES, patterns=_patterns_text()),
+               max_tokens=12000)
+    ep = normalize_episode(raw)
+    issues = song_issues(ep)
+    if issues:                         # bir kez Claude'a duzelttir; kalanlar senaryoda kullaniciya gosterilir
+        _fix_songs(ep, issues)
+        issues = song_issues(ep)
+    ep["song_issues"] = issues
+    return ep
 
 
 def build_description(ep: dict, chapter_list: list[tuple[float, str]]) -> str:
@@ -234,6 +302,8 @@ def build_description(ep: dict, chapter_list: list[tuple[float, str]]) -> str:
         "colors, numbers, shapes, fruits and animals with our friendly little dino. "
         "New episodes regularly - ask a grown-up to subscribe!"
     )
+    if _breaks(ep):   # vokal lisansi kaynak gostermeyi sart kosuyor (docs/kararlar.md K-18)
+        parts.append("Songs: original lyrics on public-domain melodies. " + sing.CREDIT)
     if ep["hashtags"]:
         parts.append(" ".join(f"#{h}" for h in ep["hashtags"]))
     return "\n\n".join(parts)[:4900]
@@ -249,11 +319,19 @@ def script_as_text(ep: dict, est_minutes: float) -> str:
                 tag = f"  [{props.prop_label(seg['prop'])[0]}]" if seg["prop"] else ""
                 out.append(f"- {seg['text']}{tag}")
             else:
-                out.append("  (muzik molasi)")
-                out.extend(f"  ~ {line}" for line in seg["lines"])
+                key = seg.get("melody", "")
+                out.append(f"  (muzik molasi -- melodi: {vocal_break.NAMES.get(key, key)}, Hanami soyler)")
+                pat = vocal_break.pattern(key) if key else []
+                for li, line in enumerate(seg["lines"]):
+                    got = sum(vocal_break.counter(w) for w in line.split() if re.search(r"[A-Za-z]", w))
+                    mark = f"  [{got}/{pat[li]} hece]" if li < len(pat) and got != pat[li] else ""
+                    out.append(f"  ~ {line}{mark}")
         out.append("")
     out.append("ETIKETLER: " + ", ".join(ep["tags"]))
     out.append("HASHTAG: " + " ".join("#" + h for h in ep["hashtags"]))
     out.append("THUMBNAIL YAZISI: " + ep["thumbnail_text"])
     out.append("THUMBNAIL OBJELERI: " + ", ".join(props.prop_label(p)[0] for p in ep["thumbnail_props"]))
+    if ep.get("song_issues"):
+        out.append("\nSARKI UYARILARI (duzeltilemedi; sarki yine soylenir ama bu satirlarda hece kayabilir):")
+        out.extend(f"- {x}" for x in ep["song_issues"])
     return "\n".join(out)
