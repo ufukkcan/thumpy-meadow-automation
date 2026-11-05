@@ -1,34 +1,49 @@
 {
   "status": "choosing",
-  "batch": "79668c86",
+  "batch": "70edf3ab",
   "ideas": [
     {
-      "working_title": "Learn Colors with Balloons | Colors for Kids | Thumpy Meadow",
-      "summary": "Renkli balonlar aracılığıyla temel renkleri öğreten, her rengi tekrar ve şarkıyla pekiştiren eğlenceli bir bölüm.",
-      "lessons": [
-        "Red, blue, yellow, green, orange, purple, pink renklerini balon görselleriyle tanıtma",
-        "Her renk için 'What color is this? It's [color]!' kalıbıyla interaktif tekrar",
-        "Bölüm sonunda tüm renkleri bir arada gösteren balon buketiyle özet"
+      "working_title": "Birthday Party Hideout | Animal Sounds for Kids | Thumpy Meadow",
+      "summary": "Dino'nun doğum günü partisinde inek, ördek, köpek, kedi, koyun, horoz ve kurbağa arkadaşları çeşitli yerlere saklanmış; çocuklar her hayvanı bulduğunda Dino bir adım daha partiye yaklaşıyor.",
+      "frame": "birthday",
+      "animals": [
+        "cow",
+        "duck",
+        "dog",
+        "cat",
+        "sheep",
+        "rooster",
+        "frog"
       ]
     },
     {
-      "working_title": "Learn Shapes with Colors | Shapes for Kids | Thumpy Meadow",
-      "summary": "Daire, kare, üçgen gibi temel şekilleri farklı renklerle eşleştirerek hem şekil hem renk bilgisini aynı anda öğreten bir bölüm.",
-      "lessons": [
-        "Circle, square, triangle, rectangle, star, heart, oval şekillerini tanıtma",
-        "Her şekli farklı bir renkle sunarak 'This is a [color] [shape]!' kalıbını öğretme",
-        "Şekil avı oyunuyla şekil-renk eşleştirme tekrarı"
+      "working_title": "Picnic in the Meadow | Animal Sounds for Kids | Thumpy Meadow",
+      "summary": "Dino piknik sofrasını kurarken at, civciv, baykuş, kuş, kurbağa, inek ve kedi çalılıklara, bulutlara ve ağaçlara saklanmış; her buluş piknik sofrasına yeni bir lezzet getiriyor.",
+      "frame": "picnic",
+      "animals": [
+        "horse",
+        "chick",
+        "owl",
+        "bird",
+        "frog",
+        "cow",
+        "cat"
       ]
     },
     {
-      "working_title": "Animal Sounds & Names | Farm Animals for Kids | Thumpy Meadow",
-      "summary": "Ördek, kedi, domuz gibi sevimli hayvanları sesleriyle birlikte tanıtan, çocukların hayvan adlarını ve seslerini kolayca ezberlemesini sağlayan bir bölüm.",
-      "lessons": [
-        "Duck, fish, bunny, cat, pig, frog hayvanlarını isim ve görselleriyle tanıtma",
-        "Her hayvan için 'The [animal] says [sound]!' kalıbıyla ses eşleştirme",
-        "Bölüm sonunda hayvan sesleri tahmin oyunuyla interaktif tekrar"
+      "working_title": "Rainbow Friends | Animal Sounds for Kids | Thumpy Meadow",
+      "summary": "Gökkuşağının altında Dino köpek, ördek, koyun, horoz, baykuş, at ve civcivi arıyor; her hayvan gökkuşağına yeni bir renk katıyor.",
+      "frame": "rainbow",
+      "animals": [
+        "dog",
+        "duck",
+        "sheep",
+        "rooster",
+        "owl",
+        "horse",
+        "chick"
       ]
     }
   ],
-  "trigger_date": "2026-11-04"
+  "trigger_date": "2026-11-05"
 }
