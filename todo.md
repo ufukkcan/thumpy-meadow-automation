@@ -149,21 +149,22 @@ gerçek tepe -0,9 dBTP (hedef -1,0 → hedef -1,5'e çekilecek). Ksilofon örnek
 - [ ] Takip: nefes (AP) anındaki kısa tıklar (dedektör 4 olay) — düşük öncelik
 
 ### 6c. Yeni müzik molasını üretime bağlama (2026-11-04, kullanıcı: "akşam için video")
+> **2026-11-05: ÜRETİMDE.** episode_test run 41979380747 başarılı (mola -21.2 LUFS ≈ anlatım, karaoke senkron, 4 mola senaryosu); kullanıcı onayıyla main'e birleştirildi (fb231c2).
 > **2026-11-04 akşam: ERTELENDİ, ertesi gün devam.** Kod değişikliği başlamadı.
 > Bot `choosing` durumunda (11:00 fikirleri: Balloons / Shapes / Animal Sounds). Entegrasyon
 > bitmeden fikir seçilirse video ESKİ müzik molasıyla üretilir.
 > Kullanıcı onaysız yükleme istedi; senaryo onayı (⛔ kuralı) atlanmadı, plan: entegrasyon
 > sonrası bot "yeni format hazır" mesajı atar, kullanıcı telefondan seçer + onaylar.
-- [ ] U1. `generate_episode.py`: her müzik molasına melodi atanır (twinkle/london/mary/jacques
+- [x] U1. `generate_episode.py`: her müzik molasına melodi atanır (twinkle/london/mary/jacques
       sırayla); Claude'a satır sayısı + satır başına HECE SAYISI verilir; sözler CMU sözlüğünde
       olmalı (yoksa Claude'a bir kez eksik kelimelerle yeniden yazdırılır)
-- [ ] U2. `kidsong.duration()` (ucuz süre hesabı, senaryo onayında süre tahmini için)
-- [ ] U3. `vocal_break.py`: mola sesi = kidsong + Hanami vokali (modeller bir kez yüklenir);
+- [x] U2. `kidsong.duration()` (ucuz süre hesabı, senaryo onayında süre tahmini için)
+- [x] U3. `vocal_break.py`: mola sesi = kidsong + Hanami vokali (modeller bir kez yüklenir);
       karaoke kelime zamanları nota ızgarasından
-- [ ] U4. `episode.py`: build_timeline(with_audio) + mola ses seviyesi anlatımla eşitlenir
-- [ ] U5. Açıklamaya `sing.CREDIT` satırı (vokalli bölümlerde)
-- [ ] U6. `check_and_produce.yml`: vokal bağımlılıkları + 3 önbellek
-- [ ] U7. Kanıt: `episode_test.yml` — örnek kısa bölüm (gerçek Ana sesi + 1 vokalli mola),
+- [x] U4. `episode.py`: build_timeline(with_audio) + mola ses seviyesi anlatımla eşitlenir
+- [x] U5. Açıklamaya `sing.CREDIT` satırı (vokalli bölümlerde)
+- [x] U6. (gerek kalmadi: agir bagimliliklar uretim aninda kuruluyor, vocal_break._ensure_deps) `check_and_produce.yml`: vokal bağımlılıkları + 3 önbellek
+- [x] U7. Kanıt: `episode_test.yml` — örnek kısa bölüm (gerçek Ana sesi + 1 vokalli mola),
       YÜKLEME YOK; kareler gözle kontrol, ses ölçülür, kullanıcı izler
 - [ ] U8. Kullanıcı Telegram'dan fikir seçer → senaryo onayı (İNSAN ONAYI ŞART) → yayın
 - [ ] 3d. En fazla 3 deneme; olmazsa dur, birlikte karar (kural 8)
@@ -173,15 +174,70 @@ gerçek tepe -0,9 dBTP (hedef -1,0 → hedef -1,5'e çekilecek). Ksilofon örnek
 **Sonra**
 - [ ] Müzik molası görselini zenginleştir (objeler dans etsin, sadece yazı+Dino olmasın)
 
-## 7. İzlenme süresi — SIRADA (hiçbiri yapılmadı)
+## 7. İzlenme ve tıklanma — PLAN (2026-11-05, onay bekliyor)
 
-- [ ] İlk 10 saniyede obje göster (şu an 29. saniye)
-- [ ] Müzikli, hareketli 5–8 saniyelik açılış jeneriği
-- [ ] Müzik molası sıklığını artır (anlatım bloklarını kısalt)
-- [ ] Objelere hareket: zıplama, dönme, parıltıyla belirme
-- [ ] Dino her yeni objede heyecanlansın (`mood="excited"`)
-- [ ] Sahne çeşitliliği: çiftlik, deniz, gece, bahçe
-- [ ] Audience retention grafiğini al, düşüş noktalarını tespit et
+**Veri (WIEorW7zW10, 3 gün):** 569 gösterim, CTR %2,3, 15 izlenme, ort. 1:44 (%16,3).
+Tutma: ~%45 ilk ~12 sn'de çıkıyor (statik Dino + "Hello friends" yazısı), ~45. sn'de
+%25'e iniyor, ~2:15'ten sonra %13 (2 kişi). Örnek küçük (15 izlenme), yön net.
+**Hedef:** CTR > %4, izleme oranı > %35. A/B testi kullanıcı tarafından yanlışlıkla
+silindi (11-05), yeni küçük resimle yeniden kurulacak.
+
+**A. Açılış (en büyük kayıp burada)**
+- [ ] A1. Soğuk açılış: 0. saniyede bölümün şarkısının nakaratı + hareketli objeler
+      (şu an ilk obje 29. sn'de)
+- [ ] A2. "Hello friends" selamlaması en fazla 3 sn, hemen ilk objeye geç
+- [ ] A3. 3 sn'lik tanıdık jingle + Dino'nun tekrar eden sözü (marka)
+
+**B. Format: şarkı ağırlıklı**
+- [ ] B1. Anlatım/şarkı oranını tersine çevir: her ders kısa anlatım + şarkı
+      (şu an ~%80 anlatım)
+- [ ] B2. Ekranda sürekli hareket: objeler zıplasın/dönsün/parıltıyla belirsin,
+      Dino yeni objede heyecanlansın, sahne 3–5 sn'de bir değişsin
+      (önce mevcut tempoyu karelerden ölç)
+- [ ] B3. Sahne çeşitliliği: çiftlik, deniz, gece, bahçe
+
+**C. Paketleme**
+- [ ] C1. Küçük resim yeniden: tek büyük ifadeli Dino yüzü + tek parlak obje +
+      en fazla 1–3 kelime, yüksek kontrast; liste boyutunda okunurluk testi
+- [ ] C2. A/B testini yeni tasarımla yeniden kur (kullanıcı, Studio)
+
+**D. Dağıtım**
+- [ ] D1. Shorts: her bölümün şarkı molalarından 30–60 sn dikey kesit
+- [ ] D2. Derleme: mevcut bölümlerden 30–60 dk videolar
+- [ ] D3. Oynatma listeleri (Colors, Numbers…)
+- [ ] D4. Düzenli yükleme: en az gün aşırı
+
+**E. Sonra**
+- [ ] E1. İspanyolca ses kanalı (çok dilli ses)
+- [ ] E2. 0–2 yaş duyusal seri (sade şekil + müzik)
+
+**Politika notu:** YouTube düşük kaliteli çocuk içeriğini ve seri üretilmiş/tekrarlı
+içeriği cezalandırıyor. Her bölüm gerçekten farklı olmalı; senaryo onayı korunur.
+
+### 7a. Görsel prototip — 30 sn (K-19, 2026-11-05, onay bekliyor)
+
+Amaç: yeni görünümü üretime bağlamadan önce kullanıcıya izletmek. Üretim koduna
+dokunulmaz; ayrı dosyalar + ayrı workflow, ayrı dal (`visual-proto`).
+
+- [ ] P1. `assets.py`: Fluent Color SVG'leri commit `1ffb34c` ile sabit raw URL'den
+      indir, `asset_cache/`'e önbellekle; prop adı → Fluent klasör eşlemesi; MIT metni
+      `licenses/fluentui-emoji-LICENSE` olarak repoya
+- [ ] P2. `render2.py`: Skia motoru; SVG'yi bir kez rasterleştirip önbellekle; katman
+      birleştirme. Skia'nın SVG desteği Fluent gradyanlarını doğru çiziyor mu, karede
+      gözle kontrol (olmazsa resvg)
+- [ ] P3. Yeni Dino (Skia, gölgeli/gradyanlı, Fluent stiline uyumlu): göz kırpma,
+      sese göre ağız hareketi, nefes salınımı, el sallama, zıplama
+- [ ] P4. Arka plan: çayır, 3 katman paralaks, yumuşak gradyan gökyüzü
+- [ ] P5. Hareket araçları: yumuşak geçişler (easing), esneyerek belirme, parıltı ve
+      konfeti parçacıkları, kamera yakınlaşma/kayma, daire geçişi
+- [ ] P6. Prototip sahnesi (~30 sn): 0. sn şarkı nakaratı + zıplayan objeler →
+      3 sn selam → "hediye kutusu sürprizi" oyunu (3 obje) → kısa şarkı kapanışı.
+      Ses: mevcut `vocal_break` + edge-tts
+- [ ] P7. `visual_proto.yml`: mp4 + örnek kareler artifact; kare başına render süresi
+      ölçülür → tam bölüm süresi tahmini (Actions 6 sa sınırı)
+- [ ] P8. Kareleri gözle kontrol, kullanıcı izler; en fazla 3 tur (kural 8)
+- [ ] P9. Onaylanırsa üretime bağlama planı (senaryo şeması: oyun kalıpları, sahneler,
+      genişletilmiş beyaz liste) ayrıca yazılıp onaya sunulur
 
 ## 8. Büyüme — SONRA
 

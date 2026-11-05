@@ -137,6 +137,17 @@ videoları yanlış kanala yüklenecekti.
 **Açık risk:** `astrologicalshorts` token'ı bu kontrol eklenmeden alındı; kullanıcı
 "sorun yok, çalışıyor" dedi ama resmen doğrulanmadı.
 
+### C4b. ⚠️ Refresh token public repo loguna yazıldı (2026-11-05'te fark edildi)
+**Hata (asistan, önceki oturumlar):** `yt_oauth_exchange.py` refresh token'ı `print` ile loga
+yazıyordu. Repo public; kayıtlı secret olmayan değerler maskelenmez → Thumpy Meadow ve
+Interesthings token'ları (run 41448523899, 41448204357) 3 gün açıkta kaldı.
+**Çözüm:** Çalıştırmalar silindi (11-05, API ile doğrulandı). Token iptali kullanıcı kararıyla
+genel anahtar yenilemesine ertelendi; yeni token OAuth Playground ile (tarayıcıda, loga/sohbete
+düşmeden) alınacak.
+**Kural:** Public repoda bir workflow ASLA secret niteliğinde değer yazdırmaz. Zorunluysa
+önce `::add-mask::`; tercihen değer hiç workflow'a girmez. Yeni workflow yazarken loglarda
+ne göründüğünü kontrol et.
+
 ### C5. Özel küçük resim telefon doğrulaması istiyor
 **Sorun:** "The authenticated user doesn't have permissions to upload and set custom
 video thumbnails"

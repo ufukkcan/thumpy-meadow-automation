@@ -101,6 +101,13 @@ Format: `tarih · sistem · işlem · sonuç`
 - `11-04` · GitHub · Kullanıcı `thumpy-claude-push` token'ına "Actions: Read-only" ekledi
   (Claude'un hata loglarını okuyabilmesi için)
 
+- `11-05` · GitHub · Push `2d4ad73` (yeni dal `vocal-integration`) → `episode_test` run 41979380747 başarılı
+- `11-05` · GitHub · Kullanıcı onayıyla `vocal-integration` → `main` birleştirildi (`fb231c2`): yeni vokalli müzik molası üretimde
+- `11-05` · GitHub Actions · **Token sızıntısı bulundu**: `yt_oauth_exchange` run 41448523899 ve
+  41448204357 loglarında refresh token maskesiz (public repo). Kullanıcı iki run'ı sildi →
+  API doğruladı: run ve log 404, kalan run 0 (bkz. lessons C4b)
+- `11-05` · Karar (kullanıcı) · Sızan token'lar **iptal edilmedi**; risk kabul edildi.
+  Genel anahtar yenilemesinde (bekleyen işlemler) birlikte yenilenecek.
 ---
 
 ## Bekleyen işlemler
