@@ -66,7 +66,7 @@ SONG_MOVES = ("hop", "jump", "stomp", "clap", "wave", "spin", "flap", "wiggle", 
 DINO_HOME = 760
 DINO_Y = GY - 175
 HIDE_X = 1400
-WALK = 1100                                   # yuruyuste dunya kaymasi (piksel)
+WALK = 1900   # yuruyuste dunya kaymasi: HIDE_X - WALK = -500 -> en genis nesne (agac, +-310) bile ekran disi
 FRIEND = [(60 + k * 85, GY - 190, 100) for k in range(N_FINDS)]
 ROW = [(970 + k * 140, GY - 140, 160) for k in range(N_FINDS)]
 SIL = (1300, 300, 300)
@@ -457,7 +457,7 @@ GAG_FN = {"pop_fall": gag_pop_fall, "bush_hop": gag_bush_hop, "wrong_guess": gag
 def walk(tl, P, i=None):
     """Yuruyus: arka plan kayar, onceki TUM saklanma yerleri dunyayla birlikte sola kayar (birikmez),
     i verilirse yeni saklanma yeri sagdan gelir; i=None: temiz cayira yuruyus (tekrar/final oncesi)."""
-    s = tl.seg("walk", 2.4, shot=("wide",))
+    s = tl.seg("walk", 2.8, shot=("wide",))
     P.cam.hold(s["start"])
     P.cam.to(s["end"], P.cam.at(s["start"]) + WALK)
     for j in range(len(P.hide) if i is None else i):
@@ -470,7 +470,7 @@ def walk(tl, P, i=None):
         new = P.hide[i]["x"]
         new.jump(s["start"], HIDE_X + WALK)
         new.to(s["end"], HIDE_X)
-    tl.steps(s["start"], 8, dt=0.3, notes=(72 - 24, 76 - 24))
+    tl.steps(s["start"], 9, dt=0.3, notes=(72 - 24, 76 - 24))
 
 
 def find(tl, P, i):
@@ -599,7 +599,7 @@ def build(ep, work, estimate=False):
         meta = animal_sounds.SOURCES[f["animal"]]
         finds.append({**f, "says": meta["says"], "fly": meta["fly"], "rgb": rgbt(COLORS.get(f["animal"], (230, 70, 70)))})
     P = SimpleNamespace(finds=finds, dino_x=Track(DINO_HOME), cam=Track(0.0),
-                        hide=[dict(kind=f["hide"], x=Track(HIDE_X if i == 0 else r.W + 600)) for i, f in enumerate(finds)],
+                        hide=[dict(kind=f["hide"], x=Track(HIDE_X if i == 0 else HIDE_X + WALK)) for i, f in enumerate(finds)],
                         animal=[Track((HIDE_X, GY - 60, 260)) for _ in finds],
                         shown_from=[1e9] * len(finds), front_from=[1e9] * len(finds), on_head=[],
                         fx=[], extras=[], head=[], bush_hops=[], finale_t=1e9, sil=1e9,

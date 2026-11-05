@@ -282,7 +282,10 @@ Kararlar (kullanıcı): bölüm 8–10 dk; küçük resim sıralı otomatik test
 - [x] D5. `thumbs.py`: 3 konsept + telefon önizlemesi (kod yazıldı; görsel kanıt D7'de)
 - [ ] D6. Yükleme: kanal doğrulaması `verify_channel()` + A otomatik + A/B/C `state/thumbs/`
       (yazıldı). Sıralı test koşucusu: yeni token (yt-analytics.readonly) gelince
-- [ ] D7. Uçtan uca test (taklit Telegram/YouTube) → kullanıcı onayı → main'e birleştir
+- [x] D7. Uçtan uca test: run 42029359003 başarılı (8:08, tahmin 8:04, 14 bölüm, 73 ms/kare,
+      üretim 24 dk, 3 thumbnail + telefon önizlemesi gözle kontrol). Son bulgu: tekrar/finalde
+      eski ağaç ekranda (WALK 1100 yetersiz) → WALK 1900 (geometri: 1400-1900 = -500, ağaç ±310)
+- [x] D7b. main'e birleştir (kullanıcı onayı 11-05)
 - [ ] D8. Bugünkü video: Telegram "video üret" → fikir → senaryo onayı → yükleme
 
 ### 7c. Pilot tur 2 (2026-11-05, onaylandı → push `69212e6`, run 42016648248 başarılı, 3:47)

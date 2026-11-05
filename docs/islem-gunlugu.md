@@ -123,7 +123,9 @@ Format: `tarih · sistem · işlem · sonuç`
   başarılı (7:23, 78 ms/kare); karelerde eski saklanma yerlerinin birikmesi bulundu
 - `11-05` · GitHub · Kullanıcı son test push'unu onayladı ("tamam yapalim") → push `7c08a98`;
   run 42028706502 hata: Claude cevabı ayrıştırılamadı (lessons E17). Kural 8: durup soruldu
-- `11-05` · GitHub · Kullanıcı öneriyle devam etti ("önerinle devam edelim") → düzeltme + 4. test
+- `11-05` · GitHub · Kullanıcı öneriyle devam etti ("önerinle devam edelim") → push `ce3410c`;
+  run 42029359003 başarılı (8:08 bölüm, 3 thumbnail)
+- `11-05` · GitHub · Kullanıcı main'e birleştirmeyi onayladı → WALK düzeltmesi + `visual-proto` → `main`
 ---
 
 ## Bekleyen işlemler

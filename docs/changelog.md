@@ -7,6 +7,19 @@ Tarihler sohbetin geçtiği günlere göredir.
 
 ---
 
+## 2026-11-05 — Yeni format üretim motoru (7d): show.py + SEO + 3 thumbnail
+
+- `show.py`: Claude senaryosu → 7 bulma oyunu (gerçek CC0 hayvan sesi, soru + bekleme, büyüyen şaka,
+  kelime 3 kez, hareket), 2 hareket molası, tekrar, çerçeve finali (birthday/picnic/rainbow), sonraki
+  bölüm silueti, sabit selam/veda şarkıları, kayan dünya, zaman damgalı bölümler.
+- `animal_sounds.py`: 11 hayvan (BigSoundBank CC0). `generate_episode.py`: katalog şeması + doğrulama,
+  şarkı hece düzeltme (kelime kelime sayım, 2 tur), `localizations` es/pt/tr/id, sonraki-arkadaş sözü.
+- `thumbs.py`: 3 konsept + telefon önizlemesi; A otomatik yüklenir, A/B/C `state/thumbs/`.
+- `upload_youtube.py`: kanal doğrulaması (UC9_bFi-Pyp8hTlclZYkcz-Q, "Thumpy Meadow") + localizations.
+- Kanıt: show_test run 42029359003 — 8:08 bölüm, 14 bölüm başlığı, 73 ms/kare, üretim 24 dk.
+  Testler: 42022806206 (ses kesimi, E15), 42023322949 (başarılı, sahne birikmesi bulundu),
+  42028706502 (JSON ayrıştırma, E17).
+
 ## 2026-11-05 — Pilot bölüm "Dino'nun Saklambacı" (7b, test, yükleme yok)
 
 - **Araştırma:** `docs/arastirma-2d-kanallar.md`, `docs/arastirma-cocuk-izleme.md` → "Thumpy formülü".
