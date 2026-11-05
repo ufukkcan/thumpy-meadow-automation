@@ -7,6 +7,18 @@ Tarihler sohbetin geçtiği günlere göredir.
 
 ---
 
+## 2026-11-05 — Pilot bölüm "Dino'nun Saklambacı" (7b, test, yükleme yok)
+
+- **Araştırma:** `docs/arastirma-2d-kanallar.md`, `docs/arastirma-cocuk-izleme.md` → "Thumpy formülü".
+- **Çizgi film stili** (`render2.py`): koyu kontur (Fluent nesnelere alfa genişletme ile bir kez),
+  Dino ifadeleri (mutlu/şaşkın/dinliyor), iri gözler, kaş, düşme + baş dönmesi, çalı + bakan gözler,
+  soru balonu (bekleme sayacı), gülen güneş, konturlu parıltı, satıra sığan yazı.
+- **Bölüm** (`pilot.py`, `pilot.yml`): selam şarkısı 0. sn → soru + bekleme → 3 hayvan saklambaç
+  (her biri farklı gag) → hareket molası → tekrar → ipucu → veda. Sert kamera kesmeleri.
+  TTS baş/son sessizliği kırpılıyor; hayvan sesleri Ana sesinin perdesiyle.
+- **Kanıt:** push `ef1968d`, run 42010325985 ilk denemede başarılı: 3:19 (198,7 sn), 69 segment,
+  71 ms/kare (12 dk ≈ 20 dk render), ses hazırlığı 364 sn. 75 karenin 14'ü gözle kontrol edildi.
+
 ## 2026-11-04 — Yeni müzik molası: CC0 enstrümanlar + Hanami vokali (test, onaylı)
 
 - **Enstrümantal** (`samples.py`, `kidsong.py`, `music_test.yml`): CC0 kayıtlar (VCSL,

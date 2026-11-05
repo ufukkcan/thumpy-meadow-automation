@@ -152,6 +152,17 @@ def _outline_png(data, w):
     return buf.getvalue(), pad
 
 
+def _silhouette_png(data):
+    """Tum gorunur pikseller koyu renk, alfa korunur."""
+    from PIL import Image
+    im = Image.open(io.BytesIO(data)).convert("RGBA")
+    sil = Image.new("RGBA", im.size, (70, 60, 95, 255))
+    sil.putalpha(im.getchannel("A"))
+    buf = io.BytesIO()
+    sil.save(buf, "PNG")
+    return buf.getvalue()
+
+
 class Sprites:
     """Ad -> Skia goruntusu (512 px, mipmap'li). Ciziminde merkez noktasi verilir.
     outline > 0: 512 px olcekte kontur kalinligi (cizgi film stili)."""
@@ -161,18 +172,21 @@ class Sprites:
         self.outline = outline
         self._img = {}
 
-    def get(self, name):
-        if name not in self._img:
+    def get(self, name, sil=False):
+        key = (name, sil)
+        if key not in self._img:
             data, pad = assets.png(name, self.px), 0
+            if sil:                                   # siluet: "sonraki bolumde kim gelecek?" merak ogesi
+                data = _silhouette_png(data)
             if self.outline:
                 data, pad = _outline_png(data, self.outline)
             img = skia.Image.MakeFromEncoded(skia.Data.MakeWithCopy(data))
             if img is None:
                 raise RuntimeError(f"Goruntu cozulemedi: {name}")
-            self._img[name] = (img.withDefaultMipmaps(), pad)
-        return self._img[name]
+            self._img[key] = (img.withDefaultMipmaps(), pad)
+        return self._img[key]
 
-    def draw(self, c, name, cx, cy, size, rot=0.0, sx=1.0, sy=1.0, alpha=1.0, shadow_y=None):
+    def draw(self, c, name, cx, cy, size, rot=0.0, sx=1.0, sy=1.0, alpha=1.0, shadow_y=None, sil=False):
         """size: piksel cinsinden genislik (kontur haric). shadow_y verilirse zemine yumusak golge."""
         if size <= 1 or alpha <= 0.01:
             return
@@ -181,7 +195,7 @@ class Sprites:
             k = 1 / (1 + lift / 220)
             c.drawOval(oval(cx, shadow_y, size * 0.36 * k, size * 0.07 * k),
                        paint(rgb(40, 70, 40, 70 * alpha), blur=8))
-        img, pad = self.get(name)
+        img, pad = self.get(name, sil)
         k = size / self.px
         c.save()
         c.translate(cx, cy)
@@ -330,7 +344,7 @@ def _arm_lift(side, t, wave, excited, arms):
 
 
 def dino(c, cx, cy, s=1.0, t=0.0, mouth=0.0, wave=0.0, excited=False, squash=0.0, look=0.0,
-         expr="neutral", arms=None, lean=0.0, look_y=0.0, dizzy=0.0):
+         expr="neutral", arms=None, lean=0.0, look_y=0.0, dizzy=0.0, sweat=0.0):
     """cx, cy: govde merkezi. mouth 0..1 (ses), wave 0..1 (sag el sallama),
     squash >0 basilma (zipla inis), <0 uzama. expr: neutral | happy | surprised | listen.
     arms: (sol, sag) kol acisi (derece; 0 asagi, 150 yukari, eksi = iceri / alkis).
@@ -459,6 +473,17 @@ def dino(c, cx, cy, s=1.0, t=0.0, mouth=0.0, wave=0.0, excited=False, squash=0.0
             st = _star4(x, y, 22)
             c.drawPath(st, paint(INK, stroke=8, alpha=dizzy))
             c.drawPath(st, paint(rgb(255, 215, 60), alpha=dizzy))
+
+    # ter damlasi (saskinlik / telas)
+    if sweat > 0:
+        sx_, sy_ = bw * 0.44, -bh * 0.36 + 10 * math.sin(t * 5)
+        drop = skia.Path()
+        drop.moveTo(sx_, sy_ - 30)
+        drop.quadTo(sx_ + 20, sy_, sx_, sy_ + 14)
+        drop.quadTo(sx_ - 20, sy_, sx_, sy_ - 30)
+        drop.close()
+        c.drawPath(drop, paint(INK, stroke=7, alpha=sweat))
+        c.drawPath(drop, paint(rgb(150, 210, 255), alpha=sweat))
     c.restore()
 
 
@@ -493,19 +518,113 @@ def bush(c, x, y, s=1.0, wiggle=0.0, t=0.0):
     c.restore()
 
 
-def peek_eyes(c, x, y, t, k=1.0, look=0.0):
-    """Calinin icinden bakan gozler. x, y: gozlerin ortasi. k 0..1 gorunurluk."""
+def peek_eyes(c, x, y, t, k=1.0, look=0.0, hollow=rgb(35, 70, 40)):
+    """Saklanma yerinden bakan gozler. x, y: gozlerin ortasi. k 0..1 gorunurluk.
+    hollow: arkadaki karanlik bosluk rengi (cali: koyu yesil, bulut: acik mavi, agac kovugu: kahve)."""
     if k <= 0.01:
         return
-    c.drawOval(oval(x, y, 74 * k, 36 * k), paint(rgb(35, 70, 40)))
+    c.drawOval(oval(x, y, 74 * k, 36 * k), paint(hollow))
     blink = (t % 2.9) > 2.75
-    for ex in (-26, 26):
+    for ex in (-26 * k, 26 * k):
         if blink:
-            c.drawLine(x + ex - 14, y, x + ex + 14, y, paint(rgb(255, 255, 255), stroke=6))
+            c.drawLine(x + ex - 14 * k, y, x + ex + 14 * k, y, paint(INK, stroke=6 * k))
             continue
+        c.drawOval(oval(x + ex, y, 17 * k, 21 * k), paint(INK, stroke=5 * k))
         c.drawOval(oval(x + ex, y, 17 * k, 21 * k), paint(rgb(255, 255, 255)))
-        c.drawCircle(x + ex + look * 6, y + 3, 9 * k, paint(rgb(30, 25, 40)))
-        c.drawCircle(x + ex + look * 6 + 3, y - 1, 3 * k, paint(rgb(255, 255, 255)))
+        c.drawCircle(x + ex + look * 6 * k, y + 3 * k, 9 * k, paint(rgb(30, 25, 40)))
+        c.drawCircle(x + ex + (look * 6 + 3) * k, y - k, 3 * k, paint(rgb(255, 255, 255)))
+
+
+def cloud(c, cx, cy, s=1.0, wiggle=0.0, t=0.0):
+    """Saklanma bulutu (gokyuzundeki suruklenen bulutlardan ayri, sabit). cx, cy: orta nokta."""
+    c.save()
+    c.translate(cx, cy)
+    c.rotate(wiggle * 5 * math.sin(t * 26))
+    c.scale(1 + wiggle * 0.05 * math.sin(t * 31), 1)
+    _cloud(c, -60 * s, 0, s)
+    c.restore()
+
+
+def big_tree(c, x, y, s=1.0, shake=0.0, t=0.0):
+    """Saklanma agaci. x, y: govdenin zemindeki ortasi. Govde ~150*s genis, tepe ~y-560*s."""
+    tw, th = 150 * s, 300 * s
+    trunk = skia.Path()
+    trunk.moveTo(x - tw * 0.5, y + 6)
+    trunk.quadTo(x - tw * 0.42, y - th * 0.5, x - tw * 0.36, y - th)
+    trunk.lineTo(x + tw * 0.36, y - th)
+    trunk.quadTo(x + tw * 0.42, y - th * 0.5, x + tw * 0.5, y + 6)
+    trunk.close()
+    inked(c, [trunk], paint(shader=linear((x - tw / 2, 0), (x + tw / 2, 0), [rgb(170, 115, 70), rgb(125, 80, 50)])))
+    for k in range(3):                     # kabuk cizgileri
+        bx = x - tw * 0.2 + k * tw * 0.2
+        c.drawLine(bx, y - th * (0.25 + 0.2 * k), bx + 6, y - th * (0.4 + 0.2 * k), paint(rgb(100, 65, 40), stroke=5))
+    c.save()
+    c.translate(x, y - th - 120 * s)
+    c.rotate(shake * 3 * math.sin(t * 24))
+    blobs = [(-170, 40, 130), (-90, -70, 150), (40, -110, 160), (160, -30, 140), (170, 70, 120), (0, 40, 170)]
+    paths = [oval_path(dx * s, dy * s, r * s, r * s) for dx, dy, r in blobs]
+    inked(c, paths, paint(shader=radial((-60 * s, -120 * s), 330 * s, [rgb(130, 215, 115), rgb(65, 150, 80)])))
+    for dx, dy, r in blobs[:5]:
+        arc = skia.Path()
+        arc.moveTo((dx - r * 0.45) * s, (dy - r * 0.25) * s)
+        arc.quadTo((dx - r * 0.2) * s, (dy - r * 0.6) * s, (dx + r * 0.15) * s, (dy - r * 0.55) * s)
+        c.drawPath(arc, paint(rgb(190, 245, 160), stroke=6))
+    c.restore()
+
+
+def leaf(c, x, y, rot=0.0, s=1.0, alpha=1.0):
+    c.save()
+    c.translate(x, y)
+    c.rotate(rot)
+    c.scale(s, s)
+    p = skia.Path()
+    p.moveTo(-22, 0)
+    p.quadTo(0, -16, 22, 0)
+    p.quadTo(0, 16, -22, 0)
+    p.close()
+    c.drawPath(p, paint(INK, stroke=6, alpha=alpha))
+    c.drawPath(p, paint(rgb(120, 205, 95), alpha=alpha))
+    c.drawLine(-16, 0, 16, 0, paint(rgb(70, 150, 70), stroke=3, alpha=alpha))
+    c.restore()
+
+
+def leaves(c, x, y, age, seed=0, n=7, life=1.6):
+    """Sallanan cali/agactan dusen yapraklar."""
+    if age < 0 or age > life:
+        return
+    rnd = random.Random(seed)
+    fade = 1 - clamp01((age - life * 0.7) / (life * 0.3))
+    for i in range(n):
+        vx, vy = rnd.uniform(-160, 160), rnd.uniform(-260, -120)
+        px = x + vx * age + 18 * math.sin(age * 6 + i)
+        py = y + vy * age + 0.5 * 600 * age * age
+        leaf(c, px, py, rot=rnd.uniform(0, 360) + age * 200, s=rnd.uniform(0.7, 1.1), alpha=fade)
+
+
+def dust(c, x, y, age, seed=0, life=0.6, spread=1.0):
+    """Inis/kosu toz bulutu: iki yana acilan yumusak puflar."""
+    if age < 0 or age > life:
+        return
+    e = age / life
+    rnd = random.Random(seed)
+    for i in range(6):
+        side = -1 if i % 2 else 1
+        dx = side * (30 + 110 * ease_out_back(e) * rnd.uniform(0.6, 1.0)) * spread
+        dy = -20 * e * rnd.uniform(0.5, 1.5)
+        r = (20 + 12 * rnd.random()) * (1 - 0.4 * e)
+        c.drawCircle(x + dx, y + dy, r, paint(rgb(150, 135, 120), stroke=5, alpha=1 - e))
+        c.drawCircle(x + dx, y + dy, r, paint(rgb(240, 232, 215), alpha=1 - e))
+
+
+def speed_lines(c, x, y, k, direction=1, length=170, seed=0):
+    """Hizli hareketin arkasinda yatay cizgiler. direction: hareket yonu (+1 saga)."""
+    if k <= 0.01:
+        return
+    rnd = random.Random(seed)
+    for i in range(4):
+        yy = y - 60 + i * 40 + rnd.uniform(-8, 8)
+        x0 = x - direction * (90 + rnd.uniform(0, 40))
+        c.drawLine(x0, yy, x0 - direction * length * rnd.uniform(0.6, 1.0), yy, paint(INK, stroke=6, alpha=k * 0.7))
 
 
 def ask_bubble(c, x, y, k, prog, t=0.0):
@@ -640,13 +759,8 @@ def karaoke(c, lines, timings, t_local, y0=900):
         st = starts.get(i, 1e9)
         sung = st <= t_local
         pop = ease_out_back(clamp01((t_local - st) / 0.25)) if sung else 0
-        k = 1 + 0.18 * pop * (1 - clamp01((t_local - st - 0.25) / 0.3))
-        c.save()
-        c.translate(x + (wd - f.measureText(" ")) / 2, y0)
-        c.scale(k, k)
-        c.drawString(w, -(wd - f.measureText(" ")) / 2, 0, f,
-                     paint(rgb(255, 130, 40) if sung else rgb(120, 110, 130)))
-        c.restore()
+        lift = 12 * pop * (1 - clamp01((t_local - st - 0.25) / 0.3))   # buyutme yerine ziplama: komsuya binmez
+        c.drawString(w, x, y0 - lift, f, paint(rgb(255, 130, 40) if sung else rgb(120, 110, 130)))
         x += wd
 
 

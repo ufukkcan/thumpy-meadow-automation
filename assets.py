@@ -27,6 +27,7 @@ NAMES = {
     "car": "Automobile", "bus": "Bus", "teddy": "Teddy bear", "balloon": "Balloon",
     "gift": "Wrapped gift", "star": "Glowing star", "heart": "Red heart", "sun": "Sun",
     "rainbow": "Rainbow",
+    "cake": "Birthday cake", "crown": "Crown",          # 7c: dogum gunu finali (kullanici onayi 11-05)
 }
 
 

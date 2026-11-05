@@ -32,6 +32,11 @@ jobs:
         with:
           path: sample_cache
           key: cc0-samples-${{ hashFiles('samples.py') }}
+      - name: Gercek hayvan sesleri (BigSoundBank, CC0)
+        uses: actions/cache@v4
+        with:
+          path: sfx_cache
+          key: bigsoundbank-${{ hashFiles('animal_sounds.py') }}
       - name: Ses bankasi (ASLA artifact yapilmaz -- ToU)
         uses: actions/cache@v4
         with:

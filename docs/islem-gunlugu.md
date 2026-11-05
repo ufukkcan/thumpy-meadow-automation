@@ -111,6 +111,11 @@ Format: `tarih · sistem · işlem · sonuç`
 - `11-05` · GitHub · Push `52a8f68` + `7839e80` (yeni dal `visual-proto`): Skia motoru, Fluent nesneler,
   yeni Dino. Run 41987847621 hata (libEGL eksik) → apt paketleri eklendi → run 41989750327 başarılı:
   65 sn video, 79 ms/kare (12 dk bölüm ≈ 23 dk render)
+- `11-05` · GitHub · Kullanıcı senaryoyu ("Dino'nun Saklambacı") ve push'u onayladı → push `ef1968d`
+  (`visual-proto`): `pilot.py`, `pilot.yml`, çizgi film stili `render2.py`; `visual_proto.yml` yalnızca elle
+- `11-05` · GitHub Actions · Pilot run 42010325985 başarılı (3:19). Kullanıcı tur 1 geri bildirimi verdi
+- `11-05` · GitHub · Kullanıcı tur 2 senaryosunu ("Doğum Günü Saklambacı"), beyaz listeye cake + crown
+  eklenmesini ve push'u onayladı (7c)
 ---
 
 ## Bekleyen işlemler

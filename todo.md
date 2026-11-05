@@ -247,17 +247,38 @@ Ayrı dosya `pilot.py` + `pilot.yml`, dal `visual-proto`. Üretime bağlı deği
 Süre ~3–3,5 dk (tüm formül parçaları; tam 10–12 dk bölüm görünüm onayından sonra).
 Senaryo elle yazıldı → **kullanıcı onayı** push'tan önce (çocuk güvenliği kuralı).
 
-- [ ] B1. Çizgi film stili (`render2.py`): kalın koyu kontur (Dino + Fluent nesneleri,
+- [x] B1. Çizgi film stili (`render2.py`): kalın koyu kontur (Dino + Fluent nesneleri,
       alfa genişletme ile bir kez), bebek şemalı Dino (iri göz), doygun yanak/kuyruk,
       ifadeler (mutlu/şaşkın/dinliyor), kaş, düşme pozu, hazırlık + ezilme, kol gecikmesi
-- [ ] B2. Konturlu çalı (göz kırpan gözler arkasından bakar), soru balonu (bekleme sayacı)
-- [ ] B3. Kamera planları: geniş/yakın/çalı yakını, sert kesme (yavaş zoom yok)
-- [ ] B4. Senaryo: selam şarkısı (0. sn, Frère Jacques) → saklambaç: inek, ördek, köpek
+- [x] B2. Konturlu çalı (göz kırpan gözler arkasından bakar), soru balonu (bekleme sayacı)
+- [x] B3. Kamera planları: geniş/yakın/çalı yakını, sert kesme (yavaş zoom yok)
+- [x] B4. Senaryo (kullanıcı onayladı): selam şarkısı (0. sn, Frère Jacques) → saklambaç: inek, ördek, köpek
       (ses ipucu → soru + 2,5 sn bekleme → yanlış çalı gag'i → "Peekaboo!" → kelime 3 kez)
       → hareket molası (London Bridge: tavşan gibi zıpla, fil gibi tepin) → tekrar
       (çocuk tamamlar) → sonraki bölüm ipucu → veda şarkısı (Twinkle)
-- [ ] B5. Duman testi + render + 15 kontrol karesi; kareler gözle kontrol, süre/ses ölçümü
-- [ ] B6. Kullanıcı izler; en fazla 3 tur
+- [x] B5. Duman testi + render; run 42010325985 başarılı, 3:19, 71 ms/kare; 14 kare gözle
+      kontrol. Ses yerelde ölçülmedi (kullanıcı dinleyecek)
+- [ ] B6. Kullanıcı izler; en fazla 3 tur. Kendi bulduğum küçük hatalar (sonraki turda):
+      arkadaş sırasındaki hayvanların gölgesi zeminde kalıyor; çalı gözleri kaybolurken
+      göz kırpma çizgisi küçülmüyor; karaokede büyüyen kelime komşusuna biniyor
+      Tur 1 geri bildirimi (11-05): bekleme süreleri ve ses dengesi iyi; hayvan sesleri gerçek
+      olsun; çizgi film havası ve şakalar daha iyi ama geliştirilebilir → 7c
+
+### 7c. Pilot tur 2 (2026-11-05, onay bekliyor)
+
+- [ ] C1. Gerçek hayvan sesleri: BigSoundBank (lisans sayfası: CC0 / kamu malı, düzenleme,
+      ticari ve videoda kullanım serbest, Content ID'ye kayıtlı değil). Sabit dosya adresi
+      `bigsoundbank.com/UPLOAD/flac/<id>.flac`, önbellek + lisans notu `licenses/`.
+      İnek s2383, ördek s0276 (en temiz tek "vak" kod ile kesilir), köpek s2352.
+      Hayvan konuşmaz: "Peekaboo!" yerine gerçek sesiyle çıkar
+- [ ] C2. Hikâye: neden saklanıyorlar → Dino'nun doğum günü sürprizi; sonda hepsi birden
+      "Surprise!" + pasta (beyaz listeye "cake" eklenir, Fluent "Birthday cake")
+- [ ] C3. Şakalar: üç kuralı (her biri bir öncekinden büyük), farklı saklanma yerleri
+      (çalı / ağaç / bulut), hayvana özgü kutlama hareketi, tekrar eden küçük şaka (Dino'nun
+      kuyruğu)
+- [ ] C4. Çizgi film hareketi: inişte toz bulutu, sallanan çalıdan yaprak, hız çizgileri,
+      hayvanlara ezilme-esneme ile yürüyüş, şaşkınlıkta ter damlası
+- [ ] C5. Tur 1 hataları (gölge, göz kırpma çizgisi, karaoke binmesi, düşme açısı)
 
 ## 8. Büyüme — SONRA
 
