@@ -305,6 +305,15 @@ hashtag "ThumypMeadow".
 kanal hashtag'i kodla düzeltilir. **Kural:** Sabit doğru olması gereken alanı (marka adı)
 modele bırakma, kodla zorla.
 
+### E17. Claude cevabından JSON'u "ilk { – son }" ile kesmek kırılgan (2026-11-05)
+**Hata (asistan, eski koddan):** `_ask` ilk `{` ile son `}` arasını `json.loads`'a veriyordu.
+Şarkı düzeltme cevabında JSON'un arkasına açıklama/ikinci nesne gelince "Extra data" →
+show_test run 42028706502 senaryo aşamasında durdu (deneme 3/3, kural 8 ile durup soruldu).
+**Çözüm:** `json.JSONDecoder().raw_decode` ile ilk tam nesne; yardımcı tur (şarkı düzeltme)
+başarısız olsa da bölüm üretilir, kalan sorun onay metninde görünür.
+**Kural:** Model çıktısını ayrıştırırken "ilk tam nesne"yi al; ana akışı yardımcı bir
+iyileştirme turunun hatasına bağlama.
+
 ---
 
 ## F. Kullanıcı ortamı kısıtları

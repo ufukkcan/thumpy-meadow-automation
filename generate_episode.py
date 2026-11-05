@@ -161,10 +161,12 @@ def _ask(prompt: str, max_tokens: int) -> dict:
     resp = _client().messages.create(model=MODEL, max_tokens=max_tokens,
                                      messages=[{"role": "user", "content": prompt}])
     text = "".join(b.text for b in resp.content if b.type == "text")
-    start, end = text.find("{"), text.rfind("}")
-    if start == -1 or end == -1:
+    start = text.find("{")
+    if start == -1:
         raise ValueError("Claude JSON dondurmedi:\n" + text[:500])
-    return json.loads(text[start: end + 1])
+    # ilk TAM JSON nesnesi; arkasina eklenen aciklama/ikinci nesne yok sayilir (lessons E17)
+    obj, _ = json.JSONDecoder().raw_decode(text[start:])
+    return obj
 
 
 def _load_state() -> dict:
@@ -379,7 +381,11 @@ def generate_script(idea: dict) -> dict:
     for _ in range(2):                 # en fazla 2 tur Claude'a duzelttir; kalanlar senaryoda kullaniciya gosterilir
         if not issues:
             break
-        _fix_songs(ep, issues)
+        try:
+            _fix_songs(ep, issues)
+        except Exception as exc:       # duzeltme turu bolumu durdurmaz; kalan sorunlar onay metninde gorunur
+            print(f"Sarki duzeltme turu basarisiz: {exc}", flush=True)
+            break
         issues = song_issues(ep)
     ep["song_issues"] = issues
     return ep

@@ -121,7 +121,9 @@ Format: `tarih · sistem · işlem · sonuç`
 - `11-05` · GitHub Actions · show_test run 42022806206 hata: koyun sesinden çağrı kesilemedi (lessons E15)
 - `11-05` · GitHub · Kullanıcı düzeltme push'unu onayladı ("pushla") → push `02e0625`; run 42023322949
   başarılı (7:23, 78 ms/kare); karelerde eski saklanma yerlerinin birikmesi bulundu
-- `11-05` · GitHub · Kullanıcı son test push'unu onayladı ("tamam yapalim") → deneme 3/3
+- `11-05` · GitHub · Kullanıcı son test push'unu onayladı ("tamam yapalim") → push `7c08a98`;
+  run 42028706502 hata: Claude cevabı ayrıştırılamadı (lessons E17). Kural 8: durup soruldu
+- `11-05` · GitHub · Kullanıcı öneriyle devam etti ("önerinle devam edelim") → düzeltme + 4. test
 ---
 
 ## Bekleyen işlemler
