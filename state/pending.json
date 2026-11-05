@@ -1,5 +1,5 @@
 {
-  "status": "reviewing",
+  "status": "done",
   "batch": "70edf3ab",
   "ideas": [
     {
@@ -249,5 +249,6 @@
     "song_issues": [
       "1. sarki, 2. satir: \"Clap your hands along with me\" (hece 7 = Clap(1) + your(1) + hands(1) + along(2) + with(1) + me(1); hedef 6)"
     ]
-  }
+  },
+  "video_id": "wfW6tyCYbz4"
 }
