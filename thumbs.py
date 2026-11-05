@@ -82,12 +82,13 @@ def concept_b(ep, spr, meadow, path):
     """Sevincli Dino + 3 hayvan + konfeti + konu yazisi."""
     surf, c = _base(meadow, t=4.0)
     names = [f["animal"] for f in ep["finds"][:3]]
-    for (x, y, s, rot), n in zip(((1150, 560, 360, -6), (1520, 470, 400, 5), (1760, 720, 330, -4)), names):
-        spr.draw(c, n, x, y, s, rot=rot, shadow_y=r.GROUND_Y + 90)
+    # hayvanlar yere basar (ayak ~ y + 0.42*boy = zemin cizgisinin altinda), golge ayaginda
+    for (x, y, s, rot), n in zip(((1130, 800, 340, -6), (1480, 760, 380, 5), (1780, 860, 320, -4)), names):
+        spr.draw(c, n, x, y, s, rot=rot, shadow_y=y + s * 0.42 + 6)
     r.confetti(c, 960, 300, 0.55, seed=5, n=60)
     r.dino_shadow(c, 520, 1060, s=1.5)
     r.dino(c, 520, 700, s=1.5, t=1.0, expr="happy", excited=True, mouth=0.8)
-    _text(c, ep["thumbnail_texts"][1], 1240, 160, 1250, size=170, fill=r.rgb(255, 255, 255), rot=3)
+    _text(c, ep["thumbnail_texts"][1], 1260, 270, 1250, size=165, fill=r.rgb(255, 255, 255), rot=3)
     return _finish(surf, c, path)
 
 
@@ -106,7 +107,7 @@ def concept_c(ep, spr, meadow, path):
     r.ask_bubble(c, 1640, 330, 1.0, 1.0)
     r.dino_shadow(c, 520, 1060, s=1.6)
     r.dino(c, 520, 690, s=1.6, t=1.0, expr="listen", arms=(20, 165), look=1.0, mouth=0.0)
-    _text(c, ep["thumbnail_texts"][2], 880, 140, 1500, size=165, fill=r.rgb(255, 214, 40), rot=-3)
+    _text(c, ep["thumbnail_texts"][2], 900, 250, 1500, size=160, fill=r.rgb(255, 214, 40), rot=-3)
     return _finish(surf, c, path)
 
 

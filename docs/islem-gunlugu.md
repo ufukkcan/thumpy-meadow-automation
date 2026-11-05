@@ -119,7 +119,9 @@ Format: `tarih · sistem · işlem · sonuç`
 - `11-05` · GitHub · Kullanıcı 7d push'unu onayladı → push `40bfc43` (`visual-proto`): show.py motoru,
   yeni Claude şeması, SEO + localizations, thumbs.py, kanal doğrulaması, show_test.yml. main'e dokunulmadı
 - `11-05` · GitHub Actions · show_test run 42022806206 hata: koyun sesinden çağrı kesilemedi (lessons E15)
-- `11-05` · GitHub · Kullanıcı düzeltme push'unu onayladı ("pushla") → deneme 2/3
+- `11-05` · GitHub · Kullanıcı düzeltme push'unu onayladı ("pushla") → push `02e0625`; run 42023322949
+  başarılı (7:23, 78 ms/kare); karelerde eski saklanma yerlerinin birikmesi bulundu
+- `11-05` · GitHub · Kullanıcı son test push'unu onayladı ("tamam yapalim") → deneme 3/3
 ---
 
 ## Bekleyen işlemler

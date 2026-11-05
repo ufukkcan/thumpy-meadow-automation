@@ -36,7 +36,7 @@ HELLO = ("jacques", ["Hello Dino, hello Dino", "Come and play! Come and play!",
 BYE = ("twinkle", ["Bye bye friends, it's time to go", "Wave goodbye, we love you so"])
 BREAK_MELODIES = ["london", "mary"]           # hareket molalari (sozleri Claude yazar)
 BREAK_AFTER = {1: 0, 3: 1}                    # 2. ve 4. oyundan sonra
-N_FINDS = 6
+N_FINDS = 7                                   # 7 oyun ~ 8,2 dk (6 oyun 7,4 dk olcuildu; hedef 8-10 dk)
 
 # ---------------- katalog (Claude yalnizca bunlardan secer) ----------------
 COLORS = {"cow": (150, 90, 200), "duck": (230, 150, 20), "dog": (215, 95, 40), "cat": (240, 120, 40),
@@ -67,8 +67,8 @@ DINO_HOME = 760
 DINO_Y = GY - 175
 HIDE_X = 1400
 WALK = 1100                                   # yuruyuste dunya kaymasi (piksel)
-FRIEND = [(70 + k * 95, GY - 190, 105) for k in range(N_FINDS)]
-ROW = [(990 + k * 150, GY - 140, 165) for k in range(N_FINDS)]
+FRIEND = [(60 + k * 85, GY - 190, 100) for k in range(N_FINDS)]
+ROW = [(970 + k * 140, GY - 140, 160) for k in range(N_FINDS)]
 SIL = (1300, 300, 300)
 CAKE = (1150, GY - 95, 220)
 FRUITS = ["apple", "banana", "strawberry", "watermelon", "grapes", "orange"]
@@ -454,17 +454,22 @@ GAG_FN = {"pop_fall": gag_pop_fall, "bush_hop": gag_bush_hop, "wrong_guess": gag
           "peek_zoom": gag_peek_zoom}
 
 
-def walk(tl, P, i):
-    """Yeni yere yuruyus: arka plan kayar, eski saklanma yeri soldan cikar, yenisi sagdan gelir."""
+def walk(tl, P, i=None):
+    """Yuruyus: arka plan kayar, onceki TUM saklanma yerleri dunyayla birlikte sola kayar (birikmez),
+    i verilirse yeni saklanma yeri sagdan gelir; i=None: temiz cayira yuruyus (tekrar/final oncesi)."""
     s = tl.seg("walk", 2.4, shot=("wide",))
     P.cam.hold(s["start"])
     P.cam.to(s["end"], P.cam.at(s["start"]) + WALK)
-    old = P.hide[i - 1]["x"]
-    old.hold(s["start"])
-    old.to(s["end"], old.at(s["start"]) - WALK)
-    new = P.hide[i]["x"]
-    new.jump(s["start"], HIDE_X + WALK)
-    new.to(s["end"], HIDE_X)
+    for j in range(len(P.hide) if i is None else i):
+        old = P.hide[j]["x"]
+        x0 = old.at(s["start"])
+        if x0 > -600:
+            old.hold(s["start"])
+            old.to(s["end"], x0 - WALK)
+    if i is not None:
+        new = P.hide[i]["x"]
+        new.jump(s["start"], HIDE_X + WALK)
+        new.to(s["end"], HIDE_X)
     tl.steps(s["start"], 8, dt=0.3, notes=(72 - 24, 76 - 24))
 
 
@@ -621,6 +626,7 @@ def build(ep, work, estimate=False):
         find(tl, P, i)
         if i in BREAK_AFTER:
             dance(tl, P, BREAK_AFTER[i], ep)
+    walk(tl, P)                                     # tekrar ve final temiz cayirda
     recap(tl, P)
     finale(tl, P, ep)
     teaser(tl, P, ep)

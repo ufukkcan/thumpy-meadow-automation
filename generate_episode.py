@@ -67,7 +67,7 @@ SAFETY_RULES = """COCUK GUVENLIGI KURALLARI (HER SEYDEN ONCELIKLI, ISTISNASIZ):
 
 IDEAS_PROMPT = """Thumpy Meadow: 2-6 yas cocuklar icin Ingilizce ogretici cizgi film kanali. Her bolum ayni oyun
 kalibinda: Dino'nun arkadaslari saklanmis; cocuk Dino'yla birlikte gercek hayvan seslerini dinleyip
-"Who says moo?" sorusunu cevaplar, 6 hayvani bulur. Bolumleri farkli kilan: hikaye cercevesi, hangi 6 hayvan,
+"Who says moo?" sorusunu cevaplar, 7 hayvani bulur. Bolumleri farkli kilan: hikaye cercevesi, hangi 7 hayvan,
 saklanma yerleri, sakalar, hareketler ve sarki sozleri.
 
 KATALOG (sadece bunlar cizilebilir/seslendirilebilir):
@@ -75,7 +75,7 @@ KATALOG (sadece bunlar cizilebilir/seslendirilebilir):
 
 Daha once kullanilan basliklar (TEKRAR ETME): {used}
 {must}
-3 FARKLI bolum fikri uret. Her fikir: cerceve + 6 hayvan (katalogdaki bulunacak hayvanlardan, farkli) +
+3 FARKLI bolum fikri uret. Her fikir: cerceve + 7 hayvan (katalogdaki bulunacak hayvanlardan, farkli) +
 calisma basligi + 1 cumle Turkce ozet.
 
 SADECE gecerli JSON dondur:
@@ -100,19 +100,20 @@ BOLUM YAPISI (motor kurar, sen satirlari ve secimleri yazarsin):
 - hook: 2-3 satir. 1. satir cerceveyi kurar (or. "Today is my birthday!"), sonraki satir arkadaslarin
   saklandigini soyler (or. "But where are my friends?").
 - ask: yardim istegi (or. "Can you help me find them?"); ardindan cocuga cevap icin bekleme olur.
-- finds: TAM 6 oyun. Her biri: animal (bulunacak hayvanlardan, hepsi farkli), hide (saklanma yeri),
+- finds: TAM 7 oyun. Her biri: animal (bulunacak hayvanlardan, hepsi farkli), hide (saklanma yeri),
   gag (saka), notice (saklanma yerinin hareketini fark etme, or. "Look! The bush is wiggling!",
   "Look! The tree is shaking!", "Look! The cloud is wiggling!"), gag_lines (sakanin satir sayisi kadar),
   action (hayvanin hareketi) ve action_line (or. "The cow can dance! Can you dance too?").
   Kurallar: cloud'a sadece ucabilenler saklanir; saka izinli yerlerinde kullanilir; 1-3. oyunlarda sakalar
-  KUCUK -> ORTA -> BUYUK diye buyusun, 4-6. oyunlarda yine; ayni saka art arda gelmesin; her bolumde en az
+  KUCUK -> ORTA -> BUYUK diye buyusun, 4-7. oyunlarda yine; ayni saka art arda gelmesin; her bolumde en az
   bir bush, bir tree, (ucan hayvan varsa) bir cloud olsun.
   Sakalar: {gags}
   Motor her oyunda sabit sorulari kendisi ekler: "Who says moo?" (bekleme), "It's a cow! The cow says moo!",
   "Can you say cow?" (bekleme), "Cow! Great job!" -- bunlari tekrar yazma.
 - breaks: TAM 2 hareket molasi sarkisi (2. ve 4. oyundan sonra). Sozler OZGUN, kafiyeli, tekrarli; cocuga
   hareket yaptirir. Satirlarda su hareket kelimeleri gecsin ki Dino yapsin: {moves}.
-  Her sarkinin satir sayisi ve satir basina HECE sayisi BIREBIR tutmali (ap-ple = 2, ba-na-na = 3, hop = 1):
+  Her sarkinin satir sayisi ve satir basina HECE sayisi BIREBIR tutmali (apple = 2, banana = 3, hop = 1;
+  sozlerde tire ile heceleme YAZMA):
 {patterns}
   guests: her sarkiya katalogdaki dans misafirlerinden 2 farkli hayvan (sarkida gecen hareketi yapacaklar).
 - finale: 3 satir. 1) arkadaslara tesekkur (or. "Thank you for finding my friends!"), 2) odule tepki
@@ -307,7 +308,9 @@ def normalize_episode(ep: dict) -> dict:
 # ---------------- sarki kontrolu ----------------
 FIX_PROMPT = """Bir cocuk sarkisinin sozlerinde hata var. Her satirin HECE sayisi hedefi TAM tutmali ve
 tum kelimeler yaygin Ingilizce sozlukte bulunmali. Anlami, kafiyeyi, hareket kelimelerini ve cocuk guvenligi
-kurallarini koru, sadece gerekeni duzelt.
+kurallarini koru, sadece gerekeni duzelt. Kelimeleri tireyle heceleme ("a-round" YANLIS, "around" DOGRU).
+Hatalarda her kelimenin sayilan hecesi parantez icinde verildi; hece eklemek/cikarmak icin kisa kelime
+ekle/cikar (or. "now", "so", "and", "up") ya da 1 heceli kelimeyi 2 heceliyle degistir.
 
 {items}
 
@@ -329,7 +332,10 @@ def song_issues(ep: dict) -> list[str]:
             missing = [w for w in line.split() if re.search(r"[A-Za-z]", w) and sing.syllable_count(w) is None]
             got = sum(vocal_break.counter(w) for w in line.split() if re.search(r"[A-Za-z]", w))
             if missing or got != pat[li]:
-                note = f"hece {got}, hedef {pat[li]}" + (f"; sozlukte yok: {', '.join(missing)}" if missing else "")
+                # kelime kelime sayim: Claude hece saymakta zorlaniyor; neyin kac sayildigini gorsun
+                per = " + ".join(f"{w.strip('.,!?')}({vocal_break.counter(w)})" for w in line.split()
+                                 if re.search(r"[A-Za-z]", w))
+                note = f"hece {got} = {per}; hedef {pat[li]}" + (f"; sozlukte yok: {', '.join(missing)}" if missing else "")
                 out.append(f"{k + 1}. sarki, {li + 1}. satir: \"{line}\" ({note})")
     return out
 
@@ -353,7 +359,7 @@ def _fix_songs(ep: dict, issues: list[str]) -> None:
 def generate_ideas() -> list[dict]:
     used = ", ".join(load_used()[-40:]) or "(yok)"
     nf = _load_state().get("next_friend")
-    must = (f"ONCEKI BOLUMUN SONUNDA SOZ VERILDI: her fikirde '{nf}' mutlaka 6 hayvandan biri olsun.\n"
+    must = (f"ONCEKI BOLUMUN SONUNDA SOZ VERILDI: her fikirde '{nf}' mutlaka 7 hayvandan biri olsun.\n"
             if nf in animal_sounds.SOURCES else "")
     data = _ask(IDEAS_PROMPT.format(library=LIBRARY_TEXT, used=used, must=must), max_tokens=2000)
     ideas = data.get("ideas", [])[:3]
@@ -370,7 +376,9 @@ def generate_script(idea: dict) -> dict:
                max_tokens=12000)
     ep = normalize_episode(raw)
     issues = song_issues(ep)
-    if issues:                         # bir kez Claude'a duzelttir; kalanlar senaryoda kullaniciya gosterilir
+    for _ in range(2):                 # en fazla 2 tur Claude'a duzelttir; kalanlar senaryoda kullaniciya gosterilir
+        if not issues:
+            break
         _fix_songs(ep, issues)
         issues = song_issues(ep)
     ep["song_issues"] = issues
