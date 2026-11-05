@@ -1,9 +1,7 @@
 name: Pilot bolum (Thumpy formulu, yukleme YOK)
 
 on:
-  push:
-    branches: [visual-proto]
-  workflow_dispatch: {}
+  workflow_dispatch: {}   # pilot tamamlandi (7b/7c); visual-proto dalina push artik show_test.yml'i tetikler
 
 jobs:
   pilot:

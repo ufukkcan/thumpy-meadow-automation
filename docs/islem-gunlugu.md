@@ -115,7 +115,7 @@ Format: `tarih · sistem · işlem · sonuç`
   (`visual-proto`): `pilot.py`, `pilot.yml`, çizgi film stili `render2.py`; `visual_proto.yml` yalnızca elle
 - `11-05` · GitHub Actions · Pilot run 42010325985 başarılı (3:19). Kullanıcı tur 1 geri bildirimi verdi
 - `11-05` · GitHub · Kullanıcı tur 2 senaryosunu ("Doğum Günü Saklambacı"), beyaz listeye cake + crown
-  eklenmesini ve push'u onayladı (7c)
+  eklenmesini ve push'u onayladı (7c) → push `69212e6`; run 42016648248 başarılı (3:47, 65 ms/kare)
 ---
 
 ## Bekleyen işlemler

@@ -221,13 +221,15 @@ def _cloud(c, x, y, s, a=1.0):
 
 
 def _hill_path(base_y, amp, waves, phase, width, step=24):
+    """waves tam sayi -> sol ve sag kenar ayni yukseklik (katman yan yana dosenebilir)."""
     p = skia.Path()
     p.moveTo(0, H + 40)          # alt kenar kadraj disinda: kontur gorunmesin
+    yf = lambda x: base_y - amp * (0.55 + 0.45 * math.sin(x / width * waves * 2 * math.pi + phase))
     x = 0.0
-    while x <= width:
-        y = base_y - amp * (0.55 + 0.45 * math.sin(x / width * waves * 2 * math.pi + phase))
-        p.lineTo(x, y)
+    while x < width:
+        p.lineTo(x, yf(x))
         x += step
+    p.lineTo(width, yf(width))
     p.lineTo(width, H + 40)
     p.close()
     return p
@@ -257,35 +259,38 @@ class Meadow:
         wd = W + self.PAD
 
         def far(c, w):
-            c.drawPath(_hill_path(560, 120, 2.2, 0.6, w),
+            c.drawPath(_hill_path(560, 120, 2, 0.6, w),
                        paint(shader=linear((0, 420), (0, 760), [rgb(150, 205, 225), rgb(125, 185, 205)])))
 
         def mid(c, w):
-            hill = _hill_path(650, 110, 1.6, 2.1, w)
+            hill = _hill_path(650, 110, 2, 2.1, w)
             c.drawPath(hill, paint(rgb(60, 120, 80), stroke=8))
             c.drawPath(hill, paint(shader=linear((0, 520), (0, 800), [rgb(140, 215, 140), rgb(100, 180, 110)])))
-            for i in range(9):     # yuvarlak agaclar
-                x, y = 120 + i * (w - 200) / 8 + rnd.uniform(-40, 40), 640 + rnd.uniform(-20, 20)
-                trunk = skia.Path()
-                trunk.addRect(skia.Rect.MakeXYWH(x - 9, y, 18, 60))
-                inked(c, [trunk], paint(rgb(150, 105, 70)), w=8)
-                inked(c, [oval_path(x, y - 10, 58, 58)],
-                      paint(shader=radial((x - 20, y - 35), 80, [rgb(130, 215, 120), rgb(75, 160, 90)])), w=8)
+            for i in range(9):     # yuvarlak agaclar (kenara tasan, karsi kenarda da cizilir: dosenebilir)
+                x0, y = 120 + i * (w - 200) / 8 + rnd.uniform(-40, 40), 640 + rnd.uniform(-20, 20)
+                for x in (x0 - w, x0, x0 + w):
+                    trunk = skia.Path()
+                    trunk.addRect(skia.Rect.MakeXYWH(x - 9, y, 18, 60))
+                    inked(c, [trunk], paint(rgb(150, 105, 70)), w=8)
+                    inked(c, [oval_path(x, y - 10, 58, 58)],
+                          paint(shader=radial((x - 20, y - 35), 80, [rgb(130, 215, 120), rgb(75, 160, 90)])), w=8)
 
         def near(c, w):
-            hill = _hill_path(GROUND_Y - 40, 26, 1.1, 0.3, w)
+            hill = _hill_path(GROUND_Y - 40, 26, 1, 0.3, w)
             c.drawPath(hill, paint(INK, stroke=LINE))
             c.drawPath(hill, paint(shader=linear((0, GROUND_Y - 70), (0, H),
                                                  [rgb(155, 225, 110), rgb(110, 195, 90), rgb(88, 170, 80)],
                                                  [0.0, 0.45, 1.0])))
             cols = [rgb(255, 120, 150), rgb(255, 255, 255), rgb(170, 140, 255), rgb(255, 170, 90)]
             for _ in range(70):
-                x, y = rnd.uniform(0, w), rnd.uniform(GROUND_Y + 10, H - 10)
-                if rnd.random() < 0.5:
-                    _flower(c, x, y, rnd.uniform(0.7, 1.2), rnd.choice(cols))
-                else:            # cimen tutami
-                    for k in (-1, 0, 1):
-                        c.drawLine(x, y, x + k * 8, y - 22, paint(rgb(80, 160, 75), stroke=4))
+                x0, y = rnd.uniform(0, w), rnd.uniform(GROUND_Y + 10, H - 10)
+                flower, s_, col = rnd.random() < 0.5, rnd.uniform(0.7, 1.2), rnd.choice(cols)
+                for x in (x0 - w, x0, x0 + w):
+                    if flower:
+                        _flower(c, x, y, s_, col)
+                    else:            # cimen tutami
+                        for k in (-1, 0, 1):
+                            c.drawLine(x, y, x + k * 8, y - 22, paint(rgb(80, 160, 75), stroke=4))
 
         self.far, self.mid, self.near = _layer(wd, far), _layer(wd, mid), _layer(wd, near)
         self.clouds = [(rnd.uniform(0, W + 400), rnd.uniform(90, 330), rnd.uniform(0.7, 1.15),
@@ -315,7 +320,11 @@ class Meadow:
             x = (x0 + v * t) % (W + 600) - 300
             _cloud(c, x, y, s)
         for img, k in ((self.far, 0.15), (self.mid, 0.4), (self.near, 1.0)):
-            c.drawImage(img, -self.PAD / 2 - cam_x * k, 0)
+            wd = img.width()
+            off = (-self.PAD / 2 - cam_x * k) % wd - wd        # yan yana dose: kamera ne kadar kayarsa kaysin
+            while off < W + 800:
+                c.drawImage(img, off, 0)
+                off += wd
 
 
 # ---------------- Dino (bizim maskot) ----------------

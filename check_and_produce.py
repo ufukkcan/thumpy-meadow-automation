@@ -51,7 +51,9 @@ def start_cycle(state: dict) -> dict:
     batch = uuid.uuid4().hex[:8]
     text = ["Bugunun bolum fikirleri -- birini sec:"]
     for i, idea in enumerate(ideas, 1):
-        text.append(f"\n{i}) {idea.get('working_title', '')}\n   {idea.get('summary', '')}")
+        animals = ", ".join(idea.get("animals", []))
+        text.append(f"\n{i}) {idea.get('working_title', '')}\n   {idea.get('summary', '')}"
+                    + (f"\n   [{idea.get('frame', '')}] {animals}" if animals else ""))
     buttons = [[(f"{i}", f"idea:{batch}:{i - 1}") for i in range(1, len(ideas) + 1)]]
     tg.send_message("\n".join(text), buttons)
     return {"status": "choosing", "batch": batch, "ideas": ideas,
@@ -66,32 +68,51 @@ def send_script(state: dict) -> dict:
     path.write_text(gen.script_as_text(ep, minutes), encoding="utf-8")
     tg.send_document(
         str(path),
-        caption=f"{ep['title']}\nTahmini sure: ~{minutes:.1f} dk\n\nLutfen senaryoyu oku. "
+        caption=f"{ep['title']}\nTahmini sure: ~{minutes:.1f} dk\n6 hayvan: "
+                f"{', '.join(f['animal'] for f in ep['finds'])}\n\nLutfen senaryoyu oku. "
                 f"Onaylamadan hicbir sey yuklenmez.",
         buttons=[[("Onayla", f"ok:{state['batch']}"), ("Yeniden yaz", f"redo:{state['batch']}")]],
     )
     return {**state, "status": "reviewing", "episode": ep}
 
 
+THUMBS_DIR = STATE_DIR / "thumbs"
+THUMB_TESTS = STATE_DIR / "thumb_tests.json"
+
+
 def produce_and_upload(state: dict) -> dict:
     ep = state["episode"]
-    tg.send_message("Onaylandi! Seslendirme ve video uretimi basladi (yaklasik 30-40 dakika).")
+    tg.send_message("Onaylandi! Seslendirme, sarkilar ve video uretimi basladi (yaklasik 40-50 dakika).")
     with tempfile.TemporaryDirectory() as tmp:
         result = produce(ep, Path(tmp))
         description = gen.build_description(ep, result["chapters"])
+        localizations = gen.build_localizations(ep, result["chapters"])
         publish_at, slot, human = scheduler.next_publish_time()
-        video_id = yt.upload(result["video"], ep["title"], description, ep["tags"], publish_at)
+        video_id = yt.upload(result["video"], ep["title"], description, ep["tags"], publish_at, localizations)
         thumb_ok, thumb_msg = yt.set_thumbnail(video_id, result["thumbnails"][0])
         scheduler.record_upload(video_id, publish_at, slot)
+        # B ve C sirali test icin saklanir (made-for-kids videolarda YouTube Test & compare kapali;
+        # olcum icin Reporting API izni gerekiyor -- docs/kararlar.md K-21)
+        THUMBS_DIR.mkdir(parents=True, exist_ok=True)
+        stored = []
+        for label, path in zip("ABC", result["thumbnails"]):
+            dst = THUMBS_DIR / f"{video_id}_{label}.jpg"
+            dst.write_bytes(Path(path).read_bytes())
+            stored.append(str(dst.relative_to(STATE_DIR.parent)))
+        tests = _load(THUMB_TESTS)
+        tests[video_id] = {"files": stored, "current": "A" if thumb_ok else None, "publish_at": publish_at,
+                           "status": "waiting_scope"}
+        _save(THUMB_TESTS, tests)
         for label, path in zip("ABC", result["thumbnails"]):
             tg.send_photo(path, caption=f"Kucuk resim {label}" + (" (YouTube'a yuklendi)" if label == "A" else ""))
-    gen.remember_topic(ep["title"])
+        tg.send_photo(result["thumb_preview"], caption="Telefon boyutunda gorunum (okunabilirlik kontrolu)")
+    gen.remember_topic(ep["title"], ep.get("teaser_animal"))
     tg.send_message(
         f"Yuklendi (gizli, zamanlanmis): https://youtu.be/{video_id}\n"
         f"Baslik: {ep['title']}\nSure: {result['total'] / 60:.1f} dk\n"
-        f"Yayin: {human}\n{thumb_msg}\n\n"
-        f"Ipucu: B ve C varyasyonlarini Studio'da Thumbnail > 'Test & Compare' ile ekleyebilirsin; "
-        f"YouTube en cok tiklananini otomatik secer.\n\n"
+        f"Yayin: {human}\n{thumb_msg}\n"
+        f"Dil basliklari: {', '.join(localizations) or 'yok'}\n\n"
+        f"B ve C saklandi; sirali kucuk resim testi Analytics/Reporting izni verilince otomatik baslar.\n\n"
         f"Yayindan once YouTube Studio'da izleyebilirsin; begenmezsen oradan silebilirsin."
     )
     return {**state, "status": "done", "video_id": video_id}

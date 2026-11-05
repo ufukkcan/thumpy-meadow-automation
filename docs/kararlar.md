@@ -173,3 +173,25 @@ OpenMoji (CC BY-SA, share-alike), Kenney (sabit indirme adresi yok), 3D Fluent P
 **Kurallar:** Maskot asla emoji olmaz (marka korunamaz). Bayraklar ve marka benzeri
 semboller kullanılmaz. "Microsoft/emoji" adı ve logosu kullanılmaz. Kullanılabilir
 objeler yine beyaz listeden (`props.validate_prop`).
+
+### K-20 · Yeni bölüm formatı: "Thumpy formülü" saklambaç, 8–10 dk (kullanıcı onayı)
+**Karar:** Üretim `show.py` motoruna geçer. Sabit ritüeller (selam/veda şarkısı), hikâye
+çerçevesi (birthday/picnic/rainbow), 6 bulma oyunu (gerçek hayvan sesi → soru + bekleme →
+büyüyen şaka → kelime 3 kez + tekrar ettirme → hareket), 2 hareket molası, tekrar, ödül,
+sonraki bölüm silueti. Beyaz liste artık katalog: `animal_sounds.SOURCES` (gerçek CC0 sesi
+olan 11 hayvan), `show.HIDES/GAGS/ACTIONS/FRAMES`, `assets.NAMES`. Claude yalnızca
+katalogdan seçer, `generate_episode.normalize_episode` doğrular. Senaryo onayı aynen korunur.
+**Gerekçe:** `docs/arastirma-cocuk-izleme.md` (anlama, tekrar, katılım, karakter, müzik);
+kullanıcı pilotu (2 tur) onayladı; süre seçimi kullanıcıdan (8–10 dk).
+**Risk:** Tek oyun kalıbı → zamanla "inauthentic/repetitive" riski. Önlem: çerçeve, hayvan,
+şaka, şarkı sözleri her bölümde değişir; sonraki adım yeni oyun kalıpları (renk, sayı).
+
+### K-21 · Küçük resim: 3 konsept, A otomatik; B/C sıralı test (izin bekliyor)
+**Karar:** `thumbs.py` aynı motorla 3 konsept üretir (sürpriz / arkadaşlar / merak). A
+`thumbnails.set` ile yüklenir; A/B/C `state/thumbs/`'a saklanır.
+**Gerekçe:** Data API'de Test & compare yok; ayrıca YouTube made-for-kids videolarda
+Test & compare'i kapatıyor (support.google.com/youtube/answer/13861714: "You cannot use
+this feature on videos that are made for kids"). Kullanıcı sıralı otomatik testi seçti.
+CTR yalnızca Reporting API toplu raporlarında (`channel_reach_basic_a1`,
+`video_thumbnail_impressions(_ctr)`, 2026-01-15) → `yt-analytics.readonly` izinli yeni token
+gerekir (anahtar yenilemesiyle birlikte). O gelene kadar test başlamaz (durum: waiting_scope).

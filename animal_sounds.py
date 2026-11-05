@@ -1,10 +1,12 @@
 """
-Gercek hayvan sesleri (7c): BigSoundBank kayitlari, CC0 / kamu mali (licenses/bigsoundbank-NOTICE.txt).
+Gercek hayvan sesleri (7c/7d): BigSoundBank kayitlari, CC0 / kamu mali (licenses/bigsoundbank-NOTICE.txt).
 
 - Sabit dosya adresinden indirilir, sfx_cache/bigsoundbank/'e onbelleklenir.
-- Kayittaki tek tek cagrilar (moo, quack, woof) enerji zarfina gore otomatik kesilir;
+- Kayittaki tek tek cagrilar (moo, quack, woof ...) enerji zarfina gore otomatik kesilir;
   en "yalniz" (arka plandan en belirgin) cagrilar once gelir.
 - Hayvan konusmaz: senaryoda hayvanin sesi her zaman bu kayitlardir.
+- SOURCES = bolumlerde "bulunabilecek" hayvanlarin listesi (gercek kaydi olmayan hayvan bulunamaz:
+  domuz, fil, maymun, aslan icin CC0 gercek kayit yok -- 2026-11-05 tum hayvan kategorisi tarandi).
 """
 import subprocess
 import time
@@ -16,31 +18,40 @@ import numpy as np
 SR = 44100
 CACHE = Path(__file__).resolve().parent / "sfx_cache" / "bigsoundbank"
 
-# ad -> (BigSoundBank no, dosya adresi, cagri uzunlugu araligi sn)
+_B = "https://bigsoundbank.com/UPLOAD/"
+# ad -> no, dosya, cagri suresi araligi (sn), ses yazimi (altyazi + "Who says ...?"), ucabilir mi
 SOURCES = {
-    "cow": ("2383", "https://bigsoundbank.com/UPLOAD/flac/2383.flac", (0.3, 2.6)),    # Cow moos #3
-    "duck": ("0276", "https://bigsoundbank.com/UPLOAD/bwf-en/0276.wav", (0.1, 1.0)),  # Ducks
-    "dog": ("2352", "https://bigsoundbank.com/UPLOAD/flac/2352.flac", (0.1, 1.0)),    # Old dog barking #1
+    "cow": dict(id="2383", url=_B + "flac/2383.flac", rng=(0.3, 2.6), says="moo", fly=False),
+    "duck": dict(id="0276", url=_B + "bwf-en/0276.wav", rng=(0.1, 1.0), says="quack", fly=True),
+    "dog": dict(id="2352", url=_B + "flac/2352.flac", rng=(0.1, 1.0), says="woof", fly=False),
+    "cat": dict(id="1890", url=_B + "flac/1890.flac", rng=(0.2, 2.0), says="meow", fly=False),
+    "sheep": dict(id="2343", url=_B + "flac/2343.flac", rng=(0.2, 1.6), says="baa", fly=False),
+    "rooster": dict(id="0283", url=_B + "bwf-en/0283.wav", rng=(0.5, 3.0), says="cock-a-doodle-doo", fly=True),
+    "horse": dict(id="0863", url=_B + "flac/0863.flac", rng=(0.4, 3.5), says="neigh", fly=False),
+    "frog": dict(id="0819", url=_B + "bwf-en/0819.wav", rng=(0.08, 1.5), says="ribbit", fly=False),
+    "chick": dict(id="0430", url=_B + "bwf-en/0430.wav", rng=(0.05, 0.8), says="peep", fly=False),
+    "owl": dict(id="1763", url=_B + "flac/1763.flac", rng=(0.3, 3.5), says="hoot", fly=True),
+    "bird": dict(id="1667", url=_B + "flac/1667.flac", rng=(0.3, 3.0), says="tweet", fly=True),
 }
 
 _calls = {}
 
 
 def _download(name):
-    sid, url, _ = SOURCES[name]
-    dst = CACHE / f"{sid}{Path(url).suffix}"
+    src = SOURCES[name]
+    dst = CACHE / f"{src['id']}{Path(src['url']).suffix}"
     if dst.exists() and dst.stat().st_size > 0:
         return dst
     dst.parent.mkdir(parents=True, exist_ok=True)
     for attempt in range(4):
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "thumpy-meadow-render"})
+            req = urllib.request.Request(src["url"], headers={"User-Agent": "thumpy-meadow-render"})
             with urllib.request.urlopen(req, timeout=60) as r:
                 dst.write_bytes(r.read())
             return dst
         except Exception as exc:
             if attempt == 3:
-                raise RuntimeError(f"Indirilemedi: {url}\n{exc}") from exc
+                raise RuntimeError(f"Indirilemedi: {src['url']}\n{exc}") from exc
             time.sleep(2 * (attempt + 1))
 
 
@@ -71,7 +82,7 @@ def calls(name, max_n=6):
             i = j
         else:
             i += 1
-    lo, hi = SOURCES[name][2]
+    lo, hi = SOURCES[name]["rng"]
     out = []
     for s, e in runs:
         if not (lo * 100 <= e - s <= hi * 100):
@@ -100,6 +111,6 @@ def clip(name, n=1, gap=0.15):
     return np.concatenate(parts[:-1])
 
 
-def report():
-    return [f"{k} (BigSoundBank #{v[0]}): {len(calls(k))} cagri, sureler "
-            + ", ".join(f"{len(c) / SR:.2f}" for c in calls(k)) for k, v in SOURCES.items()]
+def report(names=None):
+    return [f"{k} (BigSoundBank #{SOURCES[k]['id']}): {len(calls(k))} cagri, sureler "
+            + ", ".join(f"{len(c) / SR:.2f}" for c in calls(k)) for k in (names or SOURCES)]

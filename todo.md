@@ -264,7 +264,35 @@ Senaryo elle yazıldı → **kullanıcı onayı** push'tan önce (çocuk güvenl
       Tur 1 geri bildirimi (11-05): bekleme süreleri ve ses dengesi iyi; hayvan sesleri gerçek
       olsun; çizgi film havası ve şakalar daha iyi ama geliştirilebilir → 7c
 
-### 7c. Pilot tur 2 (2026-11-05, onay bekliyor)
+### 7d. Yeni formatı üretime bağlama + SEO + 3 küçük resim (2026-11-05, onay bekliyor)
+
+Kullanıcı: "bu formatların hepsini commitleyelim, bugüne yeni video; arama için başlık/açıklama;
+çok profesyonel 3 thumbnail, yüklemede otomatik (bundan sonraki tüm videolar için)".
+Bulgu: API'de Test & compare yok; ayrıca made-for-kids videolarda Studio'da da kapalı
+(support.google.com/youtube/answer/13861714) → sıralı otomatik test önerildi.
+
+Kararlar (kullanıcı): bölüm 8–10 dk; küçük resim sıralı otomatik test (K-20, K-21).
+
+- [x] D1. `show.py`: veriyle çalışan motor (6 oyun, kayan dünya, çerçeve finali, bölümler)
+- [x] D2. Ses kütüphanesi 11 hayvan (BigSoundBank CC0, lisans sayfaları + HEAD doğrulandı;
+      domuz/fil/maymun/aslan için gerçek kayıt yok)
+- [x] D3. `generate_episode.py`: yeni şema + katalog doğrulaması + şarkı hece düzeltme turu
+- [x] D4. SEO: başlık kalıbı, açıklama (hayvanlar, bölümler, kaynaklar), etiket, hashtag,
+      `localizations` es/pt/tr/id
+- [x] D5. `thumbs.py`: 3 konsept + telefon önizlemesi (kod yazıldı; görsel kanıt D7'de)
+- [ ] D6. Yükleme: kanal doğrulaması `verify_channel()` + A otomatik + A/B/C `state/thumbs/`
+      (yazıldı). Sıralı test koşucusu: yeni token (yt-analytics.readonly) gelince
+- [ ] D7. Uçtan uca test (taklit Telegram/YouTube) → kullanıcı onayı → main'e birleştir
+- [ ] D8. Bugünkü video: Telegram "video üret" → fikir → senaryo onayı → yükleme
+
+### 7c. Pilot tur 2 (2026-11-05, onaylandı → push `69212e6`, run 42016648248 başarılı, 3:47)
+
+Kanıt: 95 karenin 13'ü gözle kontrol. Ses kesimi: inek 1 çağrı (1,52 sn), ördek 6, köpek 1 (0,26 sn).
+Bulunan hatalar (tur 3'te): aslan silueti tanınmıyor (Fluent aslan sadece yüz → koyu kalkan);
+balon ipleri ikinci kez çizilmiş (Fluent balonun kendi ipi var); köpek ağaçtan bakarken Dino
+çok yakın, sol bakış Dino'nun arkasında kalıyor; ördek buluttan bakarken ters yöne bakıyor ve
+neredeyse görünmüyor.
+
 
 - [ ] C1. Gerçek hayvan sesleri: BigSoundBank (lisans sayfası: CC0 / kamu malı, düzenleme,
       ticari ve videoda kullanım serbest, Content ID'ye kayıtlı değil). Sabit dosya adresi

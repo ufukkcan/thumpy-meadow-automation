@@ -28,6 +28,7 @@ NAMES = {
     "gift": "Wrapped gift", "star": "Glowing star", "heart": "Red heart", "sun": "Sun",
     "rainbow": "Rainbow",
     "cake": "Birthday cake", "crown": "Crown",          # 7c: dogum gunu finali (kullanici onayi 11-05)
+    "sheep": "Ewe", "rooster": "Rooster", "horse": "Horse", "owl": "Owl", "bird": "Bird",   # 7d: gercek sesi olanlar
 }
 
 

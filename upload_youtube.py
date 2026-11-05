@@ -1,9 +1,11 @@
 """
 YouTube Data API v3 ile yukleme.
+- Once kanal dogrulamasi: token "Thumpy Meadow" kanalina ait degilse HICBIR sey yuklenmez
+  (bir Google hesabi altinda birden fazla kanal var; bkz. docs/lessons.md).
 - selfDeclaredMadeForKids = True (COPPA -- zorunlu)
-- Kategori 27 (Education), dil Ingilizce (arama/oneri icin dil sinyali)
+- Kategori 27 (Education), dil Ingilizce; localizations ile es/pt/tr/id baslik + aciklama
 - Gizli yuklenir + publishAt ile zamanlanmis yayin
-- Ozel kucuk resim (kanal telefonla dogrulanmis olmali; degilse yukleme yine basarili sayilir)
+- Ozel kucuk resim (thumbnails.set; API tek kucuk resim kabul eder)
 - 48 saatlik izlenme olcumu (yayin saati ogrenmesi icin)
 """
 import os
@@ -12,6 +14,9 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
+
+CHANNEL_TITLE = "Thumpy Meadow"
+CHANNEL_ID = "UC9_bFi-Pyp8hTlclZYkcz-Q"
 
 
 def _youtube():
@@ -25,7 +30,17 @@ def _youtube():
     return build("youtube", "v3", credentials=creds, cache_discovery=False)
 
 
-def upload(video_path: str, title: str, description: str, tags: list[str], publish_at_utc: str) -> str:
+def verify_channel() -> None:
+    """Token'in bagli oldugu kanal Thumpy Meadow degilse hata (yukleme yapilmaz)."""
+    items = _youtube().channels().list(part="snippet", mine=True).execute().get("items", [])
+    found = [(it["id"], it["snippet"]["title"]) for it in items]
+    if not any(cid == CHANNEL_ID and title == CHANNEL_TITLE for cid, title in found):
+        raise RuntimeError(f"YANLIS KANAL: token su kanallara ait: {found}. Yukleme iptal edildi.")
+
+
+def upload(video_path: str, title: str, description: str, tags: list[str], publish_at_utc: str,
+           localizations: dict | None = None) -> str:
+    verify_channel()
     body = {
         "snippet": {
             "title": title[:100],
@@ -42,8 +57,12 @@ def upload(video_path: str, title: str, description: str, tags: list[str], publi
             "embeddable": True,
         },
     }
+    parts = "snippet,status"
+    if localizations:
+        body["localizations"] = localizations
+        parts += ",localizations"
     media = MediaFileUpload(video_path, mimetype="video/mp4", chunksize=8 * 1024 * 1024, resumable=True)
-    request = _youtube().videos().insert(part="snippet,status", body=body, media_body=media)
+    request = _youtube().videos().insert(part=parts, body=body, media_body=media)
     response = None
     while response is None:
         status, response = request.next_chunk()
@@ -59,7 +78,7 @@ def set_thumbnail(video_id: str, jpg_path: str) -> tuple[bool, str]:
         ).execute()
         return True, "Kucuk resim yuklendi."
     except HttpError as e:
-        return False, f"Kucuk resim yuklenemedi (kanal dogrulamasi gerekebilir): {e.reason if hasattr(e, 'reason') else e}"
+        return False, f"Kucuk resim yuklenemedi: {e.reason if hasattr(e, 'reason') else e}"
 
 
 def view_count(video_id: str) -> int | None:
