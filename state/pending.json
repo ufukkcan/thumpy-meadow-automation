@@ -1,46 +1,46 @@
 {
   "status": "choosing",
-  "batch": "a24ce2d2",
+  "batch": "6aa181cd",
   "ideas": [
     {
-      "working_title": "Birthday Surprise in the Meadow",
-      "summary": "Dino'nun doğum gününde arkadaşları çimlere, ağaçlara ve bulutlara saklanmış; çocuklar her hayvan sesini dinleyip 7 dostu bulunca pasta ve balonlarla kutlama başlıyor.",
+      "working_title": "Birthday Surprise in Thumpy Meadow",
+      "summary": "Dino'nun doğum günü partisi için arkadaşları saklanmış; çocuklar duck, cow, sheep, frog, owl, horse ve chick'i bularak büyük sürprize ortak olur.",
       "frame": "birthday",
       "animals": [
         "duck",
         "cow",
-        "owl",
         "sheep",
-        "dog",
-        "chick",
-        "horse"
+        "frog",
+        "owl",
+        "horse",
+        "chick"
       ]
     },
     {
-      "working_title": "Picnic Hide and Seek with Dino",
-      "summary": "Piknik örtüsü hazırken 7 arkadaş etrafa saklanıyor; çocuklar kurbağanın, kedin ve öteki dostların seslerini tahmin edip hepsini bulunca Dino'ya çilek yağıyor.",
-      "frame": "picnic",
+      "working_title": "Rainbow Day Animal Hunt",
+      "summary": "Gökkuşağının altında saklanan duck, dog, cat, rooster, bird, frog ve sheep'i Dino ile birlikte bulup gökkuşağını tamamlarlar.",
+      "frame": "rainbow",
       "animals": [
         "duck",
-        "frog",
+        "dog",
         "cat",
         "rooster",
-        "dog",
         "bird",
+        "frog",
         "sheep"
       ]
     },
     {
-      "working_title": "Rainbow Friends Hide Away",
-      "summary": "Gökkuşağı belirince Dino'nun 7 arkadaşı rengarenk saklanma yerlerine koşuyor; sesler bulununca gökyüzü yıldızlarla dolup gökkuşağı parıldıyor.",
-      "frame": "rainbow",
+      "working_title": "Picnic Pals Hide and Seek",
+      "summary": "Piknik sepetinin etrafına saklanan duck, horse, owl, cow, chick, dog ve rooster'ı bulan çocuklar Dino ile birlikte çilek yağmurunda kutlama yapar.",
+      "frame": "picnic",
       "animals": [
         "duck",
-        "owl",
         "horse",
+        "owl",
         "cow",
         "chick",
-        "frog",
+        "dog",
         "rooster"
       ]
     }
