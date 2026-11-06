@@ -478,6 +478,7 @@ def find(tl, P, i):
     name, says, col = f["animal"], f["says"], f["rgb"]
     kind = P.hide[i]["kind"]
     tl.chapter(f"The {name.capitalize()} Says {says.capitalize()}")
+    t_start = tl.t                                   # Shorts icin oyunun basi
     s = tl.say(f["notice"], expr="surprised", look=1.0, wiggle=i, shot=("two", i))
     tl.rustle(s["start"], s["dur"])
     hx = _hx(P, i, s["start"])
@@ -515,6 +516,7 @@ def find(tl, P, i):
     tl.say(f["action_line"], expr="happy", shot=("two", i))
     s = tl.seg("action", 3.2, verb=f["action"], actor=i, shot=("two", i))
     tl.jingle(s["start"], s["dur"])
+    P.spans.append((t_start, s["end"]))              # Shorts: bildirimden harekete kadar tek oyun
 
     # arkadas sirasina katilir, Dino evine doner
     s = tl.seg("join", 1.3, shot=("wide",))
@@ -602,7 +604,7 @@ def build(ep, work, estimate=False):
                         hide=[dict(kind=f["hide"], x=Track(HIDE_X if i == 0 else HIDE_X + WALK)) for i, f in enumerate(finds)],
                         animal=[Track((HIDE_X, GY - 60, 260)) for _ in finds],
                         shown_from=[1e9] * len(finds), front_from=[1e9] * len(finds), on_head=[],
-                        fx=[], extras=[], head=[], bush_hops=[], finale_t=1e9, sil=1e9,
+                        fx=[], extras=[], head=[], bush_hops=[], finale_t=1e9, sil=1e9, spans=[],
                         frame=ep["frame"], teaser=ep["teaser_animal"])
     tl = TL(work, estimate)
 
@@ -692,7 +694,19 @@ def _cur_word(s, tl):
     return None
 
 
-def _camera(spec, t, P):
+def _short_spec(spec, s, P, i):
+    """Shorts (dar dikey kadraj): Dino ile saklanma yeri ayni kadraja sigmaz; genis/ikili plan yerine
+    o an konusana ya da olayin oldugu yere yakin plan."""
+    if spec[0] not in ("wide", "two", "pt"):
+        return spec
+    if isinstance(s.get("who"), int) or s["kind"] in ("peek", "bushhop") or s.get("wiggle") == i:
+        return ("hide", i)
+    if s["kind"] in ("action",) or s.get("celebrate") == i:
+        return ("animal", i)
+    return ("dino",)
+
+
+def _camera(spec, t, P, fw=r.W, fh=r.H, zmin=1.0):
     kind = spec[0]
     if kind == "wide":
         cx, cy, z = r.W / 2, r.H / 2, 1.0
@@ -713,7 +727,8 @@ def _camera(spec, t, P):
         cx, cy, z = x, y - 40, 1.6
     else:
         cx, cy, z = spec[1], spec[2], spec[3]
-    hw, hh = r.W / 2 / z, r.H / 2 / z
+    z = max(z, zmin)
+    hw, hh = fw / 2 / z, fh / 2 / z               # gorunen dunya yari-genislik/yukseklik (dunya 1920x1080)
     return min(max(cx, hw), r.W - hw), min(max(cy, hh), r.H - hh), z
 
 
@@ -854,7 +869,8 @@ def _eyes_k(P, s, t, i):
     return 0.0
 
 
-def draw(c, t, P, meadow, spr, f):
+def draw(c, t, P, meadow, spr, f, fw=r.W, fh=r.H, short=None):
+    """fw x fh tuvale bir kare. short=i: dikey Shorts kadraji (i. oyun), yakin plan + ust baslik."""
     s = _seg_at(P.segs, t)
     tl = t - s["start"]
     if s["kind"] == "song":
@@ -862,7 +878,11 @@ def draw(c, t, P, meadow, spr, f):
         spec = s["shots"][min(idx, len(s["shots"]) - 1)]
     else:
         spec = s.get("shot", ("wide",))
-    cx, cy, z = _camera(spec, t, P)
+    zmin = 1.0
+    if short is not None:
+        spec = _short_spec(spec, s, P, short)
+        zmin = fh / r.H                                # dunyanin tam yuksekligi kadraja oturur
+    cx, cy, z = _camera(spec, t, P, fw, fh, zmin)
 
     shake = 0.0
     cw = _cur_word(s, tl) if s["kind"] == "song" else None
@@ -873,7 +893,7 @@ def draw(c, t, P, meadow, spr, f):
         shake = 10 * math.exp(-ph / 0.15) * math.sin(ph * 60)
 
     c.save()
-    c.translate(r.W / 2, r.H / 2 + shake)
+    c.translate(fw / 2, fh / 2 + shake)
     c.scale(z, z)
     c.translate(-cx, -cy)
     meadow.draw(c, t, P.cam.at(t) + 20 * math.sin(t * 0.3))
@@ -1073,6 +1093,16 @@ def draw(c, t, P, meadow, spr, f):
             r.leaves(c, ex, ey, age, seed=seed)
     c.restore()
 
+    if short is not None:                             # Shorts arayuzu: ust baslik, orta-alt altyazi
+        import thumbs                                 # (alt ~%25 Shorts dugmeleri/aciklamasiyla kapali)
+        fnd = P.finds[short]
+        thumbs._text(c, f"WHO SAYS {fnd['says'].upper()}?", fw / 2, 230, fw - 120, size=120, rot=-3)
+        if "text" in s and s["kind"] != "song":
+            r.caption(c, s["text"], key=s.get("key"), key_color=s.get("color", r.rgb(235, 70, 70)),
+                      y=int(fh * 0.70), cw=fw)
+        if s["kind"] == "pause":
+            r.ask_bubble(c, fw * 0.74, fh * 0.30, tl / 0.35, tl / s["dur"], t)
+        return
     if s["kind"] == "song":
         r.karaoke(c, s["lines"], s["timings"], tl)
         if s["phase"] == "bye":
@@ -1133,3 +1163,66 @@ def render(ep, work, out_mp4, frames_dir=None):
 
 def estimate_seconds(ep):
     return build(ep, "/tmp", estimate=True).total
+
+
+# ---------------- Shorts (7e) ----------------
+SW, SH = 1080, 1920
+
+
+def pick_shorts(P, n=2):
+    """En komik n oyun: saka buyuklugu en yuksek olanlar (esitlikte erken olan). Donus: oyun indeksleri."""
+    order = sorted(range(len(P.finds)), key=lambda i: (-GAGS[P.finds[i]["gag"]][2], i))
+    return sorted(order[:n])
+
+
+def render_shorts(P, work, n=2, frames_dir=None):
+    """Bolumden n dikey Short: ayni zaman cizelgesi ve AYNI ses (yeniden seslendirme yok), sahne dikey
+    kadraja yakin planla yeniden cizilir. Donus: [{"path", "find", "dur"}]."""
+    import music
+    work = Path(work)
+    spr = r.Sprites(outline=14)
+    meadow = r.Meadow()
+    surf = skia_surface(SW, SH)
+    c = surf.getCanvas()
+    out = []
+    for i in pick_shorts(P, n):
+        t0, t1 = P.spans[i]
+        t0, t1 = max(0.0, t0 - 0.1), t1 + 0.4
+        a = P.audio[int(t0 * SR): int(t1 * SR)].copy()
+        fade = int(0.08 * SR)
+        a[:fade] *= np.linspace(0, 1, fade)
+        a[-fade:] *= np.linspace(1, 0, fade)
+        wav = work / f"short_{i}.wav"
+        music.write_wav(str(wav), a)
+        mp4 = work / f"short_{i}.mp4"
+        ff = subprocess.Popen(
+            ["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgba", "-s", f"{SW}x{SH}",
+             "-r", str(FPS), "-i", "-", "-i", str(wav), "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+             "-pix_fmt", "yuv420p", "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-c:a", "aac", "-b:a", "192k",
+             "-ar", str(SR), "-shortest", "-movflags", "+faststart", str(mp4)],
+            stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        f0, f1 = int(t0 * FPS), int(t1 * FPS)
+        keys = {f0 + 2: "a", (f0 + f1) // 2: "b", f1 - 12: "c"}
+        try:
+            for fr in range(f0, f1):
+                c.clear(r.rgb(0, 0, 0))
+                draw(c, fr / FPS, P, meadow, spr, fr, fw=SW, fh=SH, short=i)
+                img = surf.makeImageSnapshot()
+                arr = img.toarray(colorType=r.skia.kRGBA_8888_ColorType, alphaType=r.skia.kUnpremul_AlphaType)
+                data = np.ascontiguousarray(arr).tobytes()
+                ff.stdin.write(data)
+                if frames_dir and fr in keys:
+                    Image.frombytes("RGBA", (SW, SH), data).convert("RGB").save(
+                        Path(frames_dir) / f"short_{i}_{keys[fr]}.png")
+        finally:
+            ff.stdin.close()
+        err = ff.stderr.read().decode(errors="ignore")
+        if ff.wait() != 0:
+            raise RuntimeError("ffmpeg (short) hatasi:\n" + err[-1500:])
+        out.append({"path": str(mp4), "find": i, "dur": t1 - t0})
+        print(f"Short {i} ({P.finds[i]['animal']}): {t1 - t0:.1f} sn", flush=True)
+    return out
+
+
+def skia_surface(w, h):
+    return r.skia.Surface(w, h)

@@ -288,6 +288,18 @@ Kararlar (kullanıcı): bölüm 8–10 dk; küçük resim sıralı otomatik test
 - [x] D7b. main'e birleştir (kullanıcı onayı 11-05)
 - [ ] D8. Bugünkü video: Telegram "video üret" → fikir → senaryo onayı → yükleme
 
+### 7e. Analitik (2026-11-06) + Shorts + başlık kuralı (onay bekliyor)
+
+Veri: wfW6tyCYbz4 (yeni format, 5 Kasım 21:00 TR) 17 saatte 7 izlenme (sayfa sayacı); Studio verisi
+48–72 sa gecikmeli → **8 Kasım'da** gösterim/CTR/tutma çekilecek. H9epa9bfhhI: 63 gösterim, %0 CTR,
+0 izlenme (Studio, 3–4 Kasım). Aramada dizinde (ceza yok); kendi tam başlığıyla #36, "Count to 10" #1.
+Yorum: gösterim var, tıklama yok + ilk videonun zayıf CTR/tutma sinyali sonrası küçük deneme bütçesi.
+
+- [ ] E1. Shorts: her bölümden 2 dikey (1080x1920) "Who says ...?" oyunu (~40 sn), bölümün KENDİ
+      sesinden kesilir, sahne yakın planla yeniden çizilir; bölümden 1 ve 2 gün sonra zamanlanır
+- [ ] E2. Başlık kuralı: rekabeti düşük uzun ifade önce (aramada ölçülür), genel ifade ikincil
+- [ ] E3. 8 Kasım: yeni videonun gösterim, CTR, trafik kaynağı, tutma grafiği → karar
+
 ### 7c. Pilot tur 2 (2026-11-05, onaylandı → push `69212e6`, run 42016648248 başarılı, 3:47)
 
 Kanıt: 95 karenin 13'ü gözle kontrol. Ses kesimi: inek 1 çağrı (1,52 sn), ördek 6, köpek 1 (0,26 sn).

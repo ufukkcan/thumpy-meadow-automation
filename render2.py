@@ -729,13 +729,13 @@ def _fit(words, size, max_w=W - 220):
     return f
 
 
-def caption(c, text, key=None, key_color=rgb(235, 70, 70), y=985):
-    """Alt yazi: konturlu beyaz yuvarlak kutu; anahtar kelime renkli."""
+def caption(c, text, key=None, key_color=rgb(235, 70, 70), y=985, cw=W):
+    """Alt yazi: konturlu beyaz yuvarlak kutu; anahtar kelime renkli. cw: tuval genisligi (Shorts 1080)."""
     words = text.split()
-    f = _fit(words, 62)
+    f = _fit(words, 62, cw - 220)
     widths = [f.measureText(w + " ") for w in words]
     tw = sum(widths) - f.measureText(" ")
-    x0 = (W - tw) / 2
+    x0 = (cw - tw) / 2
     box = skia.Rect.MakeLTRB(x0 - 44, y - 64, x0 + tw + 44, y + 28)
     c.drawRRect(skia.RRect.MakeRectXY(box, 46, 46), paint(INK, stroke=10))
     c.drawRRect(skia.RRect.MakeRectXY(box, 46, 46), paint(rgb(255, 255, 255, 245)))

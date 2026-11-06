@@ -126,6 +126,11 @@ Format: `tarih · sistem · işlem · sonuç`
 - `11-05` · GitHub · Kullanıcı öneriyle devam etti ("önerinle devam edelim") → push `ce3410c`;
   run 42029359003 başarılı (8:08 bölüm, 3 thumbnail)
 - `11-05` · GitHub · Kullanıcı main'e birleştirmeyi onayladı → WALK düzeltmesi + `visual-proto` → `main`
+  (`d91243f`); show_test 42034601443 başarılı (finalde eski ağaç yok, doğrulandı)
+- `11-05` · GitHub Actions · Kullanıcı üretimi elle tetikledi; Telegram onayı → wfW6tyCYbz4 yüklendi
+  (yayın 5 Kasım 18:00 UTC). Not: 5 dk'lık cron gerçekte günde 4–5 kez çalışıyor
+- `11-06` · YouTube Studio · Kullanıcı analitik CSV verdi: H9epa9bfhhI 63 gösterim, %0 CTR, 0 izlenme
+- `11-06` · GitHub · Kullanıcı Shorts planını ve test push'unu onayladı (7e)
 ---
 
 ## Bekleyen işlemler

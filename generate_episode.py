@@ -429,6 +429,21 @@ def build_localizations(ep: dict, chapter_list) -> dict:
     return out
 
 
+def short_meta(ep: dict, find_index: int, full_video_id: str | None) -> dict:
+    """Short icin baslik / aciklama / etiket: oyunun sorusu one cikar, tam bolume yonlendirir."""
+    f = ep["finds"][find_index]
+    animal, says = f["animal"], animal_sounds.SOURCES[f["animal"]]["says"]
+    title = f"Who Says {says.capitalize()}? Peekaboo {animal.capitalize()} Sound for Kids | Thumpy Meadow"
+    desc = [f"Who says {says}? Listen, guess and play peekaboo with Dino! A real {animal} sound for "
+            f"toddlers and preschoolers."]
+    if full_video_id:
+        desc.append(f"Find all the animal friends in the full episode: https://youtu.be/{full_video_id}")
+    desc.append(" ".join(f"#{h}" for h in (["shorts"] + ep["hashtags"])[:4]))
+    tags = ([f"{animal} sound for kids", f"who says {says}", "peekaboo animals", "animal sounds for kids"]
+            + ep["tags"])[:15]
+    return {"title": title[:100], "description": "\n\n".join(desc), "tags": tags}
+
+
 def script_as_text(ep: dict, est_minutes: float) -> str:
     """Telegram'da okunacak duz metin senaryo."""
     out = [f"BASLIK: {ep['title']}", f"Tahmini sure: ~{est_minutes:.1f} dakika",

@@ -106,12 +106,24 @@ def produce_and_upload(state: dict) -> dict:
         for label, path in zip("ABC", result["thumbnails"]):
             tg.send_photo(path, caption=f"Kucuk resim {label}" + (" (YouTube'a yuklendi)" if label == "A" else ""))
         tg.send_photo(result["thumb_preview"], caption="Telefon boyutunda gorunum (okunabilirlik kontrolu)")
+        # Shorts (7e): onayli senaryonun birebir parcasi; bolumden 1 ve 2 gun sonra ayni saatte yayin
+        short_lines = []
+        base = datetime.fromisoformat(publish_at.replace("Z", "+00:00"))
+        for k, sh in enumerate(result.get("shorts", []), 1):
+            try:
+                meta = gen.short_meta(ep, sh["find"], video_id)
+                when = (base + timedelta(days=k)).strftime("%Y-%m-%dT%H:%M:%SZ")
+                sid = yt.upload(sh["path"], meta["title"], meta["description"], meta["tags"], when)
+                short_lines.append(f"Short {k}: https://youtu.be/{sid} (yayin {when[:10]})")
+            except Exception as exc:                   # Short hatasi ana bolumu bozmaz
+                short_lines.append(f"Short {k} yuklenemedi: {str(exc)[:200]}")
     gen.remember_topic(ep["title"], ep.get("teaser_animal"))
     tg.send_message(
         f"Yuklendi (gizli, zamanlanmis): https://youtu.be/{video_id}\n"
         f"Baslik: {ep['title']}\nSure: {result['total'] / 60:.1f} dk\n"
         f"Yayin: {human}\n{thumb_msg}\n"
-        f"Dil basliklari: {', '.join(localizations) or 'yok'}\n\n"
+        f"Dil basliklari: {', '.join(localizations) or 'yok'}\n"
+        + ("\n".join(short_lines) + "\n" if short_lines else "") + "\n"
         f"B ve C saklandi; sirali kucuk resim testi Analytics/Reporting izni verilince otomatik baslar.\n\n"
         f"Yayindan once YouTube Studio'da izleyebilirsin; begenmezsen oradan silebilirsin."
     )
