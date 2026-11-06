@@ -1,254 +1,49 @@
 {
-  "status": "done",
-  "batch": "70edf3ab",
+  "status": "choosing",
+  "batch": "a24ce2d2",
   "ideas": [
     {
-      "working_title": "Birthday Party Hideout | Animal Sounds for Kids | Thumpy Meadow",
-      "summary": "Dino'nun doğum günü partisinde inek, ördek, köpek, kedi, koyun, horoz ve kurbağa arkadaşları çeşitli yerlere saklanmış; çocuklar her hayvanı bulduğunda Dino bir adım daha partiye yaklaşıyor.",
+      "working_title": "Birthday Surprise in the Meadow",
+      "summary": "Dino'nun doğum gününde arkadaşları çimlere, ağaçlara ve bulutlara saklanmış; çocuklar her hayvan sesini dinleyip 7 dostu bulunca pasta ve balonlarla kutlama başlıyor.",
       "frame": "birthday",
       "animals": [
-        "cow",
         "duck",
-        "dog",
-        "cat",
+        "cow",
+        "owl",
         "sheep",
-        "rooster",
-        "frog"
+        "dog",
+        "chick",
+        "horse"
       ]
     },
     {
-      "working_title": "Picnic in the Meadow | Animal Sounds for Kids | Thumpy Meadow",
-      "summary": "Dino piknik sofrasını kurarken at, civciv, baykuş, kuş, kurbağa, inek ve kedi çalılıklara, bulutlara ve ağaçlara saklanmış; her buluş piknik sofrasına yeni bir lezzet getiriyor.",
+      "working_title": "Picnic Hide and Seek with Dino",
+      "summary": "Piknik örtüsü hazırken 7 arkadaş etrafa saklanıyor; çocuklar kurbağanın, kedin ve öteki dostların seslerini tahmin edip hepsini bulunca Dino'ya çilek yağıyor.",
       "frame": "picnic",
       "animals": [
-        "horse",
-        "chick",
-        "owl",
-        "bird",
+        "duck",
         "frog",
-        "cow",
-        "cat"
+        "cat",
+        "rooster",
+        "dog",
+        "bird",
+        "sheep"
       ]
     },
     {
-      "working_title": "Rainbow Friends | Animal Sounds for Kids | Thumpy Meadow",
-      "summary": "Gökkuşağının altında Dino köpek, ördek, koyun, horoz, baykuş, at ve civcivi arıyor; her hayvan gökkuşağına yeni bir renk katıyor.",
+      "working_title": "Rainbow Friends Hide Away",
+      "summary": "Gökkuşağı belirince Dino'nun 7 arkadaşı rengarenk saklanma yerlerine koşuyor; sesler bulununca gökyüzü yıldızlarla dolup gökkuşağı parıldıyor.",
       "frame": "rainbow",
       "animals": [
-        "dog",
         "duck",
-        "sheep",
-        "rooster",
         "owl",
         "horse",
-        "chick"
+        "cow",
+        "chick",
+        "frog",
+        "rooster"
       ]
     }
   ],
-  "trigger_date": "2026-11-05",
-  "idea": {
-    "working_title": "Picnic in the Meadow | Animal Sounds for Kids | Thumpy Meadow",
-    "summary": "Dino piknik sofrasını kurarken at, civciv, baykuş, kuş, kurbağa, inek ve kedi çalılıklara, bulutlara ve ağaçlara saklanmış; her buluş piknik sofrasına yeni bir lezzet getiriyor.",
-    "frame": "picnic",
-    "animals": [
-      "horse",
-      "chick",
-      "owl",
-      "bird",
-      "frog",
-      "cow",
-      "cat"
-    ]
-  },
-  "rewrites": 0,
-  "episode": {
-    "title": "Animal Sounds for Kids | Picnic in the Meadow | Thumpy Meadow",
-    "description_intro": "Animal sounds for kids! Join Dino on a sunny picnic and find a horse, chick, owl, bird, frog, cow, and cat hiding in the meadow. Learn farm and forest animal sounds with peekaboo fun for toddlers!",
-    "learning_points": [
-      "Animal names: horse, chick, owl, bird, frog, cow, cat",
-      "Animal sounds: neigh, peep, hoot, tweet, ribbit, moo, meow",
-      "Listening and watching for movement",
-      "Taking turns and playing together",
-      "Fun movement and dance"
-    ],
-    "tags": [
-      "animal sounds for kids",
-      "animal sounds for toddlers",
-      "farm animal sounds",
-      "peekaboo animals",
-      "learn animals for toddlers",
-      "horse sound for kids",
-      "owl sound for kids",
-      "frog sound for kids",
-      "cow sound kids",
-      "cat sound for toddlers",
-      "animal videos for babies",
-      "toddler learning video",
-      "picnic for kids",
-      "hide and seek animals",
-      "Thumpy Meadow"
-    ],
-    "hashtags": [
-      "AnimalSoundsForKids",
-      "ThumpyMeadow",
-      "ToddlerLearning"
-    ],
-    "thumbnail_texts": [
-      "PEEKABOO!",
-      "ANIMAL SOUNDS",
-      "WHO SAYS NEIGH?"
-    ],
-    "localizations": {
-      "es": {
-        "title": "Sonidos de Animales en Ingles para Ninos | Picnic | Thumpy Meadow",
-        "description": "¡Aprende los sonidos de los animales en ingles con Dino! Un caballo, un pollito, un buho, un pajaro, una rana, una vaca y un gato se esconden en el picnic. ¡Diversion de escondite para los mas pequenos!"
-      },
-      "pt": {
-        "title": "Sons de Animais em Ingles para Criancas | Piquenique | Thumpy Meadow",
-        "description": "Aprenda os sons dos animais em ingles com o Dino num piquenique divertido! Cavalo, pintinho, coruja, passaro, sapo, vaca e gato estao escondidos. Diversao de esconde-esconde para bebes e criancas pequenas!"
-      },
-      "tr": {
-        "title": "Cocuklar Icin Ingilizce Hayvan Sesleri | Piknik | Thumpy Meadow",
-        "description": "Dino ile piknikte Ingilizce hayvan seslerini ogrenin! At, civciv, baykus, kus, kurbaga, inek ve kedi saklaniyor. 2-6 yas cocuklar icin eglenceli saklambaç videosu!"
-      },
-      "id": {
-        "title": "Suara Hewan untuk Anak dalam Bahasa Inggris | Piknik | Thumpy Meadow",
-        "description": "Belajar suara hewan dalam bahasa Inggris bersama Dino di piknik yang menyenangkan! Kuda, anak ayam, burung hantu, katak, sapi, dan kucing bersembunyi. Seru untuk balita dan anak kecil!"
-      }
-    },
-    "frame": "picnic",
-    "hook": [
-      "Today I have a big picnic!",
-      "But my friends are hiding!"
-    ],
-    "ask": "Can you help me find them?",
-    "finds": [
-      {
-        "animal": "horse",
-        "hide": "bush",
-        "gag": "pop_fall",
-        "notice": "Look! The bush is wiggling!",
-        "gag_lines": [
-          "Hmm? Nobody here at all.",
-          "Ha ha! You got me!"
-        ],
-        "action": "stomp",
-        "action_line": "The horse can stomp! Can you stomp too?"
-      },
-      {
-        "animal": "owl",
-        "hide": "cloud",
-        "gag": "wrong_guess",
-        "notice": "Look! The cloud is wiggling!",
-        "gag_lines": [
-          "Hmm? Up there?",
-          "Is it a frog? Ribbit!",
-          "Ha ha! Hello, owl!"
-        ],
-        "action": "flap",
-        "action_line": "The owl can flap! Can you flap too?"
-      },
-      {
-        "animal": "chick",
-        "hide": "tree",
-        "gag": "peek_zoom",
-        "notice": "Look! The tree is shaking!",
-        "gag_lines": [
-          "Come out, come out, little friend!",
-          "Whoa! Hello, chick!"
-        ],
-        "action": "hop",
-        "action_line": "The chick can hop! Can you hop too?"
-      },
-      {
-        "animal": "bird",
-        "hide": "bush",
-        "gag": "pop_fall",
-        "notice": "Look! The bush is wiggling!",
-        "gag_lines": [
-          "Hmm? I do not see anyone.",
-          "Ha ha! You got me again!"
-        ],
-        "action": "wiggle",
-        "action_line": "The bird can wiggle! Can you wiggle too?"
-      },
-      {
-        "animal": "frog",
-        "hide": "bush",
-        "gag": "bush_hop",
-        "notice": "Look! The bush is hopping!",
-        "gag_lines": [
-          "Come out, come out, little one!",
-          "Whoa! Hello, frog!"
-        ],
-        "action": "spin",
-        "action_line": "The frog can spin! Can you spin too?"
-      },
-      {
-        "animal": "cat",
-        "hide": "tree",
-        "gag": "wrong_guess",
-        "notice": "Look! The tree is shaking!",
-        "gag_lines": [
-          "Hmm? Who is hiding there?",
-          "Is it a horse? Neigh!",
-          "Ha ha! Hello, cat!"
-        ],
-        "action": "spin",
-        "action_line": "The cat can spin! Can you spin too?"
-      },
-      {
-        "animal": "cow",
-        "hide": "tree",
-        "gag": "peek_zoom",
-        "notice": "Look! The tree is shaking!",
-        "gag_lines": [
-          "Hmm? Where are you, friend?",
-          "Whoa! Ha ha! Hello, cow!"
-        ],
-        "action": "dance",
-        "action_line": "The cow can dance! Can you dance too?"
-      }
-    ],
-    "breaks": [
-      {
-        "melody": "london",
-        "lines": [
-          "Hop and jump and stomp your feet",
-          "Clap your hands along with me",
-          "Wave up high and spin around",
-          "Happy and free"
-        ],
-        "guests": [
-          "bunny",
-          "elephant"
-        ]
-      },
-      {
-        "melody": "mary",
-        "lines": [
-          "Flap your wings and wiggle now",
-          "Dance and march right along",
-          "Stretch up tall and then clap your hands",
-          "Sing our fun song"
-        ],
-        "guests": [
-          "butterfly",
-          "monkey"
-        ]
-      }
-    ],
-    "finale": [
-      "Thank you for finding all my friends!",
-      "Yummy fruit for everyone!",
-      "Thank you, friends! I love you!"
-    ],
-    "shout": "Surprise! Happy picnic, Dino!",
-    "teaser_animal": "duck",
-    "teaser_line": "Next time, a new friend comes to play!",
-    "song_issues": [
-      "1. sarki, 2. satir: \"Clap your hands along with me\" (hece 7 = Clap(1) + your(1) + hands(1) + along(2) + with(1) + me(1); hedef 6)"
-    ]
-  },
-  "video_id": "wfW6tyCYbz4"
+  "trigger_date": "2026-11-06"
 }
