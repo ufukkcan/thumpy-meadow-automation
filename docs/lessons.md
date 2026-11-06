@@ -322,6 +322,16 @@ gerçek listeden dürüst olanları seçer (run 42226647735: 120 gerçek sorgu, 
 **Kural:** Talep/arama/popülerlik gibi dış dünya verisini modele tahmin ettirme; gerçek
 kaynaktan topla, modele yalnızca seçme/eleme işini ver.
 
+### E19. Model istemdeki şablon kelimesini cevap diye döndürdü (2026-11-06)
+**Hata (asistan):** Şarkı düzeltme isteminin JSON örneği `[["satir", "..."]]` idi; Claude iki şarkının
+ilk satırına "satir" yazdı, kod cevabı doğrulamadan kabul etti. Onay metninde uyarı olarak göründü
+ama gözden kaçtı; üretim run 42238287116 render'da `KeyError: 'satir'` ile durdu.
+**Çözüm:** Şablonda gerçek kelime yok; düzeltme turu cevabı yalnızca satır sayısı doğru, tüm
+kelimeler sözlükte ve hata sayısı artmıyorsa kabul edilir; onaydan önce sözlükte olmayan kelime
+çıkarılır (render bu yüzden artık çökemez).
+**Kural:** İstem örneklerinde kopyalanabilecek yer tutucu kelime kullanma; modelin "düzeltme" cevabını
+eskisinden iyi olduğu ölçülmeden kabul etme; render'ı durduracak girdiyi onaydan önce temizle.
+
 ---
 
 ## F. Kullanıcı ortamı kısıtları

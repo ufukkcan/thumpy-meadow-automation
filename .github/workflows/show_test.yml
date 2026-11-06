@@ -50,10 +50,11 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TTS_VOICE: "en-US-AnaNeural"
-          # Shorts kadraj duzeltmesi: wfW6tyCYbz4 senaryosuyla yalnizca Shorts (tam render yok)
-          SHORTS_ONLY: "1"
-          SHOW_JSON: "test_episode.json"
-          FULL_VIDEO_ID: "wfW6tyCYbz4"
+          # Sarki duzeltme turu dogrulamasi (E19): Claude senaryo + baslik olcumu, render yok
+          TITLE_ONLY: "1"
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
         run: python show_test.py
       - uses: actions/upload-artifact@v4
         if: always()
