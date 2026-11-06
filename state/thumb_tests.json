@@ -8,5 +8,15 @@
     "current": "A",
     "publish_at": "2026-11-05T18:00:00Z",
     "status": "waiting_scope"
+  },
+  "bMSYBqryg9g": {
+    "files": [
+      "state/thumbs/bMSYBqryg9g_A.jpg",
+      "state/thumbs/bMSYBqryg9g_B.jpg",
+      "state/thumbs/bMSYBqryg9g_C.jpg"
+    ],
+    "current": "A",
+    "publish_at": "2026-11-06T20:30:00Z",
+    "status": "waiting_scope"
   }
 }

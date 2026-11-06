@@ -20,6 +20,13 @@
       "day_type": "weekday",
       "slot": "13:00",
       "views_48h": null
+    },
+    {
+      "video_id": "bMSYBqryg9g",
+      "publish_at": "2026-11-06T20:30:00Z",
+      "day_type": "weekday",
+      "slot": "15:30",
+      "views_48h": null
     }
   ]
 }
