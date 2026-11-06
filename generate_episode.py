@@ -125,8 +125,13 @@ BOLUM YAPISI (motor kurar, sen satirlari ve secimleri yazarsin):
 
 SEO (amac: arama ve onerilerde one cikmak, ama YANILTICI OLMADAN -- YouTube cocuk iceriginde yaniltici
 metaveriyi cezalandirir):
-- title: en guclu arama ifadesi EN BASTA (or. "Animal Sounds for Kids", "Farm Animal Sounds for Toddlers"),
-  sonra bolume ozgu kisa ifade, sonda " | Thumpy Meadow". En fazla 70 karakter. Abarti/tik tuzagi yok.
+- title: yedek baslik (olcum yapilamazsa kullanilir): arama ifadesi + bolume ozgu kisa ifade + " | Thumpy Meadow".
+  En fazla 70 karakter. Abarti/tik tuzagi yok.
+- title_phrases: TAM 5 farkli aday arama ifadesi, kucuk harf, 3-6 kelime, bir ebeveynin YouTube'a yazacagi
+  gibi ve bolumun icerigiyle BIREBIR uyumlu. Yeni kanaliz: "animal sounds for kids" gibi devlerin oldugu genel
+  ifadeler yerine daha ozgul, uzun ifadeler (or. "peekaboo animal sounds for toddlers", "hide and seek
+  animals for kids", "guess the animal sound for preschool"). Sistem talebi ve rekabeti olcup birini secer.
+- title_rest: bolume ozgu kisa ifade, Title Case, en fazla 30 karakter (or. "Dino's Birthday Surprise").
 - description_intro: 2 cumle; ilk 150 karakter icinde ana anahtar kelimeler dogal sekilde gecsin.
 - learning_points: cocugun ogrenecegi 3-5 madde (kisa).
 - tags: 12-15 etiket; ebeveynlerin gercekten aradigi ifadeler ("animal sounds for kids", "peekaboo",
@@ -141,7 +146,8 @@ metaveriyi cezalandirir):
 
 SADECE gecerli JSON dondur, baska hicbir sey yazma:
 {{
- "title": "...", "description_intro": "...", "learning_points": ["..."], "tags": ["..."],
+ "title": "...", "title_phrases": ["...", "...", "...", "...", "..."], "title_rest": "...",
+ "description_intro": "...", "learning_points": ["..."], "tags": ["..."],
  "hashtags": ["...", "...", "..."], "thumbnail_texts": ["...", "...", "..."],
  "localizations": {{"es": {{"title": "...", "description": "..."}}}},
  "frame": "birthday", "hook": ["...", "..."], "ask": "...",
@@ -273,6 +279,12 @@ def normalize_episode(ep: dict) -> dict:
     title = str(ep.get("title", "Animal Sounds for Kids")).strip()
     if "thumpy meadow" not in title.lower():
         title = f"{title} | Thumpy Meadow"
+    phrases = []
+    for p in ep.get("title_phrases") or []:
+        p = " ".join(re.sub(r"[^a-z0-9' ]", " ", str(p).lower()).split())
+        if 2 <= len(p.split()) <= 7 and p not in phrases:
+            phrases.append(p)
+    title_rest = " ".join(re.sub(r"[^A-Za-z0-9 ,!?'&-]", "", str(ep.get("title_rest", ""))).split())[:40]
     tags, total = [], 0
     for tg_ in ep.get("tags", []):
         tg_ = _clean_tag(tg_)
@@ -297,7 +309,8 @@ def normalize_episode(ep: dict) -> dict:
             locs[lang] = {"title": lt[:100], "description": " ".join(str(loc.get("description", "")).split())[:1500]}
 
     return {
-        "title": title[:100], "description_intro": str(ep.get("description_intro", "")).strip(),
+        "title": title[:100], "title_phrases": phrases[:5], "title_rest": title_rest,
+        "description_intro": str(ep.get("description_intro", "")).strip(),
         "learning_points": [str(p).strip() for p in ep.get("learning_points", []) if str(p).strip()][:6],
         "tags": tags, "hashtags": hashtags, "thumbnail_texts": texts, "localizations": locs,
         "frame": frame, "hook": hook, "ask": _line(ep.get("ask"), "Can you help me find them?"),
@@ -446,8 +459,11 @@ def short_meta(ep: dict, find_index: int, full_video_id: str | None) -> dict:
 
 def script_as_text(ep: dict, est_minutes: float) -> str:
     """Telegram'da okunacak duz metin senaryo."""
-    out = [f"BASLIK: {ep['title']}", f"Tahmini sure: ~{est_minutes:.1f} dakika",
-           f"Cerceve: {ep['frame']}", "",
+    out = [f"BASLIK: {ep['title']}"]
+    if ep.get("title_report"):
+        out += ["BASLIK OLCUMU (otomatik tamamlama talebi + ilk 10 sonucun gucu):"] + ep["title_report"]
+    out += [f"Tahmini sure: ~{est_minutes:.1f} dakika",
+            f"Cerceve: {ep['frame']}", "",
            "=== Selam sarkisi (sabit: Hello Dino, hello Dino...) ===", "",
            "=== Giris ===", "- Hi friends! I'm Dino!"] + [f"- {h}" for h in ep["hook"]] + \
           [f"- {ep['ask']}  (bekleme)", "- Yay! Let's go!", ""]

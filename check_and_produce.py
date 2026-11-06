@@ -20,6 +20,7 @@ from zoneinfo import ZoneInfo
 
 import generate_episode as gen
 import scheduler
+import seo
 import telegram_bot as tg
 import upload_youtube as yt
 from produce import estimate_minutes, produce
@@ -62,7 +63,7 @@ def start_cycle(state: dict) -> dict:
 
 def send_script(state: dict) -> dict:
     tg.send_message("Senaryo yaziliyor (1-2 dakika)...")
-    ep = gen.generate_script(state["idea"])
+    ep = seo.apply_title(gen.generate_script(state["idea"]))   # olcumle baslik secimi; hata bolumu durdurmaz
     minutes = estimate_minutes(ep)
     path = Path(tempfile.gettempdir()) / f"senaryo_{state['batch']}.txt"
     path.write_text(gen.script_as_text(ep, minutes), encoding="utf-8")
