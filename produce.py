@@ -18,6 +18,11 @@ def produce(ep: dict, work_dir: Path, frames_dir: str | None = None) -> dict:
     res = show.render(ep, work_dir, video_path, frames_dir=frames_dir)
     print(f"Render tamam: {res['total'] / 60:.1f} dakika", flush=True)
     paths, preview = thumbs.make_three(ep, str(work_dir / "thumb"))
-    shorts = show.render_shorts(res["P"], work_dir, n=2, frames_dir=frames_dir)
+    try:                                               # Shorts hatasi ana bolumu durdurmaz
+        shorts = show.render_shorts(res["P"], work_dir, n=2, frames_dir=frames_dir)
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        shorts = []
     return {"video": video_path, "thumbnails": paths, "thumb_preview": preview, "total": res["total"],
             "chapters": res["chapters"], "shorts": shorts}
