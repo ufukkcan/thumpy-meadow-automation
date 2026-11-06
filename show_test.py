@@ -18,8 +18,25 @@ from produce import estimate_minutes, produce
 OUT = Path("out")
 
 
+def shorts_only(ep):
+    """Hizli mod (SHORTS_ONLY=1): tam bolum render edilmeden yalnizca 2 Short (ses yine tam uretilir)."""
+    import show
+    t0 = time.time()
+    P = show.build(ep, OUT / "work")
+    shorts = show.render_shorts(P, OUT / "work", n=2, frames_dir=str(OUT))
+    rep = [f"Shorts modu: {(time.time() - t0) / 60:.1f} dk"]
+    for sh in shorts:
+        Path(sh["path"]).replace(OUT / Path(sh["path"]).name)
+        meta = gen.short_meta(ep, sh["find"], os.environ.get("FULL_VIDEO_ID"))
+        rep += [f"- {Path(sh['path']).name}: {sh['dur']:.1f} sn", f"  {meta['title']}", f"  {meta['description']}"]
+    (OUT / "rapor.txt").write_text("\n".join(rep) + "\n", encoding="utf-8")
+    print("\n".join(rep))
+
+
 def main():
     OUT.mkdir(exist_ok=True)
+    if os.environ.get("SHORTS_ONLY") == "1":
+        return shorts_only(json.loads(Path(os.environ["SHOW_JSON"]).read_text(encoding="utf-8")))
     rep = []
     if os.environ.get("SHOW_JSON") and Path(os.environ["SHOW_JSON"]).exists():
         ep = json.loads(Path(os.environ["SHOW_JSON"]).read_text(encoding="utf-8"))

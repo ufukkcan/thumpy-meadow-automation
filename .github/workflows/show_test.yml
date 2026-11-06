@@ -50,6 +50,10 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TTS_VOICE: "en-US-AnaNeural"
+          # 7e: dunku onayli bolumun (wfW6tyCYbz4) senaryosuyla yalnizca Shorts (tam render yok)
+          SHORTS_ONLY: "1"
+          SHOW_JSON: "test_episode.json"
+          FULL_VIDEO_ID: "wfW6tyCYbz4"
         run: python show_test.py
       - uses: actions/upload-artifact@v4
         if: always()
@@ -57,6 +61,8 @@ jobs:
           name: yeni-format-test
           path: |
             out/episode.mp4
+            out/short_*.mp4
+            out/short_*.png
             out/kare_*.png
             out/thumb_*.jpg
             out/thumb_onizleme.png
