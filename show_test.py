@@ -33,8 +33,25 @@ def shorts_only(ep):
     print("\n".join(rep))
 
 
+def title_only():
+    """Hizli mod (TITLE_ONLY=1, E2): gercek Claude fikir + senaryo, sonra baslik olcumu. Render yok."""
+    import seo
+    ideas = gen.generate_ideas()
+    rep = []
+    for idea in ideas[:2]:                      # iki farkli bolumde dene: kural tek ornege bagli kalmasin
+        ep = gen.generate_script(idea)
+        old = ep["title"]
+        seo.apply_title(ep)
+        rep += [f"FIKIR: {idea.get('working_title')}", f"Claude basligi: {old}", f"Yeni baslik: {ep['title']}",
+                f"title_rest: {ep.get('title_rest')}"] + ep["title_report"] + [""]
+    (OUT / "rapor.txt").write_text("\n".join(rep) + "\n", encoding="utf-8")
+    print("\n".join(rep))
+
+
 def main():
     OUT.mkdir(exist_ok=True)
+    if os.environ.get("TITLE_ONLY") == "1":
+        return title_only()
     if os.environ.get("SHORTS_ONLY") == "1":
         return shorts_only(json.loads(Path(os.environ["SHOW_JSON"]).read_text(encoding="utf-8")))
     rep = []

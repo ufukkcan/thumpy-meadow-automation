@@ -7,6 +7,16 @@ Tarihler sohbetin geçtiği günlere göredir.
 
 ---
 
+## 2026-11-06 — Shorts üretimde (7e E1), main `93c4693`
+
+- Her bölümle birlikte 2 dikey Short (1080x1920) üretilir: en güçlü şakalı iki "Who says ...?" oyunu
+  (`show.pick_shorts`). Ses bölümün kendi sesinden kesilir, kareler `draw(short=i)` ile yakın planda
+  yeniden çizilir; üstte "WHO SAYS X?" başlığı.
+- Yükleme: made for kids, gizli + `publishAt` = bölüm yayını + 1 ve + 2 gün. Başlık/açıklama
+  `generate_episode.short_meta` (ana videoya link). Short hatası ana bölümü bozmaz.
+- Test: run 42184070982 (wfW6tyCYbz4 senaryosu), civciv 43,2 sn, inek 51,4 sn.
+- Telegram onay mesajı artık hayvan sayısını senaryodan alıyor (önceden sabit "6").
+
 ## 2026-11-05 — Yeni format üretim motoru (7d): show.py + SEO + 3 thumbnail
 
 - `show.py`: Claude senaryosu → 7 bulma oyunu (gerçek CC0 hayvan sesi, soru + bekleme, büyüyen şaka,

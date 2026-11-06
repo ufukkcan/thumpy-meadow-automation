@@ -300,6 +300,9 @@ Yorum: gösterim var, tıklama yok + ilk videonun zayıf CTR/tutma sinyali sonra
       → test run 42184070982: civciv 43,2 sn, inek 51,4 sn, kareler gözle kontrol edildi; main'e birleştirildi
       (11-06). Küçük kadraj kusurları (ağaç tacı başlığa biniyor, Dino kenarda kesik) açık.
 - [ ] E2. Başlık kuralı: rekabeti düşük uzun ifade önce (aramada ölçülür), genel ifade ikincil
+      (11-06 onaylandı). Claude 5 aday ifade + `title_rest` → `seo.py`: otomatik tamamlama talebi +
+      search.list ilk 10 medyan izlenme/abone → talebi olan, rekabeti en düşük ifade başa. Onay metninde
+      ölçüm tablosu. Hata bölümü durdurmaz. Test: show_test TITLE_ONLY (2 senaryo, render yok)
 - [ ] E3. 8 Kasım: yeni videonun gösterim, CTR, trafik kaynağı, tutma grafiği → karar
 
 ### 7c. Pilot tur 2 (2026-11-05, onaylandı → push `69212e6`, run 42016648248 başarılı, 3:47)
