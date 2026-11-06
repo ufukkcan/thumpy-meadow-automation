@@ -303,6 +303,8 @@ Yorum: gösterim var, tıklama yok + ilk videonun zayıf CTR/tutma sinyali sonra
       (11-06 onaylandı). Claude 5 aday ifade + `title_rest` → `seo.py`: otomatik tamamlama talebi +
       search.list ilk 10 medyan izlenme/abone → talebi olan, rekabeti en düşük ifade başa. Onay metninde
       ölçüm tablosu. Hata bölümü durdurmaz. Test: show_test TITLE_ONLY (2 senaryo, render yok)
+      → deneme 1 (run 42226025840): Claude'un 7 uydurma ifadesinin 7'si de aranmıyor (öneri 0).
+      → deneme 2: adaylar otomatik tamamlamadan KEŞFEDİLİR, Claude yalnızca dürüst olanları seçer.
 - [ ] E3. 8 Kasım: yeni videonun gösterim, CTR, trafik kaynağı, tutma grafiği → karar
 
 ### 7c. Pilot tur 2 (2026-11-05, onaylandı → push `69212e6`, run 42016648248 başarılı, 3:47)
