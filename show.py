@@ -706,7 +706,7 @@ def _short_spec(spec, s, P, i):
     return ("dino",)
 
 
-def _camera(spec, t, P, fw=r.W, fh=r.H, zmin=1.0):
+def _camera(spec, t, P, fw=r.W, fh=r.H, zmin=1.0, short=False):
     kind = spec[0]
     if kind == "wide":
         cx, cy, z = r.W / 2, r.H / 2, 1.0
@@ -729,7 +729,30 @@ def _camera(spec, t, P, fw=r.W, fh=r.H, zmin=1.0):
         cx, cy, z = spec[1], spec[2], spec[3]
     z = max(z, zmin)
     hw, hh = fw / 2 / z, fh / 2 / z               # gorunen dunya yari-genislik/yukseklik (dunya 1920x1080)
+    if short and kind in ("hide", "animal"):
+        cx = _no_half_dino(cx, P.dino_x.at(t), hw)
     return min(max(cx, hw), r.W - hw), min(max(cy, hh), r.H - hh), z
+
+
+DINO_EXT = (270, 210)                              # Dino'nun merkezden sola (kuyruk) / saga (kol) uzantisi
+
+
+def _no_half_dino(cx, dx, hw):
+    """Dar Shorts kadrajinda Dino kenarda yarim kalmasin: tamamen disari ya da tamamen iceri al.
+    Konu (eski cx) kadrajin icinde kalmali (kenardan 150 px); ikisi de olmazsa kadraj degismez."""
+    lo, hi = dx - DINO_EXT[0], dx + DINO_EXT[1]
+    if lo >= cx - hw and hi <= cx + hw:            # zaten tam icerde
+        return cx
+    if hi <= cx - hw or lo >= cx + hw:             # zaten tam disarda
+        return cx
+    if dx < cx:
+        options = (hi + 10 + hw, lo - 10 + hw)     # once disari (sag), sonra iceri
+    else:
+        options = (lo - 10 - hw, hi + 10 - hw)
+    for nx in options:
+        if abs(cx - nx) <= hw - 150:
+            return nx
+    return cx
 
 
 def _zoom_pos(s, tl):
@@ -882,7 +905,7 @@ def draw(c, t, P, meadow, spr, f, fw=r.W, fh=r.H, short=None):
     if short is not None:
         spec = _short_spec(spec, s, P, short)
         zmin = fh / r.H                                # dunyanin tam yuksekligi kadraja oturur
-    cx, cy, z = _camera(spec, t, P, fw, fh, zmin)
+    cx, cy, z = _camera(spec, t, P, fw, fh, zmin, short is not None)
 
     shake = 0.0
     cw = _cur_word(s, tl) if s["kind"] == "song" else None
@@ -1096,6 +1119,15 @@ def draw(c, t, P, meadow, spr, f, fw=r.W, fh=r.H, short=None):
     if short is not None:                             # Shorts arayuzu: ust baslik, orta-alt altyazi
         import thumbs                                 # (alt ~%25 Shorts dugmeleri/aciklamasiyla kapali)
         fnd = P.finds[short]
+        c.save()                                      # tabela: agac taci/bulut ustunde de okunur
+        c.translate(fw / 2, 230)
+        c.rotate(-3)
+        panel = r.skia.RRect.MakeRectXY(r.skia.Rect.MakeXYWH(-(fw - 70) / 2, -150, fw - 70, 300), 48, 48)
+        shadow = r.skia.RRect.MakeRectXY(r.skia.Rect.MakeXYWH(-(fw - 70) / 2 + 8, -138, fw - 70, 300), 48, 48)
+        c.drawRRect(shadow, r.paint(r.rgb(30, 20, 50, 90)))
+        c.drawRRect(panel, r.paint(r.rgb(66, 133, 235)))
+        c.drawRRect(panel, r.paint(r.INK, stroke=10))
+        c.restore()
         thumbs._text(c, f"WHO SAYS {fnd['says'].upper()}?", fw / 2, 230, fw - 120, size=120, rot=-3)
         if "text" in s and s["kind"] != "song":
             r.caption(c, s["text"], key=s.get("key"), key_color=s.get("color", r.rgb(235, 70, 70)),

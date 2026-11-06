@@ -134,6 +134,9 @@ Format: `tarih · sistem · işlem · sonuç`
 - `11-06` · GitHub Actions · Shorts testi run 42184070982 başarılı (2 Short, 11,5 dk)
 - `11-06` · GitHub · Kullanıcı birleştirmeyi onayladı ("birleştirelim") → `visual-proto` → `main`
   (Shorts üretime; onay mesajında hayvan sayısı düzeltildi). `state/` dosyalarına dokunulmadı
+- `11-06` · GitHub · E2 başlık kuralı `visual-proto`'da test: run 42226025840 (tasarım değişti), run 42226647735
+  başarılı. show_test.yml'e `YT_*` secret adları eklendi (yalnızca okuma, kanal doğrulamalı)
+- `11-06` · GitHub · Kullanıcı birleştirmeyi onayladı ("birlestir") → `main` `8cbcfb5` (başlık kuralı üretimde)
 ---
 
 ## Bekleyen işlemler
