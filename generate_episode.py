@@ -330,7 +330,7 @@ ekle/cikar (or. "now", "so", "and", "up") ya da 1 heceli kelimeyi 2 heceliyle de
 {items}
 
 SADECE gecerli JSON dondur (TUM sarkilar, sirasiyla, her biri hedef satir sayisinda):
-{{"music_breaks": [["satir", "..."], ["..."]]}}"""
+{{"music_breaks": [[<1. sarkinin satirlari, metin olarak>], [<2. sarkinin satirlari>]]}}"""
 
 
 def _patterns_text() -> str:
@@ -363,11 +363,31 @@ def _fix_songs(ep: dict, issues: list[str]) -> None:
         items += [f"   {li + 1}) {line}" for li, line in enumerate(br["lines"])]
     items.append("\nHATALAR:\n" + "\n".join(f"- {x}" for x in issues))
     fixed = _ask(FIX_PROMPT.format(items="\n".join(items)), max_tokens=3000).get("music_breaks", [])
-    for br, new in zip(ep["breaks"], fixed):
+    for k, (br, new) in enumerate(zip(ep["breaks"], fixed)):
         lines = [" ".join(str(x).split()) for x in new if str(x).strip()]
-        if len(lines) >= 2:
-            want = len(vocal_break.pattern(br["melody"]))
-            br["lines"] = (lines * want)[:want]
+        want = len(vocal_break.pattern(br["melody"]))
+        if len(lines) != want or _missing_words(lines):
+            continue                 # eksik satir ya da sozlukte olmayan kelime (or. ornekteki "satir"): reddet
+        old = len(song_issues({"breaks": [br]}))
+        cand = {**br, "lines": lines}
+        if len(song_issues({"breaks": [cand]})) <= old:
+            br["lines"] = lines      # yalnizca iyilestiriyorsa kabul (lessons E19)
+
+
+def _missing_words(lines: list[str]) -> list[str]:
+    return [w for line in lines for w in line.split()
+            if re.search(r"[A-Za-z]", w) and sing.syllable_count(w) is None]
+
+
+def _drop_unknown_words(ep: dict) -> None:
+    """Sozlukte olmayan kelime render'i durdurur (KeyError): onaydan ONCE cikarilir, uyari metinde kalir."""
+    for br in ep["breaks"]:
+        new = []
+        for line in br["lines"]:
+            kept = " ".join(w for w in line.split()
+                            if not (re.search(r"[A-Za-z]", w) and sing.syllable_count(w) is None))
+            new.append(kept if re.search(r"[A-Za-z]", kept) else "Hop, hop, hop!")
+        br["lines"] = new
 
 
 # ---------------- disariya acik fonksiyonlar ----------------
@@ -400,7 +420,8 @@ def generate_script(idea: dict) -> dict:
             print(f"Sarki duzeltme turu basarisiz: {exc}", flush=True)
             break
         issues = song_issues(ep)
-    ep["song_issues"] = issues
+    _drop_unknown_words(ep)
+    ep["song_issues"] = song_issues(ep)
     return ep
 
 

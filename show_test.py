@@ -43,7 +43,9 @@ def title_only():
         old = ep["title"]
         seo.apply_title(ep)
         rep += [f"FIKIR: {idea.get('working_title')}", f"Claude basligi: {old}", f"Yeni baslik: {ep['title']}",
-                f"title_rest: {ep.get('title_rest')}"] + ep["title_report"] + [""]
+                f"title_rest: {ep.get('title_rest')}"] + ep["title_report"]
+        rep += [f"SARKI {k + 1}: " + " / ".join(br["lines"]) for k, br in enumerate(ep["breaks"])]
+        rep += [f"  uyari: {x}" for x in ep["song_issues"]] + [""]
     (OUT / "rapor.txt").write_text("\n".join(rep) + "\n", encoding="utf-8")
     print("\n".join(rep))
 
