@@ -195,3 +195,14 @@ this feature on videos that are made for kids"). Kullanıcı sıralı otomatik t
 CTR yalnızca Reporting API toplu raporlarında (`channel_reach_basic_a1`,
 `video_thumbnail_impressions(_ctr)`, 2026-01-15) → `yt-analytics.readonly` izinli yeni token
 gerekir (anahtar yenilemesiyle birlikte). O gelene kadar test başlamaz (durum: waiting_scope).
+
+### K-22 · Başlık: gerçek aranan, rekabeti en düşük ifade başa (2026-11-06)
+**Karar:** `seo.py` bölümün hayvan/konu tohumlarından YouTube otomatik tamamlamasıyla gerçek
+aranan sorguları toplar; Claude bunlardan bölümü dürüstçe anlatan ≤5 tanesini seçer;
+`search.list` ilk 10 sonucun medyan izlenmesi en düşük olan başlığın başına yazılır
+(`<İfade> | <bölüm adı> | Thumpy Meadow`). Ölçüm onay metninde gösterilir; hata olursa
+Claude'un başlığı kalır.
+**Gerekçe:** H9epa9bfhhI: 63 gösterim, arama trafiği yok; "animal sounds for kids" gibi genel
+ifadelerde ilk 10 medyan 17M+ izlenme. Test: "hide and seek animals" 928K (≈18 kat daha zayıf).
+**Maliyet:** Bölüm başına 5 arama ≈ 500 kota birimi (günlük 10.000'in %5'i) + 1 kısa Claude çağrısı.
+**Not:** Otomatik tamamlama resmi olmayan uç nokta; bozulursa ölçüm atlanır.

@@ -7,6 +7,14 @@ Tarihler sohbetin geçtiği günlere göredir.
 
 ---
 
+## 2026-11-06 — Başlık kuralı (7e E2, test: visual-proto `031cf75`)
+
+- `seo.py`: tohum ifadeler → YouTube otomatik tamamlaması (gerçek sorgular) → Claude dürüst ≤5 seçer →
+  `search.list` ilk 10 medyan izlenme/abone → en zayıf rekabet başa. Kanal doğrulaması önce.
+- `check_and_produce.send_script` başlığı ölçümle seçer; ölçüm tablosu senaryo metninde. Hata akışı durdurmaz.
+- Claude şemasına `title_phrases` (tohum) ve `title_rest` eklendi. `show_test` TITLE_ONLY modu.
+- Test: run 42226025840 (uydurma ifadeler, 0 talep → tasarım değişti, lessons E18), run 42226647735 başarılı.
+
 ## 2026-11-06 — Shorts üretimde (7e E1), main `93c4693`
 
 - Her bölümle birlikte 2 dikey Short (1080x1920) üretilir: en güçlü şakalı iki "Who says ...?" oyunu

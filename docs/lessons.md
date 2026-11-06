@@ -314,6 +314,14 @@ başarısız olsa da bölüm üretilir, kalan sorun onay metninde görünür.
 **Kural:** Model çıktısını ayrıştırırken "ilk tam nesne"yi al; ana akışı yardımcı bir
 iyileştirme turunun hatasına bağlama.
 
+### E18. Modelin "arama ifadesi" tahmini gerçek arama değil (2026-11-06)
+**Hata (asistan, ilk tasarım):** Başlık adaylarını Claude'a uydurttuk; test run 42226025840'ta
+7 ifadenin 7'si de YouTube otomatik tamamlamasında yoktu (kimse aramıyor).
+**Çözüm:** Adaylar tohum ifadelerden otomatik tamamlamayla KEŞFEDİLİR; Claude yalnızca bu
+gerçek listeden dürüst olanları seçer (run 42226647735: 120 gerçek sorgu, 5'er aday, ölçüldü).
+**Kural:** Talep/arama/popülerlik gibi dış dünya verisini modele tahmin ettirme; gerçek
+kaynaktan topla, modele yalnızca seçme/eleme işini ver.
+
 ---
 
 ## F. Kullanıcı ortamı kısıtları
