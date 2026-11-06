@@ -68,7 +68,7 @@ def send_script(state: dict) -> dict:
     path.write_text(gen.script_as_text(ep, minutes), encoding="utf-8")
     tg.send_document(
         str(path),
-        caption=f"{ep['title']}\nTahmini sure: ~{minutes:.1f} dk\n6 hayvan: "
+        caption=f"{ep['title']}\nTahmini sure: ~{minutes:.1f} dk\n{len(ep['finds'])} hayvan: "
                 f"{', '.join(f['animal'] for f in ep['finds'])}\n\nLutfen senaryoyu oku. "
                 f"Onaylamadan hicbir sey yuklenmez.",
         buttons=[[("Onayla", f"ok:{state['batch']}"), ("Yeniden yaz", f"redo:{state['batch']}")]],

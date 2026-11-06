@@ -295,8 +295,10 @@ Veri: wfW6tyCYbz4 (yeni format, 5 Kasım 21:00 TR) 17 saatte 7 izlenme (sayfa sa
 0 izlenme (Studio, 3–4 Kasım). Aramada dizinde (ceza yok); kendi tam başlığıyla #36, "Count to 10" #1.
 Yorum: gösterim var, tıklama yok + ilk videonun zayıf CTR/tutma sinyali sonrası küçük deneme bütçesi.
 
-- [ ] E1. Shorts: her bölümden 2 dikey (1080x1920) "Who says ...?" oyunu (~40 sn), bölümün KENDİ
+- [x] E1. Shorts: her bölümden 2 dikey (1080x1920) "Who says ...?" oyunu (~40 sn), bölümün KENDİ
       sesinden kesilir, sahne yakın planla yeniden çizilir; bölümden 1 ve 2 gün sonra zamanlanır
+      → test run 42184070982: civciv 43,2 sn, inek 51,4 sn, kareler gözle kontrol edildi; main'e birleştirildi
+      (11-06). Küçük kadraj kusurları (ağaç tacı başlığa biniyor, Dino kenarda kesik) açık.
 - [ ] E2. Başlık kuralı: rekabeti düşük uzun ifade önce (aramada ölçülür), genel ifade ikincil
 - [ ] E3. 8 Kasım: yeni videonun gösterim, CTR, trafik kaynağı, tutma grafiği → karar
 
