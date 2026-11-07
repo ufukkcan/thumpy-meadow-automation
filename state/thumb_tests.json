@@ -18,5 +18,15 @@
     "current": "A",
     "publish_at": "2026-11-06T20:30:00Z",
     "status": "waiting_scope"
+  },
+  "jS4SRBa6XBM": {
+    "files": [
+      "state/thumbs/jS4SRBa6XBM_A.jpg",
+      "state/thumbs/jS4SRBa6XBM_B.jpg",
+      "state/thumbs/jS4SRBa6XBM_C.jpg"
+    ],
+    "current": "A",
+    "publish_at": "2026-11-08T12:00:00Z",
+    "status": "waiting_scope"
   }
 }
