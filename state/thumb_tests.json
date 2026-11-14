@@ -28,5 +28,15 @@
     "current": "A",
     "publish_at": "2026-11-08T12:00:00Z",
     "status": "waiting_scope"
+  },
+  "uLrfXavJI7g": {
+    "files": [
+      "state/thumbs/uLrfXavJI7g_A.jpg",
+      "state/thumbs/uLrfXavJI7g_B.jpg",
+      "state/thumbs/uLrfXavJI7g_C.jpg"
+    ],
+    "current": "A",
+    "publish_at": "2026-11-15T14:00:00Z",
+    "status": "waiting_scope"
   }
 }
