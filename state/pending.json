@@ -1,49 +1,49 @@
 {
   "status": "choosing",
-  "batch": "e143db8e",
+  "batch": "4a78d99b",
   "ideas": [
     {
-      "working_title": "Birthday Surprise Animals | Happy Birthday Song | Thumpy Meadow",
-      "summary": "Dino'nun doğum günü partisinde inek, koyun, köpek, kurbağa, ördek, baykuş ve civciv doğum günü sürprizleri için saklanmıştır; çocuklar hayvan seslerini tahmin ederek hepsini bulur ve final sahnesinde pasta ve balonlarla kutlama yapılır.",
+      "working_title": "Birthday Surprise Hide and Seek",
+      "summary": "Dino'nun doğum günü partisinde 7 arkadaş saklanmış; cow, duck, dog, sheep, frog, owl ve chick'i bularak partiyi başlatıyoruz.",
       "frame": "birthday",
       "animals": [
         "cow",
-        "sheep",
-        "dog",
-        "frog",
         "duck",
+        "dog",
+        "sheep",
+        "frog",
         "owl",
         "chick"
       ]
     },
     {
-      "working_title": "Animal Sounds at the Picnic | Guess Who's Hiding | Thumpy Meadow",
-      "summary": "Piknik örtüsünün etrafındaki çalılara, ağaçlara ve bulutlara saklanan inek, horoz, kedi, at, kuş, kurbağa ve ördek, Dino ile çocukları pikniğe davet etmek için sesleriyle ipucu verir.",
-      "frame": "picnic",
-      "animals": [
-        "cow",
-        "rooster",
-        "cat",
-        "horse",
-        "bird",
-        "frog",
-        "duck"
-      ]
-    },
-    {
-      "working_title": "Rainbow Animal Seekers | Who Is Hiding Today | Thumpy Meadow",
-      "summary": "Gökkuşağının renkli ışıklarının aydınlattığı çayırda inek, baykuş, köpek, koyun, kuş, at ve civciv saklıdır; çocuklar her hayvanın sesini duyup tahmin ederek gökkuşağını tamamlar ve finalde yıldızlar yağar.",
+      "working_title": "Rainbow Animal Hide and Seek",
+      "summary": "Gökkuşağının altında saklanan cow, horse, cat, rooster, bird, frog ve sheep'i Dino ile birlikte bulup gökkuşağı dansı yapıyoruz.",
       "frame": "rainbow",
       "animals": [
         "cow",
-        "owl",
-        "dog",
-        "sheep",
-        "bird",
         "horse",
-        "chick"
+        "cat",
+        "rooster",
+        "bird",
+        "frog",
+        "sheep"
+      ]
+    },
+    {
+      "working_title": "Picnic Hide and Seek with Animal Friends",
+      "summary": "Piknik örtüsünün çevresine saklanan cow, dog, duck, owl, chick, horse ve cat'i bulup piknik şarkısı söylüyoruz.",
+      "frame": "picnic",
+      "animals": [
+        "cow",
+        "dog",
+        "duck",
+        "owl",
+        "chick",
+        "horse",
+        "cat"
       ]
     }
   ],
-  "trigger_date": "2026-11-08"
+  "trigger_date": "2026-11-14"
 }
