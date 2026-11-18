@@ -1,49 +1,49 @@
 {
   "status": "choosing",
-  "batch": "4c62d280",
+  "batch": "51811d8f",
   "ideas": [
     {
-      "working_title": "Birthday Surprise Hide and Seek | Animal Sounds Game | Thumpy Meadow",
-      "summary": "Dino'nun doğum günü sürprizinde duck, horse, owl, sheep, frog, chick ve dog saklanmış; çocuklar hayvan seslerini tahmin ederek hepsini bulur ve finalda pasta ile kutlama başlar.",
+      "working_title": "Birthday Surprise Animal Sounds | Farm Hide and Seek | Thumpy Meadow",
+      "summary": "Dino'nun doğum günü partisinde inek, ördek, koyun, horoz, kurbağa, baykuş ve köpek çeşitli yerlere saklanmıştır; çocuklar hayvan seslerini dinleyerek arkadaşları bulur ve sürpriz partiyle kutlar.",
       "frame": "birthday",
       "animals": [
+        "cow",
         "duck",
-        "horse",
-        "owl",
         "sheep",
+        "rooster",
         "frog",
-        "chick",
+        "owl",
         "dog"
       ]
     },
     {
-      "working_title": "Picnic Animal Guessing Game | Who's Hiding? | Thumpy Meadow",
-      "summary": "Piknik örtüsünün etrafına duck, cat, rooster, cow, bird, frog ve horse saklanmış; çocuklar seslerini duyup tahmin ederek hayvanları pikniğe davet eder.",
+      "working_title": "Guess the Animal Sound | Picnic Hide and Seek | Thumpy Meadow",
+      "summary": "Dino'nun pikniğine gelen ördek, at, kedi, civciv, kuş, inek ve koyun çalılıklara, ağaçlara ve bulutlara saklanmıştır; çocuklar sesleri tahmin ederek herkesi piknik sofrasına toplar.",
       "frame": "picnic",
       "animals": [
         "duck",
+        "horse",
         "cat",
-        "rooster",
-        "cow",
+        "chick",
         "bird",
-        "frog",
-        "horse"
+        "cow",
+        "sheep"
       ]
     },
     {
-      "working_title": "Rainbow Animal Hide and Seek | Guess the Sound | Thumpy Meadow",
-      "summary": "Gökkuşağının renklerinin arkasına duck, owl, sheep, dog, chick, horse ve bird saklanmış; her hayvan bulundukça gökkuşağı daha parlak renklenir ve finalda yıldızlar yağar.",
+      "working_title": "Rainbow Animal Hunt | Guess Who's Hiding | Thumpy Meadow",
+      "summary": "Gökkuşağı gününde ördek, köpek, horoz, kurbağa, at, baykuş ve kuş gökkuşağının renkli dünyasına saklanmıştır; çocuklar her hayvanın sesini tahmin ederek gökkuşağını tamamlar.",
       "frame": "rainbow",
       "animals": [
         "duck",
-        "owl",
-        "sheep",
         "dog",
-        "chick",
+        "rooster",
+        "frog",
         "horse",
+        "owl",
         "bird"
       ]
     }
   ],
-  "trigger_date": "2026-11-15"
+  "trigger_date": "2026-11-18"
 }
