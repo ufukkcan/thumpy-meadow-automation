@@ -38,5 +38,15 @@
     "current": "A",
     "publish_at": "2026-11-15T14:00:00Z",
     "status": "waiting_scope"
+  },
+  "IAWbhscdrTE": {
+    "files": [
+      "state/thumbs/IAWbhscdrTE_A.jpg",
+      "state/thumbs/IAWbhscdrTE_B.jpg",
+      "state/thumbs/IAWbhscdrTE_C.jpg"
+    ],
+    "current": "A",
+    "publish_at": "2026-11-19T18:00:00Z",
+    "status": "waiting_scope"
   }
 }
