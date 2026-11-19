@@ -1,270 +1,49 @@
 {
-  "status": "done",
-  "batch": "51811d8f",
+  "status": "choosing",
+  "batch": "77170480",
   "ideas": [
     {
-      "working_title": "Birthday Surprise Animal Sounds | Farm Hide and Seek | Thumpy Meadow",
-      "summary": "Dino'nun doğum günü partisinde inek, ördek, koyun, horoz, kurbağa, baykuş ve köpek çeşitli yerlere saklanmıştır; çocuklar hayvan seslerini dinleyerek arkadaşları bulur ve sürpriz partiyle kutlar.",
+      "working_title": "Dino's Birthday Hide and Seek",
+      "summary": "Dino'nun doğum günü partisinde at, kurbağa, ördek, kedi, horoz, baykuş ve civciv saklanır; çocuk hayvan seslerini tahmin ederek hepsini bulur ve sürpriz partiyle kutlama başlar.",
       "frame": "birthday",
       "animals": [
-        "cow",
-        "duck",
-        "sheep",
-        "rooster",
+        "horse",
         "frog",
+        "duck",
+        "cat",
+        "rooster",
         "owl",
-        "dog"
+        "chick"
       ]
     },
     {
-      "working_title": "Guess the Animal Sound | Picnic Hide and Seek | Thumpy Meadow",
-      "summary": "Dino'nun pikniğine gelen ördek, at, kedi, civciv, kuş, inek ve koyun çalılıklara, ağaçlara ve bulutlara saklanmıştır; çocuklar sesleri tahmin ederek herkesi piknik sofrasına toplar.",
+      "working_title": "Picnic Surprise with Animal Sounds",
+      "summary": "Piknik sepetinin etrafına at, inek, köpek, koyun, kuş, ördek ve kurbağa saklanır; çocuk sesleri dinleyerek hayvanları bulur ve üzerlerine meyveler yağar.",
       "frame": "picnic",
       "animals": [
-        "duck",
         "horse",
-        "cat",
-        "chick",
-        "bird",
         "cow",
-        "sheep"
+        "dog",
+        "sheep",
+        "bird",
+        "duck",
+        "frog"
       ]
     },
     {
-      "working_title": "Rainbow Animal Hunt | Guess Who's Hiding | Thumpy Meadow",
-      "summary": "Gökkuşağı gününde ördek, köpek, horoz, kurbağa, at, baykuş ve kuş gökkuşağının renkli dünyasına saklanmıştır; çocuklar her hayvanın sesini tahmin ederek gökkuşağını tamamlar.",
+      "working_title": "Rainbow Animal Sound Hunt",
+      "summary": "Gökkuşağının renkli bulutlarına ve ağaçlarına at, baykuş, horoz, kedi, inek, civciv ve kuş saklanır; çocuk sesleri tahmin ederek tüm hayvanları bulur ve gökyüzü yıldızlarla dolup taşar.",
       "frame": "rainbow",
       "animals": [
-        "duck",
-        "dog",
-        "rooster",
-        "frog",
         "horse",
         "owl",
+        "rooster",
+        "cat",
+        "cow",
+        "chick",
         "bird"
       ]
     }
   ],
-  "trigger_date": "2026-11-18",
-  "idea": {
-    "working_title": "Birthday Surprise Animal Sounds | Farm Hide and Seek | Thumpy Meadow",
-    "summary": "Dino'nun doğum günü partisinde inek, ördek, koyun, horoz, kurbağa, baykuş ve köpek çeşitli yerlere saklanmıştır; çocuklar hayvan seslerini dinleyerek arkadaşları bulur ve sürpriz partiyle kutlar.",
-    "frame": "birthday",
-    "animals": [
-      "cow",
-      "duck",
-      "sheep",
-      "rooster",
-      "frog",
-      "owl",
-      "dog"
-    ]
-  },
-  "rewrites": 0,
-  "episode": {
-    "title": "Guess the Animal Sounds Preschool | Dino's Birthday Surprise | Thumpy Meadow",
-    "title_phrases": [
-      "birthday animal sounds hide and seek toddlers",
-      "guess the animal sound birthday party kids",
-      "farm animal hide and seek preschool",
-      "peekaboo animal sounds birthday for toddlers",
-      "find the animal sound game for kids"
-    ],
-    "title_rest": "Dino's Birthday Surprise",
-    "description_intro": "Join Dino's birthday hide and seek! Can you find the farm animals by their sounds — moo, quack, baa, and more? A fun animal sounds adventure for toddlers and preschoolers!",
-    "learning_points": [
-      "Learn 7 animal sounds: moo, quack, baa, cock-a-doodle-doo, ribbit, hoot, woof",
-      "Practice hide and seek and listening skills",
-      "Learn animal names in English",
-      "Copy fun movements: hop, dance, spin, flap, stomp, wiggle",
-      "Celebrate with kindness and friendship"
-    ],
-    "tags": [
-      "animal sounds for kids",
-      "birthday animal sounds toddlers",
-      "hide and seek animals preschool",
-      "farm animal sounds for babies",
-      "guess the animal sound kids",
-      "peekaboo animal sounds toddlers",
-      "learn animals for toddlers",
-      "animal sounds hide and seek",
-      "fun animal videos for kids",
-      "toddler learning animals",
-      "farm animals for preschoolers",
-      "animal sounds birthday party",
-      "kids animal guessing game",
-      "Thumpy Meadow",
-      "Thumpy Meadow"
-    ],
-    "hashtags": [
-      "AnimalSoundsForKids",
-      "HideAndSeekAnimals",
-      "ThumpyMeadow"
-    ],
-    "thumbnail_texts": [
-      "PEEKABOO!",
-      "ANIMAL SOUNDS",
-      "WHO SAYS MOO?"
-    ],
-    "localizations": {
-      "es": {
-        "title": "Sonidos de Animales en Inglés para Niños | Fiesta de Cumpleaños | Thumpy Meadow",
-        "description": "¡Ayuda a Dino a encontrar a sus amigos animales en su fiesta de cumpleaños! Aprende sonidos de animales en inglés: moo, quack, baa y más. ¡Diversión para niños de 2 a 6 años!"
-      },
-      "pt": {
-        "title": "Sons de Animais em Inglês para Crianças | Festa de Aniversário | Thumpy Meadow",
-        "description": "Ajude o Dino a encontrar os amigos animais na festa de aniversário! Aprenda sons de animais em inglês: moo, quack, baa e muito mais. Diversão garantida para crianças de 2 a 6 anos!"
-      },
-      "tr": {
-        "title": "Çocuklar İçin İngilizce Hayvan Sesleri | Doğum Günü Sürprizi | Thumpy Meadow",
-        "description": "Dino'nun doğum günü partisinde hayvanları bulmana yardım et! İngilizce hayvan seslerini öğren: moo, quack, baa ve daha fazlası. 2-6 yaş arası çocuklar için eğlenceli bir macera!"
-      },
-      "id": {
-        "title": "Suara Hewan dalam Bahasa Inggris untuk Anak | Pesta Ulang Tahun | Thumpy Meadow",
-        "description": "Bantu Dino menemukan teman-teman hewan di pesta ulang tahunnya! Belajar suara hewan dalam bahasa Inggris: moo, quack, baa, dan banyak lagi. Seru untuk anak usia 2–6 tahun!"
-      }
-    },
-    "frame": "birthday",
-    "hook": [
-      "Today is my birthday!",
-      "But where are my friends?"
-    ],
-    "ask": "Can you help me find them?",
-    "finds": [
-      {
-        "animal": "cow",
-        "hide": "bush",
-        "gag": "pop_fall",
-        "notice": "Look! The bush is wiggling!",
-        "gag_lines": [
-          "Hmm? Nobody here.",
-          "Ha ha! You got me!"
-        ],
-        "action": "dance",
-        "action_line": "The cow can dance! Can you dance too?"
-      },
-      {
-        "animal": "duck",
-        "hide": "cloud",
-        "gag": "wrong_guess",
-        "notice": "Look! The cloud is wiggling!",
-        "gag_lines": [
-          "Hmm? Up there?",
-          "Is it a frog? Ribbit!",
-          "Ha ha! Hello, duck!"
-        ],
-        "action": "flap",
-        "action_line": "The duck can flap! Can you flap too?"
-      },
-      {
-        "animal": "sheep",
-        "hide": "tree",
-        "gag": "peek_zoom",
-        "notice": "Look! The tree is shaking!",
-        "gag_lines": [
-          "Hmm? Where are you?",
-          "Whoa! Ha ha! Hello, sheep!"
-        ],
-        "action": "hop",
-        "action_line": "The sheep can hop! Can you hop too?"
-      },
-      {
-        "animal": "dog",
-        "hide": "bush",
-        "gag": "pop_fall",
-        "notice": "Look! The bush is wiggling!",
-        "gag_lines": [
-          "Hmm? Where are you?",
-          "Whoa! Ha ha! Hello, dog!"
-        ],
-        "action": "stomp",
-        "action_line": "The dog can stomp! Can you stomp too?"
-      },
-      {
-        "animal": "rooster",
-        "hide": "cloud",
-        "gag": "wrong_guess",
-        "notice": "Look! The cloud is wiggling!",
-        "gag_lines": [
-          "Hmm? Is anyone up there?",
-          "Ha ha! You surprised me!",
-          "Ha ha! Hello, friend!"
-        ],
-        "action": "flap",
-        "action_line": "The rooster can flap! Can you flap too?"
-      },
-      {
-        "animal": "frog",
-        "hide": "bush",
-        "gag": "bush_hop",
-        "notice": "Look! The bush is wiggling!",
-        "gag_lines": [
-          "Come out, come out!",
-          "Whoa! Hello, frog!"
-        ],
-        "action": "hop",
-        "action_line": "The frog can hop! Can you hop too?"
-      },
-      {
-        "animal": "owl",
-        "hide": "tree",
-        "gag": "wrong_guess",
-        "notice": "Look! The tree is shaking!",
-        "gag_lines": [
-          "Hmm? Who is hiding there?",
-          "Is it a dog? Woof!",
-          "Ha ha! Hello, owl!"
-        ],
-        "action": "spin",
-        "action_line": "The owl can spin! Can you spin too?"
-      }
-    ],
-    "breaks": [
-      {
-        "melody": "london",
-        "lines": [
-          "Let us hop and clap and spin,",
-          "Wiggle and wave along,",
-          "Stomp your feet and jump up high,",
-          "Now dance and flap!"
-        ],
-        "guests": [
-          "bunny",
-          "elephant"
-        ]
-      },
-      {
-        "melody": "mary",
-        "lines": [
-          "March and stretch and wiggle round,",
-          "Flap your arms up so high,",
-          "Hop and clap and spin in a ring,",
-          "Wave and say bye bye!"
-        ],
-        "guests": [
-          "monkey",
-          "pig"
-        ]
-      }
-    ],
-    "finale": [
-      "Thank you for finding my friends!",
-      "A cake! For me?",
-      "Thank you, friends! I love you!"
-    ],
-    "shout": "Surprise! Happy birthday, Dino!",
-    "teaser_animal": "horse",
-    "teaser_line": "Next time, a new friend comes to play!",
-    "song_issues": [],
-    "title_report": [
-      "Gercek aranan sorgu: 120 adet bulundu",
-      "- \"animal sounds for toddlers to guess\": ilk 10 medyan izlenme 2.0M, medyan abone 340K",
-      "- \"farm animal sounds guessing game\": ilk 10 medyan izlenme 1.3M, medyan abone 745K",
-      "- \"guess the animal sounds preschool\": ilk 10 medyan izlenme 1.3M, medyan abone 340K",
-      "- \"peekaboo animal song\": ilk 10 medyan izlenme 3.3M, medyan abone 15.2M",
-      "- \"farm animal sounds for toddlers\": ilk 10 medyan izlenme 10.0M, medyan abone 139K",
-      "SECILEN: \"guess the animal sounds preschool\" (gercek aranan, rekabet en dusuk)"
-    ]
-  },
-  "video_id": "IAWbhscdrTE"
+  "trigger_date": "2026-11-19"
 }
