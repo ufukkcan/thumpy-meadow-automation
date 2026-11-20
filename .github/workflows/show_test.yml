@@ -55,7 +55,18 @@ jobs:
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
-        run: python show_test.py
+        # Hata olursa son satirlar herkese acik "annotation" olarak yazilir (log API'si kimlik istiyor, E11).
+        # Gizli bilgi sizmasin: token/secret/key/authorization gecen satirlar ve uzun anahtar benzeri
+        # dizgeler atilir (C4b).
+        run: |
+          mkdir -p out
+          set -o pipefail
+          python show_test.py 2>&1 | tee out/log.txt || {
+            msg=$(tail -n 40 out/log.txt | grep -viE 'token|secret|api[_-]?key|authorization|bearer|password' \
+                  | sed -E 's/[A-Za-z0-9_\-]{32,}/[gizli?]/g; s/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=show_test hatasi::${msg}"
+            exit 1
+          }
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -71,3 +82,4 @@ jobs:
             out/senaryo.json
             out/aciklama.txt
             out/rapor.txt
+            out/log.txt
