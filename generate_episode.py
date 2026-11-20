@@ -719,6 +719,21 @@ SADECE gecerli JSON dondur, baska hicbir sey yazma:
  "goodbye": "..."}}"""
 
 
+def _as_list(x) -> list:
+    """Claude bazen tek ogeyi liste yerine nesne/metin yaziyor (H8 hatasi: talk = {...})."""
+    if x is None:
+        return []
+    if isinstance(x, (list, tuple)):
+        return list(x)
+    return [x]
+
+
+def _as_lines(x) -> list:
+    if isinstance(x, str):
+        return [p for p in re.split(r"\s*(?:\n|/)\s*", x) if p.strip()]
+    return _as_list(x)
+
+
 def _beat(b, cast: list[str]) -> dict | None:
     if not isinstance(b, dict):
         return None
@@ -745,10 +760,10 @@ def normalize_story_episode(raw: dict, cast_hint: list[str] | None = None) -> di
     """Claude'un hikaye bolumunu katalogla dogrular; cizilemeyen/uyumsuz secimler duzeltilir."""
     mels = _story_melodies()
     stories, used_m = [], []
-    for k, st in enumerate((raw.get("stories") or [])[:N_STORIES]):
+    for k, st in enumerate(_as_list(raw.get("stories"))[:N_STORIES]):
         if not isinstance(st, dict):
             continue
-        cast = [c for c in dict.fromkeys(str(x).lower() for x in st.get("cast", [])) if c in critters.SPEC][:3]
+        cast = [c for c in dict.fromkeys(str(x).lower() for x in _as_list(st.get("cast"))) if c in critters.SPEC][:3]
         if len(cast) < 2:
             cast = (cast + [c for c in (cast_hint or []) + ["cow", "bunny", "puppy"] if c in critters.SPEC
                             and c not in cast])[:2]
@@ -758,13 +773,13 @@ def normalize_story_episode(raw: dict, cast_hint: list[str] | None = None) -> di
         pat = vocal_break.pattern(mel)
         lo, hi = _verse_range(mel)
         verses = []
-        vs = [v for v in (st.get("verses") or []) if isinstance(v, dict)]
+        vs = [v for v in _as_list(st.get("verses")) if isinstance(v, dict)]
         if len(vs) > hi:                               # fazlaysa son kita (kurtarma/kutlama) korunur
             vs = vs[:hi - 1] + vs[-1:]
         for v in vs:
             if not isinstance(v, dict):
                 continue
-            lines = [_lyric(x) for x in v.get("lines", []) if _lyric(x)]
+            lines = [_lyric(x) for x in _as_lines(v.get("lines")) if _lyric(x)]
             if not lines:
                 continue
             lines = (lines + lines)[:len(pat)] if len(lines) < len(pat) else lines[:len(pat)]
@@ -774,7 +789,7 @@ def normalize_story_episode(raw: dict, cast_hint: list[str] | None = None) -> di
                   "feel": v.get("feel") if v.get("feel") in story_engine.FEELS else "happy"}
             if v.get("show") in assets.STORY_PROPS:
                 vv["show"] = v["show"]
-            talk = [b for b in (_beat(x, cast) for x in (v.get("talk") or [])[:1]) if b]
+            talk = [b for b in (_beat(x, cast) for x in _as_list(v.get("talk"))[:1]) if b]
             if talk:
                 vv["talk"] = talk
             if v.get("clear"):
@@ -787,9 +802,11 @@ def normalize_story_episode(raw: dict, cast_hint: list[str] | None = None) -> di
             verses[-1].pop("show", None)
             verses[-1].pop("talk", None)
             verses[-1].pop("clear", None)
-        hook = [b for b in (_beat(x, cast) for x in (st.get("hook") or [])[:2]) if b] or \
+        hook = [b for b in (_beat(x, cast) for x in _as_list(st.get("hook"))[:2]) if b] or \
             [{"who": cast[0], "say": "Oh no! What can we do?", "feel": "surprised", "do": "look"}]
-        end = _beat(st.get("ending") or {}, cast) or {"who": "dino", "say": "Hooray! We did it!", "do": "hug"}
+        end_raw = st.get("ending")
+        end = _beat(end_raw[0] if isinstance(end_raw, list) and end_raw else (end_raw or {}), cast) \
+            or {"who": "dino", "say": "Hooray! We did it!", "do": "hug"}
         if end.get("do") not in ("hug", "dance", "jump", "clap"):
             end["do"] = "hug"
         place = st.get("place") if st.get("place") in story_engine.PLACES else ("farm", "meadow", "pond", "forest")[k % 4]
@@ -800,7 +817,7 @@ def normalize_story_episode(raw: dict, cast_hint: list[str] | None = None) -> di
             song_title = (song_title + " Song").strip() if song_title else f"{vocal_break.NAMES[mel]} Song"
         out = {"name": name, "song_title": song_title, "place": place, "weather": weather,
                "clears": bool(st.get("clears")) and weather is not None, "melody": mel, "cast": cast,
-               "props": [p for p in st.get("props", []) if p in assets.STORY_PROPS][:2],
+               "props": [p for p in _as_list(st.get("props")) if p in assets.STORY_PROPS][:2],
                "hook": hook, "verses": verses, "ending": end}
         nx = _line(st.get("next"), "", max_words=9)
         if nx:
@@ -814,20 +831,20 @@ def normalize_story_episode(raw: dict, cast_hint: list[str] | None = None) -> di
     if "thumpy meadow" not in title.lower():
         title = f"{title} | Thumpy Meadow"
     phrases = []
-    for p in raw.get("title_phrases") or []:
+    for p in _as_list(raw.get("title_phrases")):
         p = " ".join(re.sub(r"[^a-z0-9' ]", " ", str(p).lower()).split())
         if 2 <= len(p.split()) <= 7 and p not in phrases:
             phrases.append(p)
     title_rest = " ".join(re.sub(r"[^A-Za-z0-9 ,!?'&-]", "", str(raw.get("title_rest", ""))).split())[:40] \
         or stories[0]["name"]
     tags, total = [], 0
-    for tg_ in raw.get("tags", []):
+    for tg_ in _as_list(raw.get("tags")):
         tg_ = _clean_tag(tg_)
         if tg_ and total + len(tg_) + 2 <= 480:
             tags.append(tg_)
             total += len(tg_) + 2
     tags = (tags + ["Thumpy Meadow"])[:16]
-    hashtags = [h for h in (re.sub(r"[^\w]", "", str(h)) for h in raw.get("hashtags", [])) if h][:3]
+    hashtags = [h for h in (re.sub(r"[^\w]", "", str(h)) for h in _as_list(raw.get("hashtags"))) if h][:3]
     hashtags = ["ThumpyMeadow" if h.lower().startswith("thum") else h for h in hashtags]
     locs = {}
     for lang in LANGS:
@@ -839,7 +856,7 @@ def normalize_story_episode(raw: dict, cast_hint: list[str] | None = None) -> di
             locs[lang] = {"title": lt[:100], "description": " ".join(str(loc.get("description", "")).split())[:1500]}
     return {"title": title[:100], "title_phrases": phrases[:5], "title_rest": title_rest,
             "description_intro": str(raw.get("description_intro", "")).strip(),
-            "learning_points": [str(p).strip() for p in raw.get("learning_points", []) if str(p).strip()][:6],
+            "learning_points": [str(p).strip() for p in _as_list(raw.get("learning_points")) if str(p).strip()][:6],
             "tags": tags, "hashtags": hashtags, "thumbnail_texts": ["", "", ""], "localizations": locs,
             "stories": stories, "goodbye": _line(raw.get("goodbye"), "Bye bye, friends! See you next time!")}
 
