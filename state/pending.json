@@ -1,5 +1,5 @@
 {
-  "status": "choosing",
+  "status": "reviewing",
   "batch": "94ccb6f0",
   "ideas": [
     {
@@ -45,5 +45,225 @@
       ]
     }
   ],
-  "trigger_date": "2026-11-20"
+  "trigger_date": "2026-11-20",
+  "idea": {
+    "working_title": "Picnic Animal Sound Guessing Game",
+    "summary": "Piknik hazırlığı yapan Dino'nun arkadaşları çalılara, ağaçlara ve bulutlara saklanmış; çocuklar hayvan seslerini tahmin ederek 7 dostu piknik sofrasına davet eder.",
+    "frame": "picnic",
+    "animals": [
+      "horse",
+      "frog",
+      "bird",
+      "cow",
+      "duck",
+      "cat",
+      "chick"
+    ]
+  },
+  "rewrites": 0,
+  "episode": {
+    "title": "Guess the Animal Sounds Preschool | Dino's Picnic Surprise | Thumpy Meadow",
+    "title_phrases": [
+      "picnic animal sounds guessing game for toddlers",
+      "hide and seek animal sounds preschool",
+      "guess the animal sound picnic kids",
+      "learn animal sounds with dinosaur toddlers",
+      "peekaboo animals picnic sounds for kids"
+    ],
+    "title_rest": "Dino's Picnic Surprise",
+    "description_intro": "Join Dino for a fun picnic animal sounds guessing game! Can your toddler guess who says neigh, ribbit, tweet, and more? Seven animals are hiding — help Dino find them all!",
+    "learning_points": [
+      "Learn 7 animal sounds: neigh, ribbit, tweet, moo, quack, meow, peep",
+      "Practice listening and guessing skills",
+      "Fun movement breaks with hopping, stomping, and spinning",
+      "Learn animal names in English",
+      "Enjoy a picnic-themed story with a friendly dinosaur"
+    ],
+    "tags": [
+      "animal sounds for kids",
+      "picnic animal sounds",
+      "guess the animal sound",
+      "hide and seek animals for toddlers",
+      "peekaboo animal sounds for toddlers",
+      "learn animals for preschool",
+      "dinosaur kids video",
+      "animal sounds guessing game",
+      "toddler learning video",
+      "farm animals for kids",
+      "animal sounds preschool",
+      "kids animal video",
+      "Thumpy Meadow",
+      "animal sounds game toddlers",
+      "Thumpy Meadow"
+    ],
+    "hashtags": [
+      "AnimalSoundsForKids",
+      "ThumpyMeadow",
+      "PicnicAnimals"
+    ],
+    "thumbnail_texts": [
+      "PEEKABOO!",
+      "ANIMAL SOUNDS",
+      "WHO SAYS NEIGH?"
+    ],
+    "localizations": {
+      "es": {
+        "title": "Sonidos de Animales en Inglés para Niños – Picnic | Thumpy Meadow",
+        "description": "¡Ayuda a Dino a encontrar a sus amigos escondidos en el picnic! Un juego divertido para que los niños aprendan sonidos de animales en inglés."
+      },
+      "pt": {
+        "title": "Sons de Animais em Inglês para Crianças – Piquenique | Thumpy Meadow",
+        "description": "Ajude o Dino a encontrar seus amigos escondidos no piquenique! Um jogo divertido para crianças aprenderem sons de animais em inglês."
+      },
+      "tr": {
+        "title": "Çocuklar için İngilizce Hayvan Sesleri – Piknik Oyunu | Thumpy Meadow",
+        "description": "Dino'nun piknik arkadaşlarını bulmana yardım et! Çocukların İngilizce hayvan seslerini eğlenerek öğrendiği tahmin oyunu."
+      },
+      "id": {
+        "title": "Suara Hewan Bahasa Inggris untuk Anak – Piknik | Thumpy Meadow",
+        "description": "Bantu Dino menemukan teman-temannya yang bersembunyi di piknik! Permainan tebak suara hewan yang seru untuk si kecil belajar bahasa Inggris."
+      }
+    },
+    "frame": "picnic",
+    "hook": [
+      "Today we are having a picnic!",
+      "But my friends are all hiding!"
+    ],
+    "ask": "Can you help me find them?",
+    "finds": [
+      {
+        "animal": "horse",
+        "hide": "bush",
+        "gag": "pop_fall",
+        "notice": "Look! The bush is wiggling!",
+        "gag_lines": [
+          "Hmm? Nobody here at all.",
+          "Ha ha! You got me!"
+        ],
+        "action": "stomp",
+        "action_line": "The horse can stomp! Can you stomp too?"
+      },
+      {
+        "animal": "frog",
+        "hide": "bush",
+        "gag": "bush_hop",
+        "notice": "Look! The bush is wiggling!",
+        "gag_lines": [
+          "Come out, come out, little friend!",
+          "Whoa! Hello, frog!"
+        ],
+        "action": "hop",
+        "action_line": "The frog can hop! Can you hop too?"
+      },
+      {
+        "animal": "bird",
+        "hide": "cloud",
+        "gag": "wrong_guess",
+        "notice": "Look! The cloud is wiggling!",
+        "gag_lines": [
+          "Hmm? Up there?",
+          "Is it a sheep? Baa!",
+          "Ha ha! Hello, bird!"
+        ],
+        "action": "flap",
+        "action_line": "The bird can flap! Can you flap too?"
+      },
+      {
+        "animal": "duck",
+        "hide": "cloud",
+        "gag": "wrong_guess",
+        "notice": "Look! The cloud is wiggling!",
+        "gag_lines": [
+          "Hmm? I do not see anyone.",
+          "Ha ha! You got me!",
+          "Ha ha! Hello, friend!"
+        ],
+        "action": "wiggle",
+        "action_line": "The duck can wiggle! Can you wiggle too?"
+      },
+      {
+        "animal": "cat",
+        "hide": "bush",
+        "gag": "wrong_guess",
+        "notice": "Look! The bush is wiggling!",
+        "gag_lines": [
+          "Hmm? Who is in there?",
+          "Is it a rooster? Cock-a-doodle-doo!",
+          "Ha ha! Hello, cat!"
+        ],
+        "action": "spin",
+        "action_line": "The cat can spin! Can you spin too?"
+      },
+      {
+        "animal": "cow",
+        "hide": "tree",
+        "gag": "peek_zoom",
+        "notice": "Look! The tree is shaking!",
+        "gag_lines": [
+          "Hmm? Where are you?",
+          "Whoa! Ha ha! Hello, cow!"
+        ],
+        "action": "dance",
+        "action_line": "The cow can dance! Can you dance too?"
+      },
+      {
+        "animal": "chick",
+        "hide": "tree",
+        "gag": "peek_zoom",
+        "notice": "Look! The tree is shaking!",
+        "gag_lines": [
+          "Hmm? Where are you hiding?",
+          "Whoa! Ha ha! Hello, chick!"
+        ],
+        "action": "hop",
+        "action_line": "The chick can hop! Can you hop too?"
+      }
+    ],
+    "breaks": [
+      {
+        "melody": "london",
+        "lines": [
+          "Let us hop and clap hands now,",
+          "Stomp your feet and then spin,",
+          "Wave your arms wiggle with me,",
+          "Let us begin!"
+        ],
+        "guests": [
+          "bunny",
+          "pig"
+        ]
+      },
+      {
+        "melody": "mary",
+        "lines": [
+          "Flap your wings and jump up high,",
+          "March around the big room,",
+          "Stretch your arms and dance and wiggle,",
+          "Zoom zoom zoom zoom zoom!"
+        ],
+        "guests": [
+          "monkey",
+          "butterfly"
+        ]
+      }
+    ],
+    "finale": [
+      "Thank you for finding all my friends!",
+      "Yummy fruit for everyone!",
+      "Thank you, friends! I love you!"
+    ],
+    "shout": "Surprise! Happy picnic, Dino!",
+    "teaser_animal": "dog",
+    "teaser_line": "Next time, a new friend comes to play!",
+    "song_issues": [],
+    "title_report": [
+      "Gercek aranan sorgu: 120 adet bulundu",
+      "- \"animal sounds for toddlers to guess\": ilk 10 medyan izlenme 2.0M, medyan abone 340K",
+      "- \"guess the animal sound\": ilk 10 medyan izlenme 1.9M, medyan abone 240K",
+      "- \"guess the animal sounds preschool\": ilk 10 medyan izlenme 1.4M, medyan abone 124K",
+      "- \"farm animal sounds for toddlers\": ilk 10 medyan izlenme 37.0M, medyan abone 436K",
+      "- \"animal songs for toddlers\": ilk 10 medyan izlenme 24.7M, medyan abone 2.5M",
+      "SECILEN: \"guess the animal sounds preschool\" (gercek aranan, rekabet en dusuk)"
+    ]
+  }
 }
