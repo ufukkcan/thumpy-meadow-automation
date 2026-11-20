@@ -1,49 +1,49 @@
 {
   "status": "choosing",
-  "batch": "77170480",
+  "batch": "94ccb6f0",
   "ideas": [
     {
       "working_title": "Dino's Birthday Hide and Seek",
-      "summary": "Dino'nun doğum günü partisinde at, kurbağa, ördek, kedi, horoz, baykuş ve civciv saklanır; çocuk hayvan seslerini tahmin ederek hepsini bulur ve sürpriz partiyle kutlama başlar.",
+      "summary": "Dino'nun doğum günü partisi için arkadaşları çimlere, bulutlara ve ağaçlara saklanmış; çocuklar gerçek hayvan sesleriyle 7 arkadaşı bulup doğum günü sürprizini kutlar.",
       "frame": "birthday",
       "animals": [
         "horse",
-        "frog",
-        "duck",
-        "cat",
-        "rooster",
-        "owl",
-        "chick"
-      ]
-    },
-    {
-      "working_title": "Picnic Surprise with Animal Sounds",
-      "summary": "Piknik sepetinin etrafına at, inek, köpek, koyun, kuş, ördek ve kurbağa saklanır; çocuk sesleri dinleyerek hayvanları bulur ve üzerlerine meyveler yağar.",
-      "frame": "picnic",
-      "animals": [
-        "horse",
         "cow",
-        "dog",
+        "owl",
         "sheep",
-        "bird",
-        "duck",
-        "frog"
+        "chick",
+        "frog",
+        "bird"
       ]
     },
     {
-      "working_title": "Rainbow Animal Sound Hunt",
-      "summary": "Gökkuşağının renkli bulutlarına ve ağaçlarına at, baykuş, horoz, kedi, inek, civciv ve kuş saklanır; çocuk sesleri tahmin ederek tüm hayvanları bulur ve gökyüzü yıldızlarla dolup taşar.",
+      "working_title": "Rainbow Animal Sounds Surprise",
+      "summary": "Gökkuşağının renkleri arasına saklanan arkadaşları bulmak için Dino çocuklardan yardım ister; gerçek sesler ve eğlenceli sakalar eşliğinde 7 hayvan keşfedilir.",
       "frame": "rainbow",
       "animals": [
         "horse",
-        "owl",
-        "rooster",
+        "duck",
         "cat",
+        "rooster",
+        "dog",
+        "owl",
+        "sheep"
+      ]
+    },
+    {
+      "working_title": "Picnic Animal Sound Guessing Game",
+      "summary": "Piknik hazırlığı yapan Dino'nun arkadaşları çalılara, ağaçlara ve bulutlara saklanmış; çocuklar hayvan seslerini tahmin ederek 7 dostu piknik sofrasına davet eder.",
+      "frame": "picnic",
+      "animals": [
+        "horse",
+        "frog",
+        "bird",
         "cow",
-        "chick",
-        "bird"
+        "duck",
+        "cat",
+        "chick"
       ]
     }
   ],
-  "trigger_date": "2026-11-19"
+  "trigger_date": "2026-11-20"
 }
