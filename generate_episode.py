@@ -950,14 +950,18 @@ def remember_story_episode(ep: dict) -> None:
     USED_FILE.write_text(json.dumps(st, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def _song_title(s: dict) -> str:
+    return s.get("song_title") or f"{vocal_break.NAMES.get(s.get('melody'), 'Kids')} Song"
+
+
 def story_short_meta(ep: dict, k: int, full_video_id: str | None) -> dict:
     s = ep["stories"][k]
-    title = f"{s['name']} {s['song_title']} | Thumpy Meadow"
+    title = f"{s['name']} {_song_title(s)} | Thumpy Meadow"
     desc = [f"{s['name']} A sing-along cartoon song with Dino and friends for toddlers and preschoolers."]
     if full_video_id:
         desc.append(f"Watch all the songs in the full episode: https://youtu.be/{full_video_id}")
     desc.append(" ".join(f"#{h}" for h in (["shorts"] + ep["hashtags"])[:4]))
-    tags = list(dict.fromkeys([s["song_title"].lower()] + ep["tags"]))[:15]
+    tags = list(dict.fromkeys([_song_title(s).lower()] + ep["tags"]))[:15]
     return {"title": title[:100], "description": "\n\n".join(desc), "tags": tags}
 
 
@@ -965,7 +969,7 @@ def story_description(ep: dict, chapter_list) -> str:
     parts = [ep["description_intro"]]
     if ep["learning_points"]:
         parts.append("In this video, little ones will:\n" + "\n".join(f"- {p}" for p in ep["learning_points"]))
-    parts.append("Songs in this video:\n" + "\n".join(f"- {s['name']} ({s['song_title']})" for s in ep["stories"]))
+    parts.append("Songs in this video:\n" + "\n".join(f"- {s['name']} ({_song_title(s)})" for s in ep["stories"]))
     if chapter_list:
         parts.append("Chapters:\n" + _chapters_text(chapter_list))
     parts.append("Thumpy Meadow makes gentle, original cartoon sing-along stories for toddlers and preschoolers "
