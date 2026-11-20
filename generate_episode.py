@@ -392,6 +392,8 @@ def _drop_unknown_words(ep: dict) -> None:
 
 # ---------------- disariya acik fonksiyonlar ----------------
 def generate_ideas() -> list[dict]:
+    if os.environ.get("EPISODE_FORMAT", "story") == "story":     # H7: varsayilan hikaye-sarki
+        return generate_story_ideas()
     used = ", ".join(load_used()[-40:]) or "(yok)"
     nf = _load_state().get("next_friend")
     must = (f"ONCEKI BOLUMUN SONUNDA SOZ VERILDI: her fikirde '{nf}' mutlaka 7 hayvandan biri olsun.\n"
@@ -404,6 +406,8 @@ def generate_ideas() -> list[dict]:
 
 
 def generate_script(idea: dict) -> dict:
+    if idea.get("format") == "story" or idea.get("stories"):
+        return generate_story_script(idea)
     gags = " | ".join(f"{k}: {v}" for k, v in GAG_HELP.items())
     raw = _ask(SCRIPT_PROMPT.format(idea=json.dumps(idea, ensure_ascii=False), library=LIBRARY_TEXT,
                                     safety=SAFETY_RULES, gags=gags, moves=", ".join(show.SONG_MOVES),
@@ -432,6 +436,8 @@ def _chapters_text(chapter_list) -> str:
 def build_description(ep: dict, chapter_list: list[tuple[float, str]]) -> str:
     """SEO: ust satirlarda anahtar kelimeler, ogrenilenler, zaman damgali bolumler, kanal tanitimi,
     kaynaklar (sarki sesi lisansi kaynak ister), hashtag."""
+    if ep.get("stories"):
+        return story_description(ep, chapter_list)
     animals = ", ".join(f["animal"] for f in ep["finds"])
     parts = [ep["description_intro"]]
     if ep["learning_points"]:
@@ -465,6 +471,8 @@ def build_localizations(ep: dict, chapter_list) -> dict:
 
 def short_meta(ep: dict, find_index: int, full_video_id: str | None) -> dict:
     """Short icin baslik / aciklama / etiket: oyunun sorusu one cikar, tam bolume yonlendirir."""
+    if ep.get("stories"):
+        return story_short_meta(ep, find_index, full_video_id)
     f = ep["finds"][find_index]
     animal, says = f["animal"], animal_sounds.SOURCES[f["animal"]]["says"]
     title = f"Who Says {says.capitalize()}? Peekaboo {animal.capitalize()} Sound for Kids | Thumpy Meadow"
@@ -564,3 +572,407 @@ def script_as_text(ep: dict, est_minutes: float) -> str:
         out.append("\nSARKI UYARILARI (duzeltilemedi; sarki yine soylenir ama bu satirlarda hece kayabilir):")
         out.extend(f"- {x}" for x in ep["song_issues"])
     return "\n".join(out)
+
+
+# =====================================================================================================
+# H7 (2026-11-20, todo 7h; K-24/K-25): HIKAYE-SARKI BOLUMU. Arastirma: sarkiyla anlatilan hikayeler
+# konusmali hikayelerden kat kat cok izleniyor (67k vs 6k/gun medyan); kucuk kanal hitleri ayni kadroyla
+# arka arkaya 2-3 dk'lik hikaye-sarkilar; sorun ilk 10 sn'de; sonu kurtarma + sarilma; baslikta "Song" ve "!".
+# =====================================================================================================
+import math
+from datetime import date
+
+import critters
+import kidsong
+import songs
+import story as story_engine
+
+N_STORIES = 4
+PERSONALITY = {"cow": "sicak, anne gibi, sakin; gercek sesi moo", "bunny": "utangac, nazik, kolay usur",
+               "puppy": "enerjik, cesur, kosmayi sever; gercek sesi woof", "kitten": "kendine guvenen, oyuncu, "
+               "bazen paylasmak istemez; gercek sesi meow", "piglet": "komik, camuru ve yemegi sever",
+               "lamb": "yardimsever, kayip seyleri bulur; gercek sesi baa", "duck": "sakaci, yagmuru ve suyu sever; "
+               "gercek sesi quack", "chick": "en kucuk, merakli, bazen korkar; gercek sesi peep"}
+
+
+def _xmas_season(d: date | None = None) -> bool:
+    d = d or date.today()
+    return (d.month == 11 and d.day >= 15) or d.month == 12 or (d.month == 1 and d.day <= 6)
+
+
+def _story_melodies() -> list[str]:
+    return [m for m in songs.STORY_MELODIES if m != "jingle" or _xmas_season()]
+
+
+def _verse_sec(m: str) -> float:
+    return kidsong.timing(m, len(vocal_break.pattern(m)))[2]
+
+
+def _verse_range(m: str) -> tuple[int, int]:
+    """Bir hikayenin sarkisi ~100-150 sn olsun (arastirma: hikaye basi 2-3 dk)."""
+    lo = max(3, math.ceil(90 / _verse_sec(m)))
+    return lo, max(lo + 1, min(7, math.floor(170 / _verse_sec(m))))
+
+
+def _story_library() -> str:
+    mel = {}
+    for m in _story_melodies():
+        lo, hi = _verse_range(m)
+        pat = vocal_break.pattern(m)
+        note = ""
+        if m == "oldmac":
+            note = ("2., 4. ve 8. satirlar AYNEN 'E I E I O' (harfler ayri). 5. ve 6. satir ses/eylem tekrari "
+                    "(or. 'With a moo moo here and a moo moo there,' / 'Here a moo, there a moo, everywhere a moo moo,')")
+        if m == "jingle":
+            note = "Noel donemi. 1. ve 5. satir 'Jingle bells, jingle bells,' olabilir (1857, kamu mali)."
+        mel[m] = {"ad": vocal_break.NAMES[m], "satir": len(pat), "satir_basina_hece": pat,
+                  "kita_suresi_sn": round(_verse_sec(m)), "kita_sayisi": f"{lo}-{hi}", "not": note}
+    return json.dumps({
+        "karakterler (Dino her hikayede var; digerleri)": PERSONALITY,
+        "mekanlar (place)": {"meadow": "cicekli cayir", "farm": "ahir, silo, cit", "pond": "gol, nilufer",
+                             "snow": "karli tepe, cam agaclari, kulube", "forest": "orman, mantarlar",
+                             "home": "ev ici oturma odasi (pencere, hali)", "night": "gece cayiri, ay, yildizlar"},
+        "hava (weather)": ["rain", "snow", None],
+        "eylemler (do)": [a for a in story_engine.ACTIONS if a != "none"],
+        "duygular (feel)": list(story_engine.FEELS),
+        "objeler (props / show)": assets.STORY_PROPS,
+        "melodiler (melody)": mel,
+    }, ensure_ascii=False)
+
+
+STORY_SAFETY = SAFETY_RULES + """- Hikayelerde YUMUSAK sorun SERBEST ve gerekli: yagmur geliyor, usudu, ulasamiyor, paylasmak istemiyor,
+  atkisi ucmus, karanlikta biraz korkuyor. Tehlike, yaralanma, kotu karakter, gercek korku YOK; sorun hep
+  arkadaslik ve yardimlasmayla cozulur, sonunda herkes mutlu.
+- Melodiler verilenlerdir (kamu mali). Sozler OZGUN; yalniz 'E I E I O' ve 'Jingle bells' nakarat kelimeleri
+  geleneksel/kamu malidir, kullanilabilir. Baska bilinen sarkinin sozlerini kopyalama.
+"""
+
+STORY_IDEAS_PROMPT = """Thumpy Meadow: 2-6 yas cocuklar icin Ingilizce cizgi film kanali (maskot: yesil dinozor Dino).
+BICIM: her video = AYNI KADROYLA arka arkaya {n} HIKAYE-SARKI (her biri ~2-2,5 dk). Hikayenin kendisi sarkidir:
+1-2 konusma satiriyla sorun ILK 10 SANIYEDE gorunur, sarki kitalari olayi anlatir, sonunda kurtarma/cozum +
+sarilma/kutlama. Her hikayede yeni mekan ve yeni sorun.
+
+OLCUM (YouTube, son 12 ay): guclu temalar: hava (yagmur, firtina, kar), paylasma, kurtarma/yardim, dinozor,
+rutinler (dis fircalama, banyo, toparlanma, giyinme). ZAYIF (kullanma): masal/ahlak dersi, uyku vakti, kayip
+esya / anneni bul.
+{season}
+KATALOG: {library}
+
+Daha once kullanilan bolum basliklari (TEKRAR ETME): {used}
+Daha once kullanilan hikaye adlari (TEKRAR ETME): {used_stories}
+
+3 FARKLI bolum fikri uret (her biri farkli tema karisimi). Her fikir: working_title (Ingilizce, '<Olay>! <Konu> Song'
+kalibi, or. 'Rainy Day Rescue! Farm Animals Song'), summary (1 cumle Turkce), stories ({n} kisa hikaye adi +
+parantez icinde mekan ve sorun, Turkce), cast (Dino disinda katalogdan 3-4 hayvan).
+
+SADECE gecerli JSON dondur:
+{{"ideas": [{{"working_title": "...", "summary": "...", "stories": ["...", "..."], "cast": ["cow", "..."]}}]}}"""
+
+STORY_SCRIPT_PROMPT = """Thumpy Meadow icin TAM bir HIKAYE-SARKI bolumu yaz (motor story.py).
+
+SECILEN FIKIR: {idea}
+
+KATALOG (alan degerleri SADECE buradan, birebir ayni yazimla):
+{library}
+
+{safety}
+YAPI: TAM {n} hikaye, ayni kadro (Dino + fikirdeki hayvanlar). Her hikaye:
+- name: hikaye adi, Ingilizce Title Case, '!' ile, en fazla 28 karakter (or. "Rainy Day Rescue!").
+- song_title: o hikayenin sarki adi, en fazla 26 karakter, "Song" ile biter (or. "Farm Animals Song").
+- place, weather (rain/snow/null), clears (hava sonunda duruyorsa true; yagmur durunca gokkusagi cikar),
+  melody: katalogdan; HER HIKAYE FARKLI MELODI. cast: Dino HARIC 2-3 hayvan (bolum kadrosundan).
+  props: 0-2 sahne objesi (katalog objeleri).
+- hook: 1-2 konusma: ILK satir sorunu gosterir (or. cow: "Oh no! The rain is coming!"), 3-9 kelime, cok basit.
+  Her konusma: {{"who": "<karakter ya da dino>", "say": "...", "feel": "<duygu>", "do": "<eylem>"}}.
+  Bir hayvan gercek sesini cikarabilir: {{"who": "cow", "sound": true}} (sadece gercek sesi olanlar).
+- verses: melodinin kita_sayisi araliginda kita. Her kita: lines (melodinin satir sayisi KADAR satir, her satir
+  hece sayisi BIREBIR), focus (o kitada one cikan karakter), do (eylem), feel, istege bagli show (o kitada ortaya
+  cikan obje), istege bagli talk (kitadan once EN FAZLA 1 kisa konusma), istege bagli clear (hava bu kitada
+  duruyorsa true).
+  Sozler hikayeyi ANLATIR: 1. kita sorun, ortadaki kitalarda her kitada bir arkadas yardim eder ya da bir deneme
+  olur (tekrarli yapi IYI: cocuklar tekrari sever), son kita kurtarma/kutlama. Sozlerin icinde diyalog olabilir
+  ("Would you share?" / "Yes, I will!"). Cok basit kelimeler, kafiye, tekrar. Rakam, ozel isim (Dino haric) YOK.
+  Hece sayilari: apple = 2, banana = 3, everywhere = 3, our = 2, hop = 1. Tireyle heceleme YAZMA.
+- ending: {{"who": "...", "say": "kutlama cumlesi", "do": "hug" | "dance" | "jump" | "clap"}}.
+- next: (son hikaye HARIC) Dino'nun siradaki hikaye icin merak cumlesi, en fazla 8 kelime
+  (or. "Hmm? What's that jingle sound?").
+- goodbye: bolum sonu veda cumlesi (or. "Bye bye, friends! See you next time!").
+
+SEO (YANILTICI OLMADAN):
+- title_rest: bolum adi = ilk hikayenin olayi, '!' ile, en fazla 30 karakter (or. "Rainy Day Rescue!").
+  "Story", "Moral", "Bedtime", "for Kids" kelimeleri YOK.
+- title: yedek baslik: "<title_rest> <Konu> Song | Thumpy Meadow", en fazla 70 karakter.
+- title_phrases: TAM 5 aday arama ifadesi, kucuk harf, 3-6 kelime, ebeveynin yazacagi gibi, mumkunse "song" icersin
+  (or. "farm animals song for toddlers", "rain rain song for kids").
+- description_intro (2 cumle), learning_points (3-5), tags (12-15), hashtags (TAM 3, # olmadan),
+  localizations: {langs} icin baslik (en fazla 90 karakter, sonda " | Thumpy Meadow") ve 2 cumle aciklama.
+
+SADECE gecerli JSON dondur, baska hicbir sey yazma:
+{{"title": "...", "title_rest": "...", "title_phrases": ["..."], "description_intro": "...",
+ "learning_points": ["..."], "tags": ["..."], "hashtags": ["...", "...", "..."],
+ "localizations": {{"es": {{"title": "...", "description": "..."}}}},
+ "stories": [{{"name": "...", "song_title": "...", "place": "farm", "weather": "rain", "clears": true,
+   "melody": "oldmac", "cast": ["cow", "duck"], "props": [],
+   "hook": [{{"who": "cow", "say": "...", "feel": "scared", "do": "shiver"}}],
+   "verses": [{{"focus": "cow", "do": "run", "feel": "scared", "lines": ["..."]}}],
+   "ending": {{"who": "dino", "say": "...", "do": "hug"}}, "next": "..."}}],
+ "goodbye": "..."}}"""
+
+
+def _beat(b, cast: list[str]) -> dict | None:
+    if not isinstance(b, dict):
+        return None
+    who = str(b.get("who", "dino")).lower()
+    if who not in cast and who != "dino":
+        who = "dino"
+    if b.get("sound") and who in story_engine.SOUND:
+        return {"who": who, "sound": True}
+    say = _line(b.get("say"), "", max_words=12)
+    if not say:
+        return None
+    feel = b.get("feel") if b.get("feel") in story_engine.FEELS else "neutral"
+    do = b.get("do") if b.get("do") in story_engine.ACTIONS else "none"
+    return {"who": who, "say": say, "feel": feel, "do": do}
+
+
+def _lyric(x) -> str:
+    s = " ".join(str(x or "").replace("’", "'").split())
+    return re.sub(r"[^A-Za-z ,.!?']", " ", s.replace("-", " ")).strip() and " ".join(
+        re.sub(r"[^A-Za-z ,.!?']", " ", s.replace("-", " ")).split())
+
+
+def normalize_story_episode(raw: dict, cast_hint: list[str] | None = None) -> dict:
+    """Claude'un hikaye bolumunu katalogla dogrular; cizilemeyen/uyumsuz secimler duzeltilir."""
+    mels = _story_melodies()
+    stories, used_m = [], []
+    for k, st in enumerate((raw.get("stories") or [])[:N_STORIES]):
+        if not isinstance(st, dict):
+            continue
+        cast = [c for c in dict.fromkeys(str(x).lower() for x in st.get("cast", [])) if c in critters.SPEC][:3]
+        if len(cast) < 2:
+            cast = (cast + [c for c in (cast_hint or []) + ["cow", "bunny", "puppy"] if c in critters.SPEC
+                            and c not in cast])[:2]
+        mel = st.get("melody") if st.get("melody") in mels and st.get("melody") not in used_m else \
+            next(m for m in mels if m not in used_m)
+        used_m.append(mel)
+        pat = vocal_break.pattern(mel)
+        lo, hi = _verse_range(mel)
+        verses = []
+        vs = [v for v in (st.get("verses") or []) if isinstance(v, dict)]
+        if len(vs) > hi:                               # fazlaysa son kita (kurtarma/kutlama) korunur
+            vs = vs[:hi - 1] + vs[-1:]
+        for v in vs:
+            if not isinstance(v, dict):
+                continue
+            lines = [_lyric(x) for x in v.get("lines", []) if _lyric(x)]
+            if not lines:
+                continue
+            lines = (lines + lines)[:len(pat)] if len(lines) < len(pat) else lines[:len(pat)]
+            vv = {"lines": lines,
+                  "focus": v.get("focus") if v.get("focus") in cast + ["dino"] else None,
+                  "do": v.get("do") if v.get("do") in story_engine.ACTIONS else "dance",
+                  "feel": v.get("feel") if v.get("feel") in story_engine.FEELS else "happy"}
+            if v.get("show") in assets.STORY_PROPS:
+                vv["show"] = v["show"]
+            talk = [b for b in (_beat(x, cast) for x in (v.get("talk") or [])[:1]) if b]
+            if talk:
+                vv["talk"] = talk
+            if v.get("clear"):
+                vv["clear"] = True
+            verses.append(vv)
+        if not verses:
+            continue
+        while len(verses) < lo:                        # kisa kalan sarki: son (kutlama) kitasi tekrar
+            verses.append({**verses[-1], "focus": "dino", "do": "dance", "feel": "happy"})
+            verses[-1].pop("show", None)
+            verses[-1].pop("talk", None)
+            verses[-1].pop("clear", None)
+        hook = [b for b in (_beat(x, cast) for x in (st.get("hook") or [])[:2]) if b] or \
+            [{"who": cast[0], "say": "Oh no! What can we do?", "feel": "surprised", "do": "look"}]
+        end = _beat(st.get("ending") or {}, cast) or {"who": "dino", "say": "Hooray! We did it!", "do": "hug"}
+        if end.get("do") not in ("hug", "dance", "jump", "clap"):
+            end["do"] = "hug"
+        place = st.get("place") if st.get("place") in story_engine.PLACES else ("farm", "meadow", "pond", "forest")[k % 4]
+        weather = st.get("weather") if st.get("weather") in story_engine.WEATHER else None
+        name = " ".join(re.sub(r"[^A-Za-z0-9 ,!?'&-]", "", str(st.get("name", ""))).split())[:32] or f"Story {k + 1}!"
+        song_title = " ".join(re.sub(r"[^A-Za-z0-9 ,!?'&-]", "", str(st.get("song_title", ""))).split())[:30]
+        if not song_title.lower().endswith("song"):
+            song_title = (song_title + " Song").strip() if song_title else f"{vocal_break.NAMES[mel]} Song"
+        out = {"name": name, "song_title": song_title, "place": place, "weather": weather,
+               "clears": bool(st.get("clears")) and weather is not None, "melody": mel, "cast": cast,
+               "props": [p for p in st.get("props", []) if p in assets.STORY_PROPS][:2],
+               "hook": hook, "verses": verses, "ending": end}
+        nx = _line(st.get("next"), "", max_words=9)
+        if nx:
+            out["next"] = nx
+        stories.append(out)
+    if len(stories) < 3:
+        raise ValueError(f"Gecerli hikaye sayisi yetersiz ({len(stories)}).")
+    stories[-1].pop("next", None)
+
+    title = str(raw.get("title", "")).strip() or f"{stories[0]['name']} {stories[0]['song_title']}"
+    if "thumpy meadow" not in title.lower():
+        title = f"{title} | Thumpy Meadow"
+    phrases = []
+    for p in raw.get("title_phrases") or []:
+        p = " ".join(re.sub(r"[^a-z0-9' ]", " ", str(p).lower()).split())
+        if 2 <= len(p.split()) <= 7 and p not in phrases:
+            phrases.append(p)
+    title_rest = " ".join(re.sub(r"[^A-Za-z0-9 ,!?'&-]", "", str(raw.get("title_rest", ""))).split())[:40] \
+        or stories[0]["name"]
+    tags, total = [], 0
+    for tg_ in raw.get("tags", []):
+        tg_ = _clean_tag(tg_)
+        if tg_ and total + len(tg_) + 2 <= 480:
+            tags.append(tg_)
+            total += len(tg_) + 2
+    tags = (tags + ["Thumpy Meadow"])[:16]
+    hashtags = [h for h in (re.sub(r"[^\w]", "", str(h)) for h in raw.get("hashtags", [])) if h][:3]
+    hashtags = ["ThumpyMeadow" if h.lower().startswith("thum") else h for h in hashtags]
+    locs = {}
+    for lang in LANGS:
+        loc = (raw.get("localizations") or {}).get(lang) or {}
+        lt = " ".join(str(loc.get("title", "")).split())
+        if lt:
+            if "thumpy meadow" not in lt.lower():
+                lt = f"{lt} | Thumpy Meadow"
+            locs[lang] = {"title": lt[:100], "description": " ".join(str(loc.get("description", "")).split())[:1500]}
+    return {"title": title[:100], "title_phrases": phrases[:5], "title_rest": title_rest,
+            "description_intro": str(raw.get("description_intro", "")).strip(),
+            "learning_points": [str(p).strip() for p in raw.get("learning_points", []) if str(p).strip()][:6],
+            "tags": tags, "hashtags": hashtags, "thumbnail_texts": ["", "", ""], "localizations": locs,
+            "stories": stories, "goodbye": _line(raw.get("goodbye"), "Bye bye, friends! See you next time!")}
+
+
+def story_song_issues(ep: dict) -> list[str]:
+    out = []
+    for k, st in enumerate(ep["stories"]):
+        pat = vocal_break.pattern(st["melody"])
+        for vi, v in enumerate(st["verses"]):
+            for li, line in enumerate(v["lines"]):
+                words = [w for w in line.split() if re.search(r"[A-Za-z]", w)]
+                missing = [w for w in words if sing.syllable_count(w) is None]
+                got = sum(vocal_break.counter(w) for w in words)
+                if missing or got != pat[li]:
+                    per = " + ".join(f"{w.strip('.,!?')}({vocal_break.counter(w)})" for w in words)
+                    note = f"hece {got} = {per}; hedef {pat[li]}" + (f"; sozlukte yok: {', '.join(missing)}" if missing else "")
+                    out.append(f"{k + 1}. hikaye, {vi + 1}. kita, {li + 1}. satir: \"{line}\" ({note})")
+    return out
+
+
+STORY_FIX_PROMPT = """Cocuk sarkilarinin sozlerinde hata var. Her satirin HECE sayisi hedefi TAM tutmali ve tum
+kelimeler yaygin Ingilizce sozlukte bulunmali. Anlami, hikayeyi, kafiyeyi ve cocuk guvenligi kurallarini koru,
+sadece hatali satirlari duzelt. Tireyle heceleme YAZMA. Hece eklemek/cikarmak icin kisa kelime ekle/cikar
+(or. "now", "so", "and", "up") ya da kelimeyi degistir. Hatalarda kelimelerin sayilan hecesi parantez icinde.
+
+{items}
+
+SADECE gecerli JSON dondur (TUM hikayeler ve TUM kitalar, sirasiyla, her kita hedef satir sayisinda):
+{{"stories": [[[<1. hikaye 1. kita satirlari>], [<1. hikaye 2. kita>]], [[<2. hikaye 1. kita>]]]}}"""
+
+
+def _fix_story_songs(ep: dict, issues: list[str]) -> None:
+    items = []
+    for k, st in enumerate(ep["stories"]):
+        pat = vocal_break.pattern(st["melody"])
+        items.append(f"{k + 1}. hikaye, melodi {vocal_break.NAMES[st['melody']]}, satir basina hece: "
+                     + ", ".join(map(str, pat)))
+        for vi, v in enumerate(st["verses"]):
+            items.append(f"  {vi + 1}. kita:")
+            items += [f"     {li + 1}) {line}" for li, line in enumerate(v["lines"])]
+    items.append("\nHATALAR:\n" + "\n".join(f"- {x}" for x in issues))
+    fixed = _ask(STORY_FIX_PROMPT.format(items="\n".join(items)), max_tokens=8000).get("stories", [])
+    for st, new_st in zip(ep["stories"], fixed):
+        pat = vocal_break.pattern(st["melody"])
+        for v, new in zip(st["verses"], new_st or []):
+            lines = [_lyric(x) for x in (new or []) if _lyric(x)]
+            if len(lines) != len(pat) or _missing_words(lines):
+                continue
+            one = {"stories": [{"melody": st["melody"], "verses": [v]}]}
+            cand = {"stories": [{"melody": st["melody"], "verses": [{**v, "lines": lines}]}]}
+            if len(story_song_issues(cand)) <= len(story_song_issues(one)):
+                v["lines"] = lines                     # yalnizca iyilestiriyorsa (lessons E19)
+
+
+def _drop_unknown_story_words(ep: dict) -> None:
+    for st in ep["stories"]:
+        for v in st["verses"]:
+            new = []
+            for line in v["lines"]:
+                kept = " ".join(w for w in line.split()
+                                if not (re.search(r"[A-Za-z]", w) and sing.syllable_count(w) is None))
+                new.append(kept if re.search(r"[A-Za-z]", kept) else "La la la la!")
+            v["lines"] = new
+
+
+def generate_story_ideas() -> list[dict]:
+    st = _load_state()
+    used = ", ".join(load_used()[-40:]) or "(yok)"
+    used_stories = ", ".join(st.get("stories_used", [])[-60:]) or "(yok)"
+    season = ("MEVSIM: Noel donemi (25 Kasim - 6 Ocak arasi Noel/kis videolari en cok izlenir): 3 fikrin EN AZ "
+              "2'sinde en az bir Noel ya da kar hikayesi olsun; Jingle Bells melodisi kullanilabilir.\n"
+              if _xmas_season() else "")
+    data = _ask(STORY_IDEAS_PROMPT.format(n=N_STORIES, season=season, library=_story_library(), used=used,
+                                          used_stories=used_stories), max_tokens=2500)
+    ideas = data.get("ideas", [])[:3]
+    if not ideas:
+        raise ValueError("Fikir uretilemedi.")
+    for idea in ideas:
+        idea["format"] = "story"
+    return ideas
+
+
+def generate_story_script(idea: dict) -> dict:
+    raw = _ask(STORY_SCRIPT_PROMPT.format(idea=json.dumps(idea, ensure_ascii=False), library=_story_library(),
+                                          safety=STORY_SAFETY, n=N_STORIES, langs=", ".join(LANGS.values())),
+               max_tokens=16000)
+    ep = normalize_story_episode(raw, cast_hint=[c for c in idea.get("cast", []) if c in critters.SPEC])
+    issues = story_song_issues(ep)
+    for _ in range(2):
+        if not issues:
+            break
+        try:
+            _fix_story_songs(ep, issues)
+        except Exception as exc:
+            print(f"Sarki duzeltme turu basarisiz: {exc}", flush=True)
+            break
+        issues = story_song_issues(ep)
+    _drop_unknown_story_words(ep)
+    ep["song_issues"] = story_song_issues(ep)
+    return ep
+
+
+def remember_story_episode(ep: dict) -> None:
+    """Tekrar onleme hafizasi: hikaye adlari (son 120)."""
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    st = _load_state()
+    st["stories_used"] = (st.get("stories_used", []) + [s["name"] for s in ep["stories"]])[-120:]
+    USED_FILE.write_text(json.dumps(st, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def story_short_meta(ep: dict, k: int, full_video_id: str | None) -> dict:
+    s = ep["stories"][k]
+    title = f"{s['name']} {s['song_title']} | Thumpy Meadow"
+    desc = [f"{s['name']} A sing-along cartoon song with Dino and friends for toddlers and preschoolers."]
+    if full_video_id:
+        desc.append(f"Watch all the songs in the full episode: https://youtu.be/{full_video_id}")
+    desc.append(" ".join(f"#{h}" for h in (["shorts"] + ep["hashtags"])[:4]))
+    tags = list(dict.fromkeys([s["song_title"].lower()] + ep["tags"]))[:15]
+    return {"title": title[:100], "description": "\n\n".join(desc), "tags": tags}
+
+
+def story_description(ep: dict, chapter_list) -> str:
+    parts = [ep["description_intro"]]
+    if ep["learning_points"]:
+        parts.append("In this video, little ones will:\n" + "\n".join(f"- {p}" for p in ep["learning_points"]))
+    parts.append("Songs in this video:\n" + "\n".join(f"- {s['name']} ({s['song_title']})" for s in ep["stories"]))
+    if chapter_list:
+        parts.append("Chapters:\n" + _chapters_text(chapter_list))
+    parts.append("Thumpy Meadow makes gentle, original cartoon sing-along stories for toddlers and preschoolers "
+                 "(ages 2-6). Sing, dance and learn English with Dino and friends. New episodes regularly - ask a "
+                 "grown-up to subscribe!")
+    parts.append("Songs: original lyrics on public-domain melodies. " + sing.CREDIT +
+                 ". Some real animal sounds: BigSoundBank (CC0).")
+    if ep["hashtags"]:
+        parts.append(" ".join(f"#{h}" for h in ep["hashtags"]))
+    return "\n\n".join(parts)[:4900]

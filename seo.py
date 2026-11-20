@@ -49,8 +49,25 @@ def suggestions(q: str) -> list[str]:
     return [str(s).lower().strip() for s in data[1]] if len(data) > 1 else []
 
 
+STORY_SEEDS = ["farm animals song", "kids song", "nursery rhymes song", "sharing song for", "rain song for",
+               "dinosaur song for", "christmas song for", "winter song for", "old macdonald", "jingle bells"]
+
+
 def discover(ep: dict) -> list[str]:
     """Tohumlardan gercek aranan sorgular (tekilsiz, ASCII, 3-8 kelime)."""
+    if ep.get("stories"):                              # H7: hikaye-sarki bolumu
+        seeds = STORY_SEEDS + [" ".join(s["song_title"].lower().split()[:3]) for s in ep["stories"]]
+        seeds += [" ".join(p.split()[:3]) for p in ep.get("title_phrases", [])]
+        out = []
+        for s in dict.fromkeys(seeds):
+            try:
+                for q in suggestions(s):
+                    if re.fullmatch(r"[a-z0-9' ]+", q) and 3 <= len(q.split()) <= 8 and q not in out \
+                            and not re.search(r"\b(story|bedtime|moral)\b", q):
+                        out.append(q)
+            except Exception as exc:
+                print(f"oneri alinamadi ({s}): {exc}", flush=True)
+        return out[:120]
     animals = [f["animal"] for f in ep["finds"]]
     seeds = BASE_SEEDS + [f"{a} sound" for a in animals] + [f"{ep['frame']} animals"]
     seeds += [" ".join(p.split()[:3]) for p in ep.get("title_phrases", [])]
@@ -66,10 +83,16 @@ def discover(ep: dict) -> list[str]:
 
 
 def pick(ep: dict, queries: list[str]) -> list[str]:
-    animals = ", ".join(f["animal"] for f in ep["finds"])
-    about = (f"Dino (sevimli dinozor) ile saklambac/peekaboo; {ep['frame']} temasi; saklanan hayvanlari "
-             f"gercek seslerinden tahmin etme ({animals}); hareket sarkilari (dans, ziplama); 2-6 yas, Ingilizce. "
-             f"Bolum adi: {ep.get('title_rest', '')}")
+    if ep.get("stories"):
+        about = ("Dino (sevimli dinozor) ve hayvan arkadaslariyla arka arkaya sarkili cizgi film hikayeleri: "
+                 + "; ".join(f"{s['name']} ({s['song_title']}, {s['place']})" for s in ep["stories"])
+                 + ". 2-6 yas, Ingilizce, sarkilar kamu mali melodilerle ozgun soz. "
+                 + "Tercihen 'song' iceren sorgular sec.")
+    else:
+        animals = ", ".join(f["animal"] for f in ep["finds"])
+        about = (f"Dino (sevimli dinozor) ile saklambac/peekaboo; {ep['frame']} temasi; saklanan hayvanlari "
+                 f"gercek seslerinden tahmin etme ({animals}); hareket sarkilari (dans, ziplama); 2-6 yas, Ingilizce. "
+                 f"Bolum adi: {ep.get('title_rest', '')}")
     got = gen._ask(PICK_PROMPT.format(about=about, queries="\n".join(queries)), max_tokens=800).get("phrases", [])
     return [p for p in dict.fromkeys(str(x).lower().strip() for x in got) if p in queries][:5]
 

@@ -50,8 +50,8 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TTS_VOICE: "en-US-AnaNeural"
-          # H6 pilotu (todo 7h): hikaye-sarki bolumu, sabit senaryodan tam render, Claude cagrisi ve yukleme yok
-          SHOW_JSON: "test_story_v1.json"
+          # H8 uctan uca (todo 7h): gercek Claude fikir + senaryo + baslik olcumu + render, yukleme YOK
+          SHOW_JSON: ""
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}

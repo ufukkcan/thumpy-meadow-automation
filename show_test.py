@@ -65,9 +65,16 @@ def main():
         ideas = gen.generate_ideas()
         rep.append(f"Fikirler ({time.time() - t0:.0f} sn):")
         rep += [f"  - {i.get('working_title')} [{i.get('frame')}] {i.get('animals')}" for i in ideas]
+        rep += [f"    {s}" for i in ideas for s in i.get("stories", [])]
         t0 = time.time()
         ep = gen.generate_script(ideas[0])
         rep.append(f"Senaryo ({time.time() - t0:.0f} sn); sarki sorunlari: {ep.get('song_issues')}")
+        try:                                           # uretimdeki gibi baslik olcumu (yalnizca okuma)
+            import seo
+            seo.apply_title(ep)
+            rep += [f"Baslik: {ep['title']}"] + ep.get("title_report", [])
+        except Exception as exc:
+            rep.append(f"Baslik olcumu hatasi: {exc}")
     (OUT / "senaryo.json").write_text(json.dumps(ep, ensure_ascii=False, indent=2), encoding="utf-8")
     est = estimate_minutes(ep)
     (OUT / "senaryo.txt").write_text(gen.script_as_text(ep, est), encoding="utf-8")

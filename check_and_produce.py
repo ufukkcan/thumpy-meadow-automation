@@ -52,6 +52,11 @@ def start_cycle(state: dict) -> dict:
     batch = uuid.uuid4().hex[:8]
     text = ["Bugunun bolum fikirleri -- birini sec:"]
     for i, idea in enumerate(ideas, 1):
+        if idea.get("stories"):                        # H7: hikaye-sarki fikri
+            text.append(f"\n{i}) {idea.get('working_title', '')}\n   {idea.get('summary', '')}"
+                        + "".join(f"\n   - {s}" for s in idea["stories"])
+                        + (f"\n   Kadro: Dino + {', '.join(idea.get('cast', []))}" if idea.get("cast") else ""))
+            continue
         animals = ", ".join(idea.get("animals", []))
         text.append(f"\n{i}) {idea.get('working_title', '')}\n   {idea.get('summary', '')}"
                     + (f"\n   [{idea.get('frame', '')}] {animals}" if animals else ""))
@@ -67,10 +72,13 @@ def send_script(state: dict) -> dict:
     minutes = estimate_minutes(ep)
     path = Path(tempfile.gettempdir()) / f"senaryo_{state['batch']}.txt"
     path.write_text(gen.script_as_text(ep, minutes), encoding="utf-8")
+    if ep.get("stories"):
+        what = f"{len(ep['stories'])} hikaye-sarki: " + " / ".join(s["name"] for s in ep["stories"])
+    else:
+        what = f"{len(ep['finds'])} hayvan: " + ", ".join(f["animal"] for f in ep["finds"])
     tg.send_document(
         str(path),
-        caption=f"{ep['title']}\nTahmini sure: ~{minutes:.1f} dk\n{len(ep['finds'])} hayvan: "
-                f"{', '.join(f['animal'] for f in ep['finds'])}\n\nLutfen senaryoyu oku. "
+        caption=f"{ep['title']}\nTahmini sure: ~{minutes:.1f} dk\n{what}\n\nLutfen senaryoyu oku. "
                 f"Onaylamadan hicbir sey yuklenmez.",
         buttons=[[("Onayla", f"ok:{state['batch']}"), ("Yeniden yaz", f"redo:{state['batch']}")]],
     )
@@ -119,6 +127,8 @@ def produce_and_upload(state: dict) -> dict:
             except Exception as exc:                   # Short hatasi ana bolumu bozmaz
                 short_lines.append(f"Short {k} yuklenemedi: {str(exc)[:200]}")
     gen.remember_topic(ep["title"], ep.get("teaser_animal"))
+    if ep.get("stories"):
+        gen.remember_story_episode(ep)
     tg.send_message(
         f"Yuklendi (gizli, zamanlanmis): https://youtu.be/{video_id}\n"
         f"Baslik: {ep['title']}\nSure: {result['total'] / 60:.1f} dk\n"
