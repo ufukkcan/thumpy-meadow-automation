@@ -79,7 +79,7 @@ def main():
     res = produce(ep, OUT / "work", frames_dir=str(OUT))
     rep.append(f"Uretim: {(time.time() - t0) / 60:.1f} dk; gercek sure {res['total'] / 60:.2f} dk "
                f"(tahmin {est:.2f})")
-    for p in res["thumbnails"] + [res["thumb_preview"]]:
+    for p in res["thumbnails"] + [res["thumb_preview"]] + [sh["path"] for sh in res.get("shorts", [])]:
         Path(p).replace(OUT / Path(p).name)
     Path(res["video"]).replace(OUT / "episode.mp4")
     desc = gen.build_description(ep, res["chapters"])

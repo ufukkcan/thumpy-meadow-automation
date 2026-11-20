@@ -153,17 +153,17 @@ def _add(buf, sig, start_s):
         buf[i:end] += sig[: end - i]
 
 
-async def _tts_save(text, path, rate, pitch):
+async def _tts_save(text, path, rate, pitch, voice=None):
     import edge_tts
-    await edge_tts.Communicate(text, VOICE, rate=rate, pitch=pitch).save(path)
+    await edge_tts.Communicate(text, voice or VOICE, rate=rate, pitch=pitch).save(path)
 
 
-def tts(text, path, rate="-5%", pitch="+0Hz"):
-    """edge-tts -> mono numpy. Bastaki/sondaki sessizlik kirpilir."""
+def tts(text, path, rate="-5%", pitch="+0Hz", voice=None):
+    """edge-tts -> mono numpy. Bastaki/sondaki sessizlik kirpilir. voice: karakter sesi (story.py)."""
     path.parent.mkdir(parents=True, exist_ok=True)
     for attempt in range(4):
         try:
-            asyncio.run(_tts_save(text, str(path), rate, pitch))
+            asyncio.run(_tts_save(text, str(path), rate, pitch, voice))
             break
         except Exception:
             if attempt == 3:

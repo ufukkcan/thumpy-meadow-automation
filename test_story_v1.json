@@ -1,0 +1,113 @@
+{
+  "title": "Rainy Day Rescue! Farm Animals Song | Thumpy Meadow",
+  "title_rest": "Rainy Day Rescue!",
+  "description_intro": "H6 pilot (yukleme yok): four story-songs with Dino and friends.",
+  "learning_points": ["Farm animal sounds", "Sharing is caring", "Helping friends"],
+  "tags": ["farm animals song", "Thumpy Meadow"],
+  "hashtags": ["FarmAnimalsSong", "ThumpyMeadow"],
+  "thumbnail_texts": ["", "", ""],
+  "localizations": {},
+  "stories": [
+    {
+      "name": "Rainy Day Rescue!",
+      "place": "farm", "weather": "rain", "clears": true, "melody": "oldmac",
+      "cast": ["cow", "duck", "piglet"],
+      "hook": [
+        {"who": "cow", "say": "Oh no! The rain is coming!", "feel": "scared", "do": "shiver"},
+        {"who": "dino", "say": "Quick! Let's get everyone inside!", "feel": "surprised", "do": "point"}
+      ],
+      "verses": [
+        {"focus": "cow", "do": "run", "feel": "scared", "lines": [
+          "Dino has a rainy farm,", "E I E I O", "And in the rain he found a cow,", "E I E I O",
+          "With a moo moo here and a moo moo there,", "Here a moo, there a moo, everywhere a moo moo,",
+          "Dino has a rainy farm,", "E I E I O"]},
+        {"talk": [{"who": "duck", "say": "Quack! I like the rain!", "feel": "happy", "do": "jump"}],
+         "focus": "duck", "do": "flap", "lines": [
+          "Dino has a rainy farm,", "E I E I O", "And in the rain he found a duck,", "E I E I O",
+          "With a quack quack here and a quack quack there,", "Here a quack, there a quack, everywhere a quack quack,",
+          "Dino has a rainy farm,", "E I E I O"]},
+        {"focus": "piglet", "do": "stomp", "show": "umbrella", "lines": [
+          "Dino has a rainy farm,", "E I E I O", "And in the mud he found a pig,", "E I E I O",
+          "With a snort snort here and a snort snort there,", "Here a snort, there a snort, everywhere a snort snort,",
+          "Dino has a rainy farm,", "E I E I O"]},
+        {"focus": "dino", "do": "dance", "clear": true, "lines": [
+          "Now the farm is warm and dry,", "E I E I O", "The rain is gone, the sun is out,", "E I E I O",
+          "With a hug hug here and a hug hug there,", "Here a hug, there a hug, everywhere a hug hug,",
+          "Now the farm is warm and dry,", "E I E I O"]}
+      ],
+      "ending": {"who": "dino", "say": "Hooray! Everyone is safe!", "do": "hug"},
+      "next": "Hmm? What's that jingle sound?"
+    },
+    {
+      "name": "The Snowy Sled Ride!",
+      "place": "snow", "weather": "snow", "melody": "jingle",
+      "cast": ["bunny", "puppy", "lamb"],
+      "hook": [
+        {"who": "bunny", "say": "Brr! It's so cold! My ears are freezing!", "feel": "scared", "do": "shiver"},
+        {"who": "puppy", "say": "Look! A big red sled! Let's ride!", "feel": "happy", "do": "point"}
+      ],
+      "verses": [
+        {"focus": "puppy", "do": "jump", "show": "sled", "lines": [
+          "Jingle bells, jingle bells,", "sliding down the hill,", "Oh what fun it is to ride in a",
+          "snowy sled with my friends,", "Jingle bells, jingle bells,", "sliding down the hill,",
+          "Oh what fun it is to ride in a", "sled! We love it so!"]},
+        {"talk": [{"who": "bunny", "say": "Oh no! My scarf flew away!", "feel": "sad", "do": "cry"}],
+         "focus": "bunny", "do": "look", "feel": "sad", "lines": [
+          "Blowing wind, blowing wind,", "where did my scarf go?", "Oh, the wind is very strong and it",
+          "blew it far in the snow,", "Blowing wind, blowing wind,", "where did my scarf go?",
+          "Look and look and look all around, it's", "somewhere in the snow!"]},
+        {"talk": [{"who": "lamb", "say": "Baa! I found it! Here you go!", "feel": "happy", "do": "jump"}],
+         "focus": "lamb", "do": "dance", "show": "scarf", "lines": [
+          "Here it is, here it is,", "lamb has found the scarf!", "Now the bunny ears are warm and snug,",
+          "thank you, lamb, you're the best,", "Jingle bells, jingle bells,", "friends are here to help,",
+          "Oh what fun, oh what fun, it is to", "play out in the snow!"]}
+      ],
+      "ending": {"who": "puppy", "say": "Hooray! Snow days are the best!", "do": "hug"},
+      "next": "Wait... who is crying at the pond?"
+    },
+    {
+      "name": "Let's Share!",
+      "place": "pond", "melody": "farmer",
+      "cast": ["kitten", "chick", "duck"],
+      "hook": [
+        {"who": "kitten", "say": "It's my ball! You can't have it!", "feel": "neutral", "do": "stomp"},
+        {"who": "chick", "say": "But I want to play too!", "feel": "sad", "do": "cry"}
+      ],
+      "verses": [
+        {"focus": "kitten", "do": "stomp", "show": "ball", "lines": [
+          "The kitten has a ball,", "the kitten has a ball,", "but she will not share it,", "the kitten has a ball."]},
+        {"focus": "chick", "do": "cry", "feel": "sad", "lines": [
+          "The little chick is sad,", "the little chick is sad,", "she wants to play with it,", "the little chick is sad."]},
+        {"talk": [{"who": "dino", "say": "Kitten, how about sharing? It's more fun!", "feel": "think", "do": "think"}],
+         "focus": "kitten", "do": "clap", "lines": [
+          "Let's share and take a turn,", "let's share and take a turn,", "it's more fun with a friend,", "let's share and take a turn."]},
+        {"focus": "duck", "do": "dance", "lines": [
+          "Now everyone can play,", "now everyone can play,", "hooray, hooray, we share,", "now everyone can play."]}
+      ],
+      "ending": {"who": "kitten", "say": "Sharing is fun! Thank you, friends!", "do": "hug"},
+      "next": "Ooh! What's that sparkly thing inside?"
+    },
+    {
+      "name": "Decorate the Tree!",
+      "place": "home", "melody": "london", "props": ["christmas_tree"],
+      "cast": ["bunny", "puppy", "piglet"],
+      "hook": [
+        {"who": "piglet", "say": "Look! A big Christmas tree!", "feel": "surprised", "do": "point"},
+        {"who": "bunny", "say": "But it looks so plain!", "feel": "sad", "do": "think"}
+      ],
+      "verses": [
+        {"focus": "puppy", "do": "jump", "show": "star", "lines": [
+          "Let us put a shiny star,", "shiny star, shiny star,", "Let us put a shiny star,", "up on the tree!"]},
+        {"focus": "bunny", "do": "dance", "show": "bell", "lines": [
+          "Let us hang a little bell,", "little bell, little bell,", "Let us hang a little bell,", "ding dong ding dong!"]},
+        {"focus": "piglet", "do": "spin", "show": "gift", "lines": [
+          "Here's a present just for you,", "just for you, just for you,", "Here's a present just for you,", "Merry Christmas!"]},
+        {"focus": "dino", "do": "dance", "lines": [
+          "Now the tree is shining bright,", "shining bright, shining bright,", "Now the tree is shining bright,", "with our friends!"]}
+      ],
+      "ending": {"who": "dino", "say": "Merry Christmas, everyone!", "do": "hug"}
+    }
+  ],
+  "goodbye": "Bye bye, friends! See you next time!",
+  "song_issues": []
+}

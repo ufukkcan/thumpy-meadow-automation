@@ -29,7 +29,24 @@ NAMES = {
     "rainbow": "Rainbow",
     "cake": "Birthday cake", "crown": "Crown",          # 7c: dogum gunu finali (kullanici onayi 11-05)
     "sheep": "Ewe", "rooster": "Rooster", "horse": "Horse", "owl": "Owl", "bird": "Bird",   # 7d: gercek sesi olanlar
+    # H2 (2026-11-20): hikaye objeleri; her klasorun sabit commit'te varligi HEAD istegiyle dogrulandi
+    "christmas_tree": "Christmas tree", "snowman": "Snowman", "snowflake": "Snowflake", "scarf": "Scarf",
+    "gloves": "Gloves", "bell": "Bell", "cookie": "Cookie", "cocoa": "Hot beverage", "sled": "Sled",
+    "candy": "Candy", "lollipop": "Lollipop", "kite": "Kite", "umbrella": "Umbrella", "cupcake": "Cupcake",
+    "carrot": "Carrot", "bone": "Bone", "ball": "Basketball", "music_note": "Musical note",
+    "lightbulb": "Light bulb", "honey": "Honey pot", "fish_food": "Fish", "cheese": "Cheese wedge",
+    "corn": "Ear of corn", "sunflower": "Sunflower", "tulip": "Tulip", "mushroom": "Mushroom",
+    "pine": "Evergreen tree", "house": "House", "moon": "Crescent moon", "bed": "Bed",
+    "toothbrush": "Toothbrush", "soap": "Soap", "bathtub": "Bathtub", "books": "Books",
+    "paintbrush": "Paintbrush", "palette": "Artist palette", "crayon": "Crayon", "puzzle": "Puzzle piece",
+    "socks": "Socks", "ice_cream": "Soft ice cream", "doughnut": "Doughnut", "pizza": "Pizza",
+    "train": "Locomotive", "tractor": "Tractor", "bicycle": "Bicycle", "boat": "Sailboat",
+    "teapot": "Teapot", "key": "Key", "backpack": "Backpack", "ribbon": "Ribbon", "envelope": "Envelope",
+    "rock": "Rock",
 }
+STORY_PROPS = [k for k in NAMES if k not in {"duck", "fish", "bunny", "cat", "pig", "frog", "cow", "dog", "chick",
+                                              "lion", "elephant", "monkey", "butterfly", "sheep", "rooster",
+                                              "horse", "owl", "bird"}]
 
 
 def _path(name: str) -> str:

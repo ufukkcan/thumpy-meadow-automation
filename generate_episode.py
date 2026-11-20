@@ -478,8 +478,52 @@ def short_meta(ep: dict, find_index: int, full_video_id: str | None) -> dict:
     return {"title": title[:100], "description": "\n\n".join(desc), "tags": tags}
 
 
+def story_as_text(ep: dict, est_minutes: float) -> str:
+    """Hikaye-sarki bolumu (H3) icin Telegram onay metni: her hikaye, konusmalar, kitalar (hece kontrolu)."""
+    out = [f"BASLIK: {ep['title']}"]
+    if ep.get("title_report"):
+        out += ["BASLIK OLCUMU:"] + ep["title_report"]
+    out += [f"Tahmini sure: ~{est_minutes:.1f} dakika", f"Hikaye sayisi: {len(ep['stories'])}", ""]
+    for k, st in enumerate(ep["stories"]):
+        mel = vocal_break.NAMES.get(st["melody"], st["melody"])
+        out.append(f"=== Hikaye {k + 1}: {st['name']} -- yer: {st['place']}"
+                   + (f", hava: {st['weather']}" if st.get("weather") else "")
+                   + f", melodi: {mel}, kadro: Dino + {', '.join(st['cast'])} ===")
+        if st.get("props"):
+            out.append(f"  [sahnede: {', '.join(st['props'])}]")
+        for b in st.get("hook", []):
+            out.append(f"- {b['who']}: {b['say']}" if b.get("say") else f"- {b['who']}: [gercek ses]")
+        pat = vocal_break.pattern(st["melody"])
+        for vi, v in enumerate(st["verses"]):
+            for b in v.get("talk", []):
+                out.append(f"- {b['who']}: {b['say']}" if b.get("say") else f"- {b['who']}: [gercek ses]")
+            extra = (f", gorunur: {v['show']}" if v.get("show") else "")
+            out.append(f"  ~ Kita {vi + 1} (odak: {v.get('focus', '-')}, hareket: {v.get('do', 'dance')}{extra})")
+            for li, line in enumerate(v["lines"]):
+                got = sum(vocal_break.counter(w) for w in line.split() if re.search(r"[A-Za-z]", w))
+                mark = f"  [{got}/{pat[li]} hece]" if li < len(pat) and got != pat[li] else ""
+                out.append(f"    {line}{mark}")
+        end = st.get("ending") or {}
+        if end:
+            out.append(f"- {end.get('who', 'dino')}: {end.get('say', '')}  [hep birlikte: {end.get('do', 'hug')}]")
+        if st.get("next"):
+            out.append(f"- dino: {st['next']}  (siradaki hikayenin ipucu)")
+        out.append("")
+    out.append(f"- dino: {ep.get('goodbye', 'Bye bye, friends! See you next time!')}")
+    out += ["", "ETIKETLER: " + ", ".join(ep.get("tags", [])),
+            "HASHTAG: " + " ".join("#" + h for h in ep.get("hashtags", []))]
+    if ep.get("localizations"):
+        out.append("DIL BASLIKLARI: " + " | ".join(f"{k}: {v['title']}" for k, v in ep["localizations"].items()))
+    if ep.get("song_issues"):
+        out.append("\nSARKI UYARILARI (duzeltilemedi; sarki yine soylenir ama bu satirlarda hece kayabilir):")
+        out.extend(f"- {x}" for x in ep["song_issues"])
+    return "\n".join(out)
+
+
 def script_as_text(ep: dict, est_minutes: float) -> str:
     """Telegram'da okunacak duz metin senaryo."""
+    if ep.get("stories"):
+        return story_as_text(ep, est_minutes)
     out = [f"BASLIK: {ep['title']}"]
     if ep.get("title_report"):
         out += ["BASLIK OLCUMU (otomatik tamamlama talebi + ilk 10 sonucun gucu):"] + ep["title_report"]

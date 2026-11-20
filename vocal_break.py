@@ -22,7 +22,8 @@ ORDER = ["twinkle", "london", "mary", "jacques"]
 SPEAKER = "Root"
 LEAD = 0.45            # vokal varken melodi enstrumanlarinin kazanci
 NAMES = {"twinkle": "Twinkle Twinkle", "london": "London Bridge", "mary": "Mary Had a Little Lamb",
-         "jacques": "Frere Jacques"}
+         "jacques": "Frere Jacques", "oldmac": "Old MacDonald", "jingle": "Jingle Bells",
+         "farmer": "The Farmer in the Dell"}
 
 _singer = None
 _vocoder = None

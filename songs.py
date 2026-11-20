@@ -70,7 +70,59 @@ MELODIES = {
         "chords": [[(65, 69, 72)] * 4] * 4,
         "bpm": 100,
     },
+    # ---- H5 (2026-11-20): hikaye sarkilari; her biri 1929 oncesi yayin kaynagiyla dogrulandi (K-25) ----
+    # Old MacDonald Had a Farm -- 1917, "Tommy's Tunes" (Morgan Library kaydi). F majorde.
+    # "E I E I O" satirlari: harfler AYRI yazilmali (CMU sozlugu: e, i, o tek hece).
+    "oldmac": {
+        "name": "Old MacDonald melody",
+        "lines": [
+            [(65, 1), (65, 1), (65, 1), (60, 1), (62, 1), (62, 1), (60, 2)],
+            [(69, 1), (69, 1), (67, 1), (67, 1), (65, 4)],
+            [(60, 0.5), (65, 0.5), (65, 1), (65, 1), (60, 1), (62, 1), (62, 1), (60, 2)],
+            [(69, 1), (69, 1), (67, 1), (67, 1), (65, 4)],
+            [(60, 0.5), (60, 0.5), (65, 1), (65, 1), (65, 1), (60, 0.5), (60, 0.5), (65, 1), (65, 1), (65, 1)],
+            [(65, 0.5), (65, 0.5), (65, 1), (65, 0.5), (65, 0.5), (65, 1), (65, 0.5), (65, 0.5), (65, 0.5),
+             (65, 0.5), (65, 1), (65, 1)],
+            [(65, 1), (65, 1), (65, 1), (60, 1), (62, 1), (62, 1), (60, 2)],
+            [(69, 1), (69, 1), (67, 1), (67, 1), (65, 4)],
+        ],
+        "chords": [[F, F, (58, 62, 65), F], [F, F, C, F], [F, F, (58, 62, 65), F], [F, F, C, F],
+                   [F, F, F, F], [F, F, C, C], [F, F, (58, 62, 65), F], [F, F, C, F]],
+        "bpm": 116,
+    },
+    # Jingle Bells (nakarat) -- James Lord Pierpont, 1857 "The One Horse Open Sleigh" (IMSLP, Gutenberg #10535);
+    # bugunku nakarat ezgisi 1900'lerin basindaki kayitlarda (1929 oncesi). F majorde.
+    "jingle": {
+        "name": "Jingle Bells melody",
+        "lines": [
+            [(69, 1), (69, 1), (69, 2), (69, 1), (69, 1), (69, 2)],
+            [(69, 1), (72, 1), (65, 1.5), (67, 0.5), (69, 4)],
+            [(70, 1), (70, 1), (70, 1.5), (70, 0.5), (70, 1), (69, 1), (69, 1), (69, 0.5), (69, 0.5)],
+            [(69, 1), (67, 1), (67, 1), (69, 1), (67, 2), (72, 2)],
+            [(69, 1), (69, 1), (69, 2), (69, 1), (69, 1), (69, 2)],
+            [(69, 1), (72, 1), (65, 1.5), (67, 0.5), (69, 4)],
+            [(70, 1), (70, 1), (70, 1.5), (70, 0.5), (70, 1), (69, 1), (69, 1), (69, 0.5), (69, 0.5)],
+            [(72, 1), (72, 1), (70, 1), (67, 1), (65, 4)],
+        ],
+        "chords": [[F, F, F, F], [F, F, F, F], [(58, 62, 65), (58, 62, 65), F, F], [G, G, C, C],
+                   [F, F, F, F], [F, F, F, F], [(58, 62, 65), (58, 62, 65), F, F], [C, C, F, F]],
+        "bpm": 124,
+    },
+    # The Farmer in the Dell -- 1883, W. W. Newell "Games and Songs of American Children" s.129
+    # (Morgan Library kaydi; Gutenberg #45762). F majorde.
+    "farmer": {
+        "name": "The Farmer in the Dell melody",
+        "lines": [
+            [(60, 1), (65, 1.5), (65, 0.5), (65, 1), (65, 1), (65, 3)],
+            [(67, 1), (69, 1.5), (69, 0.5), (69, 1), (69, 1), (69, 3)],
+            [(72, 1.5), (72, 0.5), (74, 1), (72, 1), (69, 1), (65, 3)],
+            [(67, 1), (69, 1.5), (69, 0.5), (67, 1), (67, 1), (65, 3)],
+        ],
+        "chords": [[F, F, F, F], [C, C, F, F], [F, (58, 62, 65), F, F], [C, C, F, F]],
+        "bpm": 120,
+    },
 }
+STORY_MELODIES = ["oldmac", "farmer", "london", "mary", "twinkle", "jacques", "jingle"]   # jingle: Noel donemi
 
 
 def syllable_pattern(key: str) -> list[int]:

@@ -405,7 +405,226 @@ def _kit_pond(rnd):
     return far, mid, near
 
 
-PLACES = {"meadow": _kit_meadow, "farm": _kit_farm, "pond": _kit_pond}
+def _pine(c, x, y, s=1.0, snow=False, w=None):
+    """Cam agaci: govde + 3 kat ucgen; snow=True: karli uclar. x, y: taban. w verilirse dosenir."""
+    for xx in ((x - w, x, x + w) if w else (x,)):
+        trunk = skia.Path()
+        trunk.addRect(skia.Rect.MakeXYWH(xx - 10 * s, y - 40 * s, 20 * s, 44 * s))
+        inked(c, [trunk], paint(rgb(140, 95, 65)), w=7)
+        for k, (hw, top, bot) in enumerate(((95, 175, 30), (75, 245, 120), (52, 300, 190))):
+            p = skia.Path()
+            p.addPoly([(xx - hw * s, y - bot * s), (xx, y - top * s - 40 * s), (xx + hw * s, y - bot * s)], True)
+            inked(c, [p], paint(shader=linear((xx - hw * s, 0), (xx + hw * s, 0),
+                                               [rgb(80, 165, 110), rgb(45, 125, 85)])), w=7)
+            if snow:
+                cap = skia.Path()
+                cap.moveTo(xx - hw * s * 0.45, y - (top + 40) * s + (top + 40 - bot) * s * 0.45)
+                cap.lineTo(xx, y - (top + 40) * s)
+                cap.lineTo(xx + hw * s * 0.45, y - (top + 40) * s + (top + 40 - bot) * s * 0.45)
+                cap.quadTo(xx, y - (top + 40) * s + (top + 40 - bot) * s * 0.3, xx - hw * s * 0.45,
+                           y - (top + 40) * s + (top + 40 - bot) * s * 0.45)
+                c.drawPath(cap, paint(rgb(250, 252, 255)))
+
+
+def _cottage(c, x, y, s=1.0, snow=False):
+    """Kucuk ev: sicak isikli pencere, kapi, baca. x: orta, y: taban."""
+    body = skia.Path()
+    body.addRect(skia.Rect.MakeLTRB(x - 120 * s, y - 150 * s, x + 120 * s, y + 6))
+    roof = skia.Path()
+    roof.addPoly([(x - 150 * s, y - 145 * s), (x, y - 265 * s), (x + 150 * s, y - 145 * s)], True)
+    chim = skia.Path()
+    chim.addRect(skia.Rect.MakeLTRB(x + 55 * s, y - 250 * s, x + 90 * s, y - 185 * s))
+    inked(c, [chim], paint(rgb(170, 90, 75)), w=7)
+    inked(c, [body], paint(shader=linear((x - 120 * s, 0), (x + 120 * s, 0), [rgb(250, 215, 160), rgb(225, 180, 125)])), w=8)
+    inked(c, [roof], paint(rgb(190, 75, 70) if not snow else rgb(245, 248, 255)), w=8)
+    for wx in (-65, 65):
+        win = skia.Rect.MakeLTRB(x + (wx - 32) * s, y - 115 * s, x + (wx + 32) * s, y - 55 * s)
+        c.drawRect(win, paint(rgb(255, 210, 90)))
+        c.drawRect(win, paint(INK, stroke=7))
+        c.drawLine(x + wx * s, y - 115 * s, x + wx * s, y - 55 * s, paint(INK, stroke=5))
+    door = skia.Path()
+    door.addRoundRect(skia.Rect.MakeLTRB(x - 26 * s, y - 95 * s, x + 26 * s, y + 4), 18 * s, 18 * s)
+    inked(c, [door], paint(rgb(150, 95, 70)), w=7)
+
+
+def _kit_snow(rnd):
+    def far(c, w):
+        for k in range(7):                          # karli daglar
+            mx = k * w / 7 + rnd.uniform(-60, 60)
+            for xx in (mx - w, mx, mx + w):
+                p = skia.Path()
+                p.addPoly([(xx - 260, 640), (xx, 400 + rnd.uniform(-40, 40) * 0), (xx + 260, 640)], True)
+                c.drawPath(p, paint(shader=linear((0, 400), (0, 640), [rgb(235, 242, 252), rgb(170, 195, 225)])))
+                c.drawPath(p, paint(rgb(150, 175, 210), stroke=5))
+
+    def mid(c, w):
+        hill = _hill_path(660, 90, 2, 1.1, w)
+        c.drawPath(hill, paint(rgb(170, 190, 220), stroke=8))
+        c.drawPath(hill, paint(shader=linear((0, 560), (0, 800), [rgb(255, 255, 255), rgb(222, 232, 248)])))
+        _cottage(c, 360 + 350, 705, 0.95, snow=True)
+        for x in (1150, 1600, 1900, 2250, 2500):
+            _pine(c, x + rnd.uniform(-30, 30), 700 + rnd.uniform(-10, 10), 0.75, snow=True, w=w)
+
+    def near(c, w):
+        hill = _hill_path(GROUND_Y - 40, 26, 1, 0.3, w)
+        c.drawPath(hill, paint(rgb(150, 170, 205), stroke=LINE))
+        c.drawPath(hill, paint(shader=linear((0, GROUND_Y - 70), (0, H),
+                                             [rgb(255, 255, 255), rgb(236, 242, 252), rgb(214, 226, 245)],
+                                             [0.0, 0.45, 1.0])))
+        for _ in range(26):
+            x0, y = rnd.uniform(0, w), rnd.uniform(GROUND_Y + 30, H - 20)
+            for x in (x0 - w, x0, x0 + w):
+                c.drawOval(oval(x, y, 38, 9), paint(rgb(200, 215, 240, 160)))
+    return far, mid, near
+
+
+def _kit_forest(rnd):
+    def far(c, w):
+        c.drawPath(_hill_path(560, 130, 3, 0.2, w),
+                   paint(shader=linear((0, 400), (0, 760), [rgb(120, 175, 170), rgb(95, 150, 145)])))
+
+    def mid(c, w):
+        hill = _hill_path(660, 70, 2, 1.6, w)
+        c.drawPath(hill, paint(rgb(50, 110, 70), stroke=8))
+        c.drawPath(hill, paint(shader=linear((0, 560), (0, 800), [rgb(110, 190, 120), rgb(80, 160, 95)])))
+        for k in range(16):
+            x = 40 + k * (w - 80) / 15 + rnd.uniform(-35, 35)
+            if k % 3 == 1:
+                _round_tree(c, x, 640 + rnd.uniform(-15, 15), w)
+            else:
+                _pine(c, x, 715 + rnd.uniform(-10, 10), 0.7 + rnd.uniform(-0.08, 0.12), w=w)
+
+    def near(c, w):
+        _near_ground(c, w, rnd, [rgb(130, 205, 105), rgb(95, 175, 85), rgb(75, 150, 75)],
+                     [rgb(255, 255, 255), rgb(255, 220, 90)], n=40, tuft=rgb(60, 130, 60))
+        for _ in range(9):                         # mantarlar
+            x0, y = rnd.uniform(0, w), rnd.uniform(GROUND_Y + 40, H - 40)
+            for x in (x0 - w, x0, x0 + w):
+                stem = skia.Path()
+                stem.addRoundRect(skia.Rect.MakeXYWH(x - 9, y - 26, 18, 30), 7, 7)
+                inked(c, [stem], paint(rgb(250, 240, 225)), w=5)
+                cap = skia.Path()
+                cap.addArc(skia.Rect.MakeXYWH(x - 26, y - 50, 52, 46), 180, 180)
+                cap.close()
+                inked(c, [cap], paint(rgb(230, 70, 70)), w=5)
+                c.drawCircle(x - 8, y - 36, 4, paint(rgb(255, 255, 255)))
+                c.drawCircle(x + 9, y - 32, 3, paint(rgb(255, 255, 255)))
+    return far, mid, near
+
+
+def _kit_home(rnd):
+    """Ev ici (oturma odasi): duvar + pencere + cerceve + raf; ahsap zemin + hali. Gokyuzu cizilmez."""
+    def far(c, w):
+        c.drawRect(skia.Rect.MakeWH(w, H), paint(shader=linear((0, 0), (0, 760),
+                                                               [rgb(255, 236, 205), rgb(250, 220, 180)])))
+        for k in range(int(w // 120) + 1):         # duvar kagidi seritleri
+            c.drawRect(skia.Rect.MakeXYWH(k * 120 + 40, 0, 26, 700), paint(rgb(255, 228, 190)))
+        c.drawRect(skia.Rect.MakeXYWH(0, 640, w, 30), paint(rgb(235, 190, 150)))      # supurgelik
+
+    def mid(c, w):
+        wx, wy, ww, wh = 1250 + 350, 150, 360, 300  # pencere (varista ekranin sag-ortasi)
+        c.drawRect(skia.Rect.MakeXYWH(wx - ww / 2, wy, ww, wh),
+                   paint(shader=linear((0, wy), (0, wy + wh), [rgb(110, 185, 245), rgb(205, 236, 255)])))
+        c.drawCircle(wx + 90, wy + 80, 34, paint(rgb(255, 225, 110)))
+        _cloud(c, wx - 90, wy + 120, 0.6)
+        frame = skia.Rect.MakeXYWH(wx - ww / 2, wy, ww, wh)
+        c.drawRect(frame, paint(rgb(255, 255, 255), stroke=22))
+        c.drawRect(frame, paint(INK, stroke=6))
+        c.drawLine(wx, wy, wx, wy + wh, paint(rgb(255, 255, 255), stroke=14))
+        c.drawLine(wx - ww / 2, wy + wh / 2, wx + ww / 2, wy + wh / 2, paint(rgb(255, 255, 255), stroke=14))
+        for side in (-1, 1):                       # perdeler
+            cur = skia.Path()
+            cx0 = wx + side * (ww / 2 + 20)
+            cur.moveTo(cx0 - 45, wy - 30)
+            cur.lineTo(cx0 + 45, wy - 30)
+            cur.quadTo(cx0 + 20 * side, wy + wh * 0.6, cx0 + 50 * side, wy + wh + 40)
+            cur.lineTo(cx0 - 50 * side, wy + wh + 40)
+            cur.close()
+            inked(c, [cur], paint(rgb(240, 120, 130)), w=7)
+        px, py = 330 + 350, 210                    # resim cercevesi
+        pic = skia.Rect.MakeXYWH(px - 110, py, 220, 160)
+        c.drawRect(pic, paint(rgb(170, 220, 160)))
+        c.drawCircle(px + 40, py + 50, 22, paint(rgb(255, 210, 80)))
+        c.drawPath(_hill_path(py + 160, 50, 1, 0.5, 220), paint(rgb(120, 190, 110)))  # (kucuk tepe, sol ust kose)
+        c.drawRect(pic, paint(rgb(190, 130, 80), stroke=16))
+        c.drawRect(pic, paint(INK, stroke=5))
+        shelf = skia.Path()                        # raf
+        shelf.addRect(skia.Rect.MakeXYWH(820 + 350, 330, 230, 18))
+        inked(c, [shelf], paint(rgb(190, 130, 80)), w=6)
+
+    def near(c, w):
+        floor = skia.Path()
+        floor.addRect(skia.Rect.MakeLTRB(0, GROUND_Y - 60, w, H + 40))
+        c.drawPath(floor, paint(shader=linear((0, GROUND_Y - 60), (0, H), [rgb(215, 160, 110), rgb(185, 125, 85)])))
+        c.drawLine(0, GROUND_Y - 60, w, GROUND_Y - 60, paint(INK, stroke=LINE))
+        for k in range(int(w // 160) + 1):
+            c.drawLine(k * 160, GROUND_Y - 53, k * 160 - 120, H, paint(rgb(170, 115, 78), stroke=5))
+        c.drawOval(oval(960 + 350, GROUND_Y + 70, 620, 95), paint(rgb(120, 170, 230)))
+        c.drawOval(oval(960 + 350, GROUND_Y + 70, 620, 95), paint(INK, stroke=8))
+        c.drawOval(oval(960 + 350, GROUND_Y + 70, 520, 70), paint(rgb(160, 200, 245), stroke=10))
+    return far, mid, near
+
+
+PLACES = {"meadow": _kit_meadow, "farm": _kit_farm, "pond": _kit_pond, "snow": _kit_snow,
+          "forest": _kit_forest, "home": _kit_home, "night": _kit_meadow}
+SKY = {"snow": "winter", "home": None, "night": "night"}     # digerleri "day"
+
+
+def _sun(c, t, sx=1640, sy=170, pale=False):
+    """Gunes: yumusak hale + konturlu disk + gulen yuz."""
+    c.drawCircle(sx, sy, 210, paint(shader=radial((sx, sy), 210,
+                                                   [rgb(255, 245, 190, 110 if pale else 150), rgb(255, 245, 190, 0)])))
+    inked(c, [oval_path(sx, sy, 80, 80)],
+          paint(shader=radial((sx - 20, sy - 20), 90, [rgb(255, 250, 215), rgb(255, 220, 120) if pale else
+                                                       rgb(255, 205, 80)])), w=10)
+    blink = (t % 5.3) > 5.15
+    for ex in (-24, 24):
+        if blink:
+            c.drawLine(sx + ex - 8, sy - 10, sx + ex + 8, sy - 10, paint(INK, stroke=5))
+        else:
+            c.drawOval(oval(sx + ex, sy - 12, 6, 9), paint(INK))
+    smile = skia.Path()
+    smile.moveTo(sx - 26, sy + 14)
+    smile.quadTo(sx, sy + 38, sx + 26, sy + 14)
+    c.drawPath(smile, paint(INK, stroke=6))
+    for ex in (-46, 46):
+        c.drawOval(oval(sx + ex, sy + 12, 11, 7), paint(rgb(255, 140, 120, 160)))
+
+
+def _moon(c, t, sx=1600, sy=180):
+    c.drawCircle(sx, sy, 190, paint(shader=radial((sx, sy), 190, [rgb(255, 250, 210, 90), rgb(255, 250, 210, 0)])))
+    m = skia.Op(oval_path(sx, sy, 85, 85), oval_path(sx + 48, sy - 25, 75, 75), skia.PathOp.kDifference_PathOp)
+    inked(c, [m], paint(shader=radial((sx - 30, sy), 100, [rgb(255, 252, 220), rgb(255, 230, 140)])), w=10)
+    blink = (t % 6.1) > 5.95
+    ex, ey = sx - 48, sy - 5
+    if blink:
+        c.drawLine(ex - 8, ey, ex + 8, ey, paint(INK, stroke=5))
+    else:
+        c.drawLine(ex - 9, ey, ex + 9, ey, paint(INK, stroke=5))          # uykulu kapali goz
+    smile = skia.Path()
+    smile.moveTo(sx - 62, sy + 30)
+    smile.quadTo(sx - 50, sy + 42, sx - 36, sy + 30)
+    c.drawPath(smile, paint(INK, stroke=5))
+
+
+def snowfall(c, t, n=90, seed=7, w=W, h=H):
+    """Yagan kar (ekran koordinati): yavas dusus + sallanma, 3 buyukluk (paralaks hissi)."""
+    rnd = random.Random(seed)
+    for _ in range(n):
+        x0, y0, sp, sz, ph = rnd.uniform(0, w), rnd.uniform(0, h), rnd.uniform(40, 110), rnd.choice((4, 6, 9)), rnd.uniform(0, 6)
+        y = (y0 + sp * t) % (h + 40) - 20
+        x = (x0 + 30 * math.sin(t * 0.9 + ph)) % w
+        c.drawCircle(x, y, sz + 2.5, paint(rgb(140, 165, 205, 150)))      # acik gokyuzunde de secilsin
+        c.drawCircle(x, y, sz, paint(rgb(255, 255, 255, 240)))
+
+
+def rainfall(c, t, n=110, seed=8, w=W, h=H):
+    rnd = random.Random(seed)
+    for _ in range(n):
+        x0, y0, sp = rnd.uniform(0, w + 200), rnd.uniform(0, h), rnd.uniform(900, 1300)
+        y = (y0 + sp * t) % (h + 80) - 40
+        x = (x0 - 0.25 * sp * t) % (w + 200) - 100
+        c.drawLine(x, y, x - 9, y + 34, paint(rgb(200, 225, 255, 200), stroke=4))
 
 
 class Meadow:
@@ -420,8 +639,36 @@ class Meadow:
         self.far, self.mid, self.near = _layer(wd, far), _layer(wd, mid), _layer(wd, near)
         self.clouds = [(rnd.uniform(0, W + 400), rnd.uniform(90, 330), rnd.uniform(0.7, 1.15),
                         rnd.uniform(8, 20)) for _ in range(6)]
+        self.sky = SKY.get(kind, "day")
+        if self.sky == "night":
+            self.stars = [(rnd.uniform(0, W), rnd.uniform(20, 520), rnd.uniform(2, 5), rnd.uniform(0, 6))
+                          for _ in range(70)]
 
     def draw(self, c, t, cam_x=0.0):
+        if self.sky == "day":
+            self._day(c, t)
+        elif self.sky == "winter":
+            c.drawRect(skia.Rect.MakeWH(W, H),
+                       paint(shader=linear((0, 0), (0, 700), [rgb(150, 190, 230), rgb(225, 238, 250)])))
+            _sun(c, t, pale=True)
+            for x0, y, s, v in self.clouds:
+                _cloud(c, (x0 + v * t) % (W + 600) - 300, y, s)
+        elif self.sky == "night":
+            c.drawRect(skia.Rect.MakeWH(W, H),
+                       paint(shader=linear((0, 0), (0, 720), [rgb(30, 40, 95), rgb(85, 90, 165)])))
+            for x, y, s, ph in self.stars:
+                c.drawCircle(x, y, s * (0.75 + 0.25 * math.sin(t * 2 + ph)), paint(rgb(255, 250, 220)))
+            _moon(c, t)
+        for img, k in ((self.far, 0.15), (self.mid, 0.4), (self.near, 1.0)):
+            wd = img.width()
+            off = (-self.PAD / 2 - cam_x * k) % wd - wd        # yan yana dose: kamera ne kadar kayarsa kaysin
+            while off < W + 800:
+                c.drawImage(img, off, 0)
+                off += wd
+        if self.sky == "night":                                 # gece: zemine lacivert tul
+            c.drawRect(skia.Rect.MakeWH(W, H), paint(rgb(25, 35, 100, 95)))
+
+    def _day(self, c, t):
         c.drawRect(skia.Rect.MakeWH(W, H),
                    paint(shader=linear((0, 0), (0, 700), [rgb(105, 185, 245), rgb(205, 236, 255)])))
         sx, sy = 1640, 170       # gunes: yumusak hale + konturlu disk + gulen yuz
@@ -444,12 +691,6 @@ class Meadow:
         for x0, y, s, v in self.clouds:
             x = (x0 + v * t) % (W + 600) - 300
             _cloud(c, x, y, s)
-        for img, k in ((self.far, 0.15), (self.mid, 0.4), (self.near, 1.0)):
-            wd = img.width()
-            off = (-self.PAD / 2 - cam_x * k) % wd - wd        # yan yana dose: kamera ne kadar kayarsa kaysin
-            while off < W + 800:
-                c.drawImage(img, off, 0)
-                off += wd
 
 
 # ---------------- Dino (bizim maskot) ----------------
