@@ -11,6 +11,10 @@ Ogrenme: her hafta ici / hafta sonu icin 2 aday saat var. Sistem once her adayi 
 MIN_SAMPLES kez dener, sonra ilk 48 saatte en cok izlenen adayi agirlikli olarak kullanir
 (her EXPLORE_EVERY yuklemede bir digerini de denemeye devam eder -- izleyici davranisi degisebilir).
 Saatler America/New_York'a gore tanimli; yaz/kis saati gecisleri otomatik hesaplanir.
+
+Ayni gun kurali (2026-11-20, kullanici istegi): yayin ertesi gune KAYMAZ. Bugunun aday saati
+MIN_LEAD sonrasina yetisiyorsa o saat; yetismiyorsa en erken an (simdi + MIN_LEAD), etiket "asap".
+"asap" yayinlar aday saat ogrenmesine katilmaz, raporda ayri satirda gorunur.
 """
 import json
 import statistics
@@ -28,7 +32,7 @@ CANDIDATES = {
 }
 MIN_SAMPLES = 3
 EXPLORE_EVERY = 5
-MIN_LEAD = timedelta(hours=1, minutes=30)  # YouTube isleme + zamanlama icin pay
+MIN_LEAD = timedelta(minutes=30)  # YouTube isleme payi (uLrf/IAWb elle 18-26 dk sonra acildi, sorunsuz)
 
 
 def _load() -> list[dict]:
@@ -64,23 +68,25 @@ def _choose_slot(day_type: str, videos: list[dict]) -> str:
 
 
 def next_publish_time(now_utc: datetime | None = None) -> tuple[str, str, str]:
-    """Donus: (publishAt_utc_iso, slot_etiketi, okunakli_aciklama)"""
+    """Donus: (publishAt_utc_iso, slot_etiketi, okunakli_aciklama). Ayni gun kurali (bkz. ust aciklama)."""
     now_utc = now_utc or datetime.now(timezone.utc)
     earliest = now_utc + MIN_LEAD
-    videos = _load()
-    for day_offset in range(0, 8):
-        day = (earliest.astimezone(TARGET_TZ) + timedelta(days=day_offset)).date()
-        day_type = _day_type(datetime(day.year, day.month, day.day))
-        slot = _choose_slot(day_type, videos)
-        hh, mm = map(int, slot.split(":"))
-        local = datetime(day.year, day.month, day.day, hh, mm, tzinfo=TARGET_TZ)
-        if local.astimezone(timezone.utc) >= earliest:
-            utc = local.astimezone(timezone.utc)
-            ist = local.astimezone(ISTANBUL)
-            human = (f"{local.strftime('%a %d %b %H:%M')} ABD Dogu = "
-                     f"{ist.strftime('%d %b %H:%M')} Turkiye ({day_type}, aday saat {slot})")
-            return utc.strftime("%Y-%m-%dT%H:%M:%SZ"), f"{day_type}:{slot}", human
-    raise RuntimeError("Uygun yayin saati bulunamadi.")
+    earliest_local = earliest.astimezone(TARGET_TZ)
+    day = earliest_local.date()
+    day_type = _day_type(datetime(day.year, day.month, day.day))
+    slot = _choose_slot(day_type, _load())
+    hh, mm = map(int, slot.split(":"))
+    local = datetime(day.year, day.month, day.day, hh, mm, tzinfo=TARGET_TZ)
+    if local.astimezone(timezone.utc) < earliest:
+        # bugunun aday saati gecti -> en erken an, bir sonraki tam dakikaya yuvarlanir
+        local = (earliest_local + timedelta(seconds=59)).replace(second=0, microsecond=0)
+        slot = "asap"
+    utc = local.astimezone(timezone.utc)
+    ist = local.astimezone(ISTANBUL)
+    why = "aday saat gecmisti, en erken an" if slot == "asap" else f"aday saat {slot}"
+    human = (f"{local.strftime('%a %d %b %H:%M')} ABD Dogu = "
+             f"{ist.strftime('%d %b %H:%M')} Turkiye ({day_type}, {why})")
+    return utc.strftime("%Y-%m-%dT%H:%M:%SZ"), f"{day_type}:{slot}", human
 
 
 def record_upload(video_id: str, publish_at_utc: str, slot_label: str) -> None:
@@ -120,4 +126,7 @@ def report() -> str:
                     if v["day_type"] == day_type and v["slot"] == c and v.get("views_48h") is not None]
             med = f"{statistics.median(vals):.0f}" if vals else "-"
             lines.append(f"  {day_type} {c} ABD Dogu: {len(vals)} video, medyan {med}")
+    vals = [v["views_48h"] for v in videos if v.get("slot") == "asap" and v.get("views_48h") is not None]
+    if vals:
+        lines.append(f"  en erken an (asap): {len(vals)} video, medyan {statistics.median(vals):.0f}")
     return "\n".join(lines)
