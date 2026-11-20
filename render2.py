@@ -250,48 +250,173 @@ def _layer(width, draw):
     return surf.makeImageSnapshot()
 
 
+def _round_tree(c, x, y, w):
+    """Orta katmanin yuvarlak agaci; x kenara tasarsa karsi kenarda da cizilir (katman dosenebilir)."""
+    for xx in (x - w, x, x + w):
+        trunk = skia.Path()
+        trunk.addRect(skia.Rect.MakeXYWH(xx - 9, y, 18, 60))
+        inked(c, [trunk], paint(rgb(150, 105, 70)), w=8)
+        inked(c, [oval_path(xx, y - 10, 58, 58)],
+              paint(shader=radial((xx - 20, y - 35), 80, [rgb(130, 215, 120), rgb(75, 160, 90)])), w=8)
+
+
+def _near_ground(c, w, rnd, grad, cols, n=70, tuft=rgb(80, 160, 75)):
+    """On zemin: tepe + cicek/cimen tutamlari (karakterler GROUND_Y'de bunun ustunde durur)."""
+    hill = _hill_path(GROUND_Y - 40, 26, 1, 0.3, w)
+    c.drawPath(hill, paint(INK, stroke=LINE))
+    c.drawPath(hill, paint(shader=linear((0, GROUND_Y - 70), (0, H), grad, [0.0, 0.45, 1.0])))
+    for _ in range(n):
+        x0, y = rnd.uniform(0, w), rnd.uniform(GROUND_Y + 10, H - 10)
+        flower, s_, col = rnd.random() < 0.5, rnd.uniform(0.7, 1.2), rnd.choice(cols)
+        for x in (x0 - w, x0, x0 + w):
+            if flower:
+                _flower(c, x, y, s_, col)
+            else:            # cimen tutami
+                for k in (-1, 0, 1):
+                    c.drawLine(x, y, x + k * 8, y - 22, paint(tuft, stroke=4))
+
+
+# Mekan kitleri (S1, todo 7g): her biri (uzak, orta, on) katman cizicileri dondurur.
+# Konum notu: mekana varista kamera sifirlanir (show.Places) -> orta katmanda x = ekran_x + PAD/2.
+def _kit_meadow(rnd):
+    def far(c, w):
+        c.drawPath(_hill_path(560, 120, 2, 0.6, w),
+                   paint(shader=linear((0, 420), (0, 760), [rgb(150, 205, 225), rgb(125, 185, 205)])))
+
+    def mid(c, w):
+        hill = _hill_path(650, 110, 2, 2.1, w)
+        c.drawPath(hill, paint(rgb(60, 120, 80), stroke=8))
+        c.drawPath(hill, paint(shader=linear((0, 520), (0, 800), [rgb(140, 215, 140), rgb(100, 180, 110)])))
+        for i in range(9):
+            _round_tree(c, 120 + i * (w - 200) / 8 + rnd.uniform(-40, 40), 640 + rnd.uniform(-20, 20), w)
+
+    def near(c, w):
+        _near_ground(c, w, rnd, [rgb(155, 225, 110), rgb(110, 195, 90), rgb(88, 170, 80)],
+                     [rgb(255, 120, 150), rgb(255, 255, 255), rgb(170, 140, 255), rgb(255, 170, 90)])
+    return far, mid, near
+
+
+def _barn(c, x, y):
+    """Kirmizi ahir + silo. x: ahirin ortasi, y: taban."""
+    body = skia.Path()
+    body.addRect(skia.Rect.MakeLTRB(x - 130, y - 170, x + 130, y + 10))
+    roof = skia.Path()
+    roof.addPoly([(x - 152, y - 165), (x - 118, y - 238), (x, y - 285), (x + 118, y - 238), (x + 152, y - 165)], True)
+    sx = x + 215                                   # silo
+    silo = skia.Path()
+    silo.addRect(skia.Rect.MakeLTRB(sx - 42, y - 235, sx + 42, y + 10))
+    dome = skia.Path()
+    dome.addOval(skia.Rect.MakeLTRB(sx - 42, y - 280, sx + 42, y - 190))
+    inked(c, [dome], paint(shader=linear((sx - 42, 0), (sx + 42, 0), [rgb(215, 225, 235), rgb(150, 165, 185)])), w=8)
+    inked(c, [silo], paint(shader=linear((sx - 42, 0), (sx + 42, 0), [rgb(200, 210, 225), rgb(140, 155, 175)])), w=8)
+    for k in range(4):
+        c.drawLine(sx - 40, y - 190 + k * 50, sx + 40, y - 190 + k * 50, paint(rgb(120, 135, 160), stroke=4))
+    inked(c, [body], paint(shader=linear((x - 130, 0), (x + 130, 0), [rgb(225, 80, 65), rgb(180, 50, 45)])), w=8)
+    inked(c, [roof], paint(shader=linear((0, y - 285), (0, y - 165), [rgb(140, 85, 70), rgb(105, 60, 55)])), w=8)
+    white = paint(rgb(255, 250, 240), stroke=9)
+    c.drawRect(skia.Rect.MakeLTRB(x - 58, y - 118, x + 58, y + 4), paint(rgb(150, 40, 40)))
+    c.drawRect(skia.Rect.MakeLTRB(x - 58, y - 118, x + 58, y + 4), white)
+    c.drawLine(x - 58, y - 118, x + 58, y + 4, white)
+    c.drawLine(x + 58, y - 118, x - 58, y + 4, white)
+    c.drawRect(skia.Rect.MakeLTRB(x - 30, y - 232, x + 30, y - 182), paint(rgb(70, 40, 35)))
+    c.drawRect(skia.Rect.MakeLTRB(x - 30, y - 232, x + 30, y - 182), white)
+
+
+def _fence(c, w, y, col=rgb(250, 245, 230)):
+    """Dosenebilir cit (direk araligi genislige tam bolunur)."""
+    n = int(w // 70)
+    step = w / n
+    rail = paint(col, stroke=10)
+    for yy in (y - 42, y - 18):
+        c.drawLine(0, yy, w, yy, paint(INK, stroke=16))
+        c.drawLine(0, yy, w, yy, rail)
+    for k in range(n):
+        p = skia.Path()
+        p.addRoundRect(skia.Rect.MakeXYWH(k * step - 7, y - 62, 14, 70), 5, 5)
+        inked(c, [p], paint(col), w=7)
+
+
+def _kit_farm(rnd):
+    def far(c, w):
+        c.drawPath(_hill_path(575, 105, 2, 1.7, w),
+                   paint(shader=linear((0, 440), (0, 760), [rgb(170, 210, 215), rgb(145, 190, 195)])))
+
+    def mid(c, w):
+        hill = _hill_path(665, 85, 2, 0.9, w)
+        c.drawPath(hill, paint(rgb(150, 130, 50), stroke=8))
+        c.drawPath(hill, paint(shader=linear((0, 560), (0, 800), [rgb(235, 215, 120), rgb(205, 180, 85)])))
+        for k in range(14):                       # ekin sirasi cizgileri
+            x0 = k * w / 14 + rnd.uniform(-20, 20)
+            c.drawLine(x0, 700, x0 + 60, 620, paint(rgb(215, 190, 95), stroke=6))
+        _round_tree(c, 1650, 655, w)
+        _round_tree(c, 2150, 640, w)
+        _round_tree(c, 2450, 660, w)
+        _barn(c, 330 + 350, 725)
+        _fence(c, w, 752)
+
+    def near(c, w):
+        _near_ground(c, w, rnd, [rgb(170, 225, 105), rgb(130, 200, 85), rgb(105, 175, 75)],
+                     [rgb(255, 215, 70), rgb(255, 255, 255), rgb(255, 160, 60)], n=60, tuft=rgb(200, 170, 70))
+    return far, mid, near
+
+
+def _lily(c, x, y, s=1.0):
+    p = skia.Path()
+    p.addOval(skia.Rect.MakeLTRB(x - 38 * s, y - 13 * s, x + 38 * s, y + 13 * s))
+    notch = skia.Path()
+    notch.addPoly([(x, y), (x + 40 * s, y - 16 * s), (x + 40 * s, y + 2 * s)], True)
+    p = skia.Op(p, notch, skia.PathOp.kDifference_PathOp) or p
+    inked(c, [p], paint(rgb(95, 185, 90)), w=6)
+
+
+def _kit_pond(rnd):
+    def far(c, w):
+        c.drawPath(_hill_path(555, 125, 2, 2.6, w),
+                   paint(shader=linear((0, 420), (0, 760), [rgb(140, 205, 215), rgb(115, 180, 195)])))
+
+    def mid(c, w):
+        hill = _hill_path(650, 100, 2, 0.4, w)
+        c.drawPath(hill, paint(rgb(60, 120, 80), stroke=8))
+        c.drawPath(hill, paint(shader=linear((0, 520), (0, 800), [rgb(150, 220, 140), rgb(105, 185, 115)])))
+        for x in (120, 520, 2200, 2480):
+            _round_tree(c, x + rnd.uniform(-30, 30), 625 + rnd.uniform(-15, 15), w)
+        cx, cy, rx, ry = 1250 + 350, 705, 620, 74  # gol (varista ekranin ortasi-sagi)
+        water = oval_path(cx, cy, rx, ry)
+        inked(c, [water], paint(shader=linear((0, cy - ry), (0, cy + ry), [rgb(150, 220, 250), rgb(75, 160, 225)])))
+        for dx, dy, L in ((-300, -18, 120), (60, -26, 160), (330, -8, 90), (-80, 12, 70)):
+            c.drawLine(cx + dx, cy + dy, cx + dx + L, cy + dy, paint(rgb(235, 250, 255, 200), stroke=6))
+        for dx, dy, s in ((-420, 10, 0.9), (-180, 20, 1.1), (200, 14, 1.0), (430, 6, 0.8)):
+            _lily(c, cx + dx, cy + dy, s)
+        c.drawCircle(cx - 170, cy + 12, 11, paint(rgb(255, 150, 190)))
+        for side in (-1, 1):                       # sazliklar (golun iki ucu)
+            for k in range(6):
+                bx = cx + side * (rx - 40 - k * 26)
+                top = cy - 120 - 30 * math.sin(k * 1.7)
+                c.drawLine(bx, cy + 30, bx + side * 6, top, paint(rgb(70, 130, 60), stroke=6))
+                inked(c, [oval_path(bx + side * 6, top + 22, 9, 24)], paint(rgb(140, 90, 55)), w=5)
+
+    def near(c, w):
+        _near_ground(c, w, rnd, [rgb(150, 225, 120), rgb(105, 195, 100), rgb(85, 170, 85)],
+                     [rgb(120, 180, 255), rgb(255, 255, 255), rgb(200, 160, 255)])
+        for _ in range(18):                        # cakil taslari
+            x0, y = rnd.uniform(0, w), rnd.uniform(GROUND_Y + 30, H - 20)
+            for x in (x0 - w, x0, x0 + w):
+                inked(c, [oval_path(x, y, 16, 10)], paint(rgb(185, 185, 195)), w=5)
+    return far, mid, near
+
+
+PLACES = {"meadow": _kit_meadow, "farm": _kit_farm, "pond": _kit_pond}
+
+
 class Meadow:
-    """Paralaks cayir: gokyuzu sabit; uzak/orta tepe ve on cayir farkli hizda kayar."""
+    """Paralaks sahne: gokyuzu sabit; uzak/orta tepe ve on zemin farkli hizda kayar.
+    kind: mekan kiti (PLACES). "meadow" eski cayirla birebir ayni (rastgele sayi sirasi korunur)."""
     PAD = 700
 
-    def __init__(self, seed=3):
+    def __init__(self, seed=3, kind="meadow"):
         rnd = random.Random(seed)
         wd = W + self.PAD
-
-        def far(c, w):
-            c.drawPath(_hill_path(560, 120, 2, 0.6, w),
-                       paint(shader=linear((0, 420), (0, 760), [rgb(150, 205, 225), rgb(125, 185, 205)])))
-
-        def mid(c, w):
-            hill = _hill_path(650, 110, 2, 2.1, w)
-            c.drawPath(hill, paint(rgb(60, 120, 80), stroke=8))
-            c.drawPath(hill, paint(shader=linear((0, 520), (0, 800), [rgb(140, 215, 140), rgb(100, 180, 110)])))
-            for i in range(9):     # yuvarlak agaclar (kenara tasan, karsi kenarda da cizilir: dosenebilir)
-                x0, y = 120 + i * (w - 200) / 8 + rnd.uniform(-40, 40), 640 + rnd.uniform(-20, 20)
-                for x in (x0 - w, x0, x0 + w):
-                    trunk = skia.Path()
-                    trunk.addRect(skia.Rect.MakeXYWH(x - 9, y, 18, 60))
-                    inked(c, [trunk], paint(rgb(150, 105, 70)), w=8)
-                    inked(c, [oval_path(x, y - 10, 58, 58)],
-                          paint(shader=radial((x - 20, y - 35), 80, [rgb(130, 215, 120), rgb(75, 160, 90)])), w=8)
-
-        def near(c, w):
-            hill = _hill_path(GROUND_Y - 40, 26, 1, 0.3, w)
-            c.drawPath(hill, paint(INK, stroke=LINE))
-            c.drawPath(hill, paint(shader=linear((0, GROUND_Y - 70), (0, H),
-                                                 [rgb(155, 225, 110), rgb(110, 195, 90), rgb(88, 170, 80)],
-                                                 [0.0, 0.45, 1.0])))
-            cols = [rgb(255, 120, 150), rgb(255, 255, 255), rgb(170, 140, 255), rgb(255, 170, 90)]
-            for _ in range(70):
-                x0, y = rnd.uniform(0, w), rnd.uniform(GROUND_Y + 10, H - 10)
-                flower, s_, col = rnd.random() < 0.5, rnd.uniform(0.7, 1.2), rnd.choice(cols)
-                for x in (x0 - w, x0, x0 + w):
-                    if flower:
-                        _flower(c, x, y, s_, col)
-                    else:            # cimen tutami
-                        for k in (-1, 0, 1):
-                            c.drawLine(x, y, x + k * 8, y - 22, paint(rgb(80, 160, 75), stroke=4))
-
+        far, mid, near = PLACES[kind](rnd)
         self.far, self.mid, self.near = _layer(wd, far), _layer(wd, mid), _layer(wd, near)
         self.clouds = [(rnd.uniform(0, W + 400), rnd.uniform(90, 330), rnd.uniform(0.7, 1.15),
                         rnd.uniform(8, 20)) for _ in range(6)]

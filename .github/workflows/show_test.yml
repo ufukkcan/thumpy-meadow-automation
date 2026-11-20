@@ -50,8 +50,8 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TTS_VOICE: "en-US-AnaNeural"
-          # Sarki duzeltme turu dogrulamasi (E19): Claude senaryo + baslik olcumu, render yok
-          TITLE_ONLY: "1"
+          # S1 pilotu (todo 7g): sabit senaryo dosyasindan tam render, Claude cagrisi ve yukleme yok
+          SHOW_JSON: "test_show_s1.json"
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}

@@ -1,12 +1,14 @@
 """
-Yeni format bolum motoru (7d): Claude'un yazdigi (kullanicinin onayladigi) senaryo JSON'u -> video.
-Pilot (pilot.py) motorunun veriyle calisan hali. Bicim: "Thumpy formulu" (docs/arastirma-cocuk-izleme.md).
+Yeni format bolum motoru (7d; S1 "gorev" bolumu, todo 7g): Claude'un yazdigi (kullanicinin onayladigi)
+senaryo JSON'u -> video. Bicim: docs/arastirma-cocuk-izleme.md + docs/arastirma-format-konu.md.
 
-Akis: selam sarkisi (0. sn, ritual) -> hikaye cercevesi + yardim istegi (soru + bekleme)
--> 6 "bulma oyunu" (saklanma yeri sallanir -> gercek hayvan sesi -> "Who says ...?" + bekleme -> saka
--> cevap + kelime 3 kez + tekrar ettirme -> hayvana ozgu hareket, cocuk da yapar -> arkadas sirasina katilir
--> yuruyerek yeni yere) ; 2. ve 4. oyundan sonra hareket molasi (sarki) -> tekrar (cocuk tamamlar)
--> final (cerceveye gore odul) -> sonraki bolum silueti -> veda sarkisi (ritual).
+Akis (S1): 0-3 sn jingle (selam sarkisi yok) -> ilk hayvanin sesi + "Who says ...?" (kucuk resimdeki sahne)
+-> gorev cumlesi, ustte "hepsini bul" siluet seridi gelir -> ilk ortaya cikis <=15 sn
+-> her hayvan: saklanma yeri sallanir -> gercek ses -> "Who says ...?" + bekleme -> saka -> cevap + kelime
+   3 kez + tekrar ettirme -> hayvana ozgu hareket -> hayvan seritteki yerine ucar (renklenir)
+-> acik dongu: siradaki hayvanin sesi ekran disindan duyulur -> iris gecisiyle YENI MEKANA yuruyus
+-> 4. ve 7. hayvandan sonra hareket molasi (sarki) -> tekrar (hayvanlar seritten iner, cocuk tamamlar)
+-> final (cerceveye gore odul) -> sonraki bolum silueti -> kisa veda + iris.
 Tekrar eden saka: Dino'nun kafasina bir seyler duser; sonunda odul (tac / cilek / yildiz) konar.
 Hayvan sesleri gercek kayit (animal_sounds.py, CC0); hayvanlar konusmaz.
 """
@@ -29,14 +31,15 @@ SR = 44100
 VOICE = os.environ.get("TTS_VOICE", "en-US-AnaNeural")
 GY = r.GROUND_Y
 
-# ---------------- sabit ritueller (her bolumde ayni: tekrar = guven) ----------------
-HELLO = ("jacques", ["Hello Dino, hello Dino", "Come and play! Come and play!",
-                     "Jump, jump, jump, jump, clap, clap, jump, jump, jump, jump, clap, clap",
-                     "Hi! Hello! Hi! Hello!"])
-BYE = ("twinkle", ["Bye bye friends, it's time to go", "Wave goodbye, we love you so"])
-BREAK_MELODIES = ["london", "mary"]           # hareket molalari (sozleri Claude yazar)
-BREAK_AFTER = {1: 0, 3: 1}                    # 2. ve 4. oyundan sonra
-N_FINDS = 7                                   # 7 oyun ~ 8,2 dk (6 oyun 7,4 dk olcuildu; hedef 8-10 dk)
+# ---------------- akis (S1: selam/veda sarkisi kalkti; tutma yapidan, K-23) ----------------
+BREAK_MELODIES = ["london", "mary"]           # hareket molalari (sozleri Claude yazar); S3'te kutuphane buyur
+BREAK_AFTER = {3: 0, 6: 1}                    # 4. ve 7. hayvandan sonra
+N_FINDS = 10                                  # hedef ~10 dk (K-23: en az 8 dk)
+PLACE_ORDER = ("meadow", "farm", "pond")      # senaryoda "place" yoksa sirayla (render2.PLACES)
+TEASE = ("Did you hear that?", "What was that?", "Listen! Who is that?")
+LEFT_WORDS = {5: "Five", 3: "Three"}          # "Five more friends!" (geri sayim; 1 icin ayri cumle)
+IRIS_SWITCH = 1.05                            # yuruyuste mekanin degistigi an (iris tam kapali)
+STRIP_Y, SLOT, SLOT_GAP = 84, 92, 112         # "hepsini bul" seridi (ekran koordinati)
 
 # ---------------- katalog (Claude yalnizca bunlardan secer) ----------------
 COLORS = {"cow": (150, 90, 200), "duck": (230, 150, 20), "dog": (215, 95, 40), "cat": (240, 120, 40),
@@ -67,8 +70,6 @@ DINO_HOME = 760
 DINO_Y = GY - 175
 HIDE_X = 1400
 WALK = 1900   # yuruyuste dunya kaymasi: HIDE_X - WALK = -500 -> en genis nesne (agac, +-310) bile ekran disi
-FRIEND = [(60 + k * 85, GY - 190, 100) for k in range(N_FINDS)]
-ROW = [(970 + k * 140, GY - 140, 160) for k in range(N_FINDS)]
 SIL = (1300, 300, 300)
 CAKE = (1150, GY - 95, 220)
 FRUITS = ["apple", "banana", "strawberry", "watermelon", "grapes", "orange"]
@@ -80,6 +81,21 @@ def rgbt(t):
 
 def article(name):
     return "an" if name[0] in "aeiou" else "a"
+
+
+def slot_x(i, n):
+    """Seritte i. hayvanin yeri (ekran x)."""
+    return r.W / 2 + (i - (n - 1) / 2) * SLOT_GAP
+
+
+def row_pos(i, n):
+    """Tekrar/final dizilisi: 6'dan fazla hayvan iki sira (arka kucuk, on buyuk)."""
+    if n <= 6:
+        return (970 + i * 140, GY - 140, 160)
+    per = (n + 1) // 2
+    if i < per:
+        return (1000 + i * 185, GY - 150, 140)
+    return (1090 + (i - per) * 185, GY - 40, 165)
 
 
 # ---------------- hareket yardimcilari ----------------
@@ -206,11 +222,11 @@ class TL:
         self.audio.append((who, clip, s["start"] + 0.05))
         return s
 
-    def animal(self, P, i, n=1, gap=0.3, **kw):
+    def animal(self, P, i, n=1, gap=0.3, text=None, **kw):
         a = P.finds[i]
         clip = np.zeros(int(0.8 * n * SR)) if self.estimate else animal_sounds.clip(a["animal"], n)
         says = a["says"].capitalize() + "!"
-        s = self.seg("say", len(clip) / SR + gap, who=i, text=" ".join([says] * n), key=a["says"],
+        s = self.seg("say", len(clip) / SR + gap, who=i, text=text or " ".join([says] * n), key=a["says"],
                      color=a["rgb"], **kw)
         self.audio.append((i, clip, s["start"] + 0.05))
         return s
@@ -454,12 +470,18 @@ GAG_FN = {"pop_fall": gag_pop_fall, "bush_hop": gag_bush_hop, "wrong_guess": gag
           "peek_zoom": gag_peek_zoom}
 
 
-def walk(tl, P, i=None):
+def walk(tl, P, i=None, place=None):
     """Yuruyus: arka plan kayar, onceki TUM saklanma yerleri dunyayla birlikte sola kayar (birikmez),
-    i verilirse yeni saklanma yeri sagdan gelir; i=None: temiz cayira yuruyus (tekrar/final oncesi)."""
-    s = tl.seg("walk", 2.8, shot=("wide",))
+    i verilirse yeni saklanma yeri sagdan gelir; i=None: temiz alana yuruyus (tekrar/final oncesi).
+    place verilirse iris kapanip acilir, tam kapaliyken mekan degisir (varista kamera sifirlanir)."""
+    s = tl.seg("walk", 2.8, shot=("wide",), iris=place is not None)
+    cam1 = P.cam.at(s["start"]) + WALK
     P.cam.hold(s["start"])
-    P.cam.to(s["end"], P.cam.at(s["start"]) + WALK)
+    P.cam.to(s["end"], cam1)
+    if place is not None:
+        P.places.append((s["start"] + IRIS_SWITCH, place, cam1))
+        tl.slide(s["start"] + 0.15, up=False)
+        tl.slide(s["start"] + 1.2)
     for j in range(len(P.hide) if i is None else i):
         old = P.hide[j]["x"]
         x0 = old.at(s["start"])
@@ -473,23 +495,70 @@ def walk(tl, P, i=None):
     tl.steps(s["start"], 9, dt=0.3, notes=(72 - 24, 76 - 24))
 
 
-def find(tl, P, i):
+def _leaves(P, i, t0):
+    kind, hx = P.hide[i]["kind"], _hx(P, i, t0)
+    if kind == "bush":
+        P.fx.append(("leaves", t0 + 0.2, hx, GY - 180, 50 + i))
+    elif kind == "tree":
+        P.fx.append(("leaves", t0 + 0.2, hx - 80, 380, 50 + i))
+
+
+def opening(tl, P, ep):
+    """0-3 sn jingle; hemen ilk hayvanin sesi (kucuk resimdeki sahne); gorev cumlesi + seridin gelisi.
+    Ilk ortaya cikis <=15 sn (arastirma: 20 basarili videonun 16'si)."""
+    f = P.finds[0]
+    says, col = f["says"], f["rgb"]
+    tl.chapter(f"The {f['animal'].capitalize()} Says {says.capitalize()}")
+    s = tl.seg("intro", 2.6, shot=("wide",))
+    tl.slide(s["start"] + 0.05)
+    tl.tada(s["start"] + 0.75)
+    tl.claps(s["start"] + 1.5, 3)
+    P.fx.append(("sparkle", s["start"] + 0.75, DINO_HOME, DINO_Y - 120, 3))
+    s = tl.animal(P, 0, 1, wiggle=0, eyes=0, shot=("hide", 0))
+    tl.rustle(s["start"], s["dur"])
+    _leaves(P, 0, s["start"])
+    P.search_t[0] = s["start"]
+    tl.say(f"Who says {says}?", key=says, color=col, expr="surprised", look=1.0, shot=("two", 0))
+    mission = ep.get("mission") or ["Our friends are hiding!", "Let's find them all!"]
+    for k, line in enumerate(mission):
+        s = tl.say(line, expr="happy", excited=k == len(mission) - 1, shot=("wide",))
+        if k == 0:
+            P.strip_t = s["start"] + 0.2
+            tl.slide(P.strip_t, up=False)
+
+
+def tease(tl, P, j):
+    """Acik dongu: siradaki hayvanin sesi ekran disindan duyulur; cevap yeni mekanda (tahmin, olculmedi)."""
+    f, left = P.finds[j], len(P.finds) - j
+    s = tl.animal(P, j, 1, text=f"{f['says'].capitalize()}?", offscreen=True, expr="surprised", look=1.0,
+                  shot=("wide",))
+    P.search_t[j] = s["start"]
+    tl.say(TEASE[j % len(TEASE)], expr="surprised", look=1.0, shot=("dino",))
+    if left == 1:
+        line = "Just one more friend! Let's go!"
+    elif left in LEFT_WORDS:
+        line = f"{LEFT_WORDS[left]} more friends! Let's go!"
+    else:
+        line = "Let's go and see!"
+    tl.say(line, excited=True, expr="happy", shot=("wide",))
+
+
+def find(tl, P, i, first=False):
+    """Bir hayvan. first=True: ses + soru acilista soruldu, dogrudan sakaya gecer.
+    Digerlerinde ses tease()'de bir kez duyuldu -> burada tek cagri (eski: 'Shh... listen!' + 2 cagri)."""
     f = P.finds[i]
     name, says, col = f["animal"], f["says"], f["rgb"]
-    kind = P.hide[i]["kind"]
-    tl.chapter(f"The {name.capitalize()} Says {says.capitalize()}")
-    t_start = tl.t                                   # Shorts icin oyunun basi
-    s = tl.say(f["notice"], expr="surprised", look=1.0, wiggle=i, shot=("two", i))
-    tl.rustle(s["start"], s["dur"])
-    hx = _hx(P, i, s["start"])
-    if kind == "bush":
-        P.fx.append(("leaves", s["start"] + 0.2, hx, GY - 180, 50 + i))
-    elif kind == "tree":
-        P.fx.append(("leaves", s["start"] + 0.2, hx - 80, 380, 50 + i))
-    tl.say("Shh... listen!", expr="listen", arms=(20, 165), look=1.0, shot=("two", i))
-    tl.animal(P, i, 2, wiggle=i, eyes=i, shot=("hide", i))
-    tl.say(f"Who says {says}?", key=says, color=col, shot=("dino",))
-    tl.pause(2.6, f"Who says {says}?", key=says, color=col, shot=("dino",))
+    if first:
+        t_start = P.search_t[0]                       # Shorts icin oyunun basi
+    else:
+        tl.chapter(f"The {name.capitalize()} Says {says.capitalize()}")
+        t_start = tl.t
+        s = tl.say(f["notice"], expr="surprised", look=1.0, wiggle=i, shot=("two", i))
+        tl.rustle(s["start"], s["dur"])
+        _leaves(P, i, s["start"])
+        tl.animal(P, i, 1, wiggle=i, eyes=i, shot=("hide", i))
+        tl.say(f"Who says {says}?", key=says, color=col, shot=("dino",))
+        tl.pause(2.6, f"Who says {says}?", key=says, color=col, shot=("dino",))
     GAG_FN[f["gag"]](tl, P, i, f["gag_lines"])
 
     # cevap: kelime 3 kez + tekrar ettirme
@@ -518,10 +587,14 @@ def find(tl, P, i):
     tl.jingle(s["start"], s["dur"])
     P.spans.append((t_start, s["end"]))              # Shorts: bildirimden harekete kadar tek oyun
 
-    # arkadas sirasina katilir, Dino evine doner
-    s = tl.seg("join", 1.3, shot=("wide",))
+    # seritteki yerine ucar (renklenir), Dino evine doner. "wide" plan: dunya = ekran koordinati
+    n = len(P.finds)
+    s = tl.seg("join", 1.3, shot=("wide",), fly=i)
     tr.hold(s["start"])
-    tr.to(s["end"], FRIEND[i])
+    tr.to(s["end"], (slot_x(i, n), STRIP_Y, SLOT * 0.95))
+    P.found_t[i] = s["end"]
+    tl.slide(s["start"] + 0.1)
+    tl.ding(s["end"], (72, 74, 76, 77, 79, 81, 83, 84, 86, 88, 89, 91)[i % 12])
     P.dino_x.hold(s["start"])
     P.dino_x.to(s["end"], DINO_HOME)
 
@@ -546,15 +619,20 @@ def dance(tl, P, k, ep):
 
 
 def recap(tl, P):
+    """Hayvanlar seritten iner (serit kalkar), iki sira dizilir; cocuk sesi tamamlar."""
     tl.chapter("Let's Remember!")
-    s = tl.say("Let's say it together!", excited=True, expr="happy", shot=("wide",))
-    for i in range(len(P.finds)):
+    n = len(P.finds)
+    s = tl.say("We found everyone! Let's say it together!", excited=True, expr="happy", shot=("wide",))
+    P.strip_off = s["start"]
+    tl.slide(s["start"], up=False)
+    for i in range(n):
         P.animal[i].hold(s["start"])
-        P.animal[i].to(s["start"] + 0.9, ROW[i])
+        P.animal[i].to(s["start"] + 1.0, row_pos(i, n))
     for i, f in enumerate(P.finds):
-        shot = ("pt", ROW[i][0], 560, 1.45)
+        x, y, _ = row_pos(i, n)
+        shot = ("pt", x, y - 60, 1.45)
         s = tl.say(f"The {f['animal']} says...", key=f["animal"], color=f["rgb"], shot=shot, recap=i)
-        P.fx.append(("sparkle", s["start"], ROW[i][0], ROW[i][1], 40 + i))
+        P.fx.append(("sparkle", s["start"], x, y, 40 + i))
         tl.pause(1.7, f"The {f['animal']} says...", key=f["animal"], color=f["rgb"], shot=shot, recap=i)
         s = tl.animal(P, i, 1, shot=shot, recap=i, celebrate=i)
         tl.ding(s["start"])
@@ -590,6 +668,12 @@ def teaser(tl, P, ep):
     tl.pause(1.6, "Who is it?", shot=("pt", SIL[0], 420, 1.4))
 
 
+def goodbye(tl, P):
+    """Sabit veda sarkisi yerine kisa veda + iris (S1). Ayri bolum basligi yok (YouTube: bolum >= 10 sn)."""
+    tl.say("Bye bye, friends! See you next time!", expr="happy", wave=1.0, shot=("dino",))
+    tl.seg("outro", 1.5, shot=("dino",), wave=1.0, expr="happy")
+
+
 def build(ep, work, estimate=False):
     """Senaryo -> zaman cizelgesi + ses. estimate=True: ses uretmeden sure (Telegram onayi icin)."""
     import music
@@ -597,43 +681,36 @@ def build(ep, work, estimate=False):
         import samples
         samples.ensure()
     finds = []
-    for f in ep["finds"]:
+    for i, f in enumerate(ep["finds"]):
         meta = animal_sounds.SOURCES[f["animal"]]
-        finds.append({**f, "says": meta["says"], "fly": meta["fly"], "rgb": rgbt(COLORS.get(f["animal"], (230, 70, 70)))})
+        place = f.get("place") if f.get("place") in r.PLACES else PLACE_ORDER[i % len(PLACE_ORDER)]
+        finds.append({**f, "place": place, "says": meta["says"], "fly": meta["fly"],
+                      "rgb": rgbt(COLORS.get(f["animal"], (230, 70, 70)))})
+    n = len(finds)
     P = SimpleNamespace(finds=finds, dino_x=Track(DINO_HOME), cam=Track(0.0),
                         hide=[dict(kind=f["hide"], x=Track(HIDE_X if i == 0 else HIDE_X + WALK)) for i, f in enumerate(finds)],
                         animal=[Track((HIDE_X, GY - 60, 260)) for _ in finds],
-                        shown_from=[1e9] * len(finds), front_from=[1e9] * len(finds), on_head=[],
+                        shown_from=[1e9] * n, front_from=[1e9] * n, on_head=[],
                         fx=[], extras=[], head=[], bush_hops=[], finale_t=1e9, sil=1e9, spans=[],
-                        frame=ep["frame"], teaser=ep["teaser_animal"])
+                        frame=ep["frame"], teaser=ep["teaser_animal"],
+                        places=[(0.0, finds[0]["place"], 0.0)],          # (an, mekan, varis kamerasi)
+                        found_t=[1e9] * n, search_t=[1e9] * n, strip_t=1e9, strip_off=1e9,
+                        title=ep.get("title_rest") or "")
     tl = TL(work, estimate)
 
-    tl.chapter("Hello Song")
-    song_seg(tl, "hello", HELLO[0], HELLO[1],
-             [("wide",), ("dino",), ("wide",), ("wide",), ("hide", 0)])
-    tl.chapter("Can You Help Dino?")
-    hook = ep["hook"]
-    tl.say(f"Hi friends! I'm Dino!", wave=1.0, expr="happy", shot=("dino",))
-    s = tl.say(hook[0], excited=True, expr="happy", shot=("wide",))
-    tl.tada(s["start"] + 0.3)
-    P.fx.append(("sparkle", s["start"] + 0.3, DINO_HOME, DINO_Y - 100, 5))
-    for line in hook[1:]:
-        tl.say(line, expr="surprised", look=1.0, eyes_all=True, shot=("wide",))
-    tl.say(ep["ask"], shot=("dino",))
-    tl.pause(2.2, ep["ask"], shot=("dino",))
-    tl.say("Yay! Let's go!", excited=True, expr="happy", shot=("wide",))
-    for i in range(len(finds)):
+    opening(tl, P, ep)
+    for i in range(n):
         if i > 0:
-            walk(tl, P, i)
-        find(tl, P, i)
-        if i in BREAK_AFTER:
+            tease(tl, P, i)
+            walk(tl, P, i, place=finds[i]["place"])
+        find(tl, P, i, first=i == 0)
+        if i in BREAK_AFTER and BREAK_AFTER[i] < len(ep.get("breaks", [])):
             dance(tl, P, BREAK_AFTER[i], ep)
-    walk(tl, P)                                     # tekrar ve final temiz cayirda
+    walk(tl, P, place="meadow")                     # tekrar ve final evde (cayir)
     recap(tl, P)
     finale(tl, P, ep)
     teaser(tl, P, ep)
-    tl.chapter("Goodbye Song")
-    song_seg(tl, "bye", BYE[0], BYE[1], [("wide",), ("wide",), ("dino",)])
+    goodbye(tl, P)
     total = tl.t
     P.segs, P.total, P.chapters = tl.segs, total, tl.chapters
     if estimate:
@@ -868,6 +945,11 @@ def _dino_pose(P, s, t, tl, f):
         hop = h2
         kw.update(kw2)
         kw["expr"] = "happy"
+    elif k == "intro":                                 # alttan firlar, sonra el sallar
+        dy = (1 - r.ease_out_back(r.clamp01(tl / 0.7))) * 420
+        kw.update(expr="happy", arms=(150, 150) if tl < 1.0 else None, wave=1.0 if tl >= 1.0 else 0.0)
+        if tl > 0.7:
+            hop = abs(math.sin((tl - 0.7) * 7)) * 30
     if s.get("sit"):
         hop, sq, dy, kw["lean"] = 0.0, 0.14, 26.0, -14.0 * (1 - r.clamp01((tl - (s["dur"] - 0.4)) / 0.4))
         kw["dizzy"] = 0.0
@@ -892,8 +974,82 @@ def _eyes_k(P, s, t, i):
     return 0.0
 
 
+class Places:
+    """Mekan kitleri (render2.PLACES), gerektikce olusturulur. Varista kamera sifirlanir: mekanin
+    ana ogesi (ahir, gol) her varista ayni yerde gorunur."""
+
+    def __init__(self):
+        self._m = {}
+
+    def draw(self, c, t, P):
+        t_sw, kind, ref = P.places[0]
+        for e in P.places[1:]:
+            if e[0] > t:
+                break
+            t_sw, kind, ref = e
+        if kind not in self._m:
+            self._m[kind] = r.Meadow(kind=kind)
+        self._m[kind].draw(c, t, P.cam.at(t) - ref + 20 * math.sin(t * 0.3))
+
+
+def _iris_k(tl):
+    """Yuruyus irisi: 0.15-0.95 kapanir, 1.15'e kadar kapali (mekan IRIS_SWITCH'te degisir), 1.95'te acik."""
+    if tl < 0.15 or tl > 1.95:
+        return 0.0
+    if tl < 0.95:
+        return (tl - 0.15) / 0.8
+    if tl < 1.15:
+        return 1.0
+    return 1.0 - (tl - 1.15) / 0.8
+
+
+def _sound_waves(c, x, y, t):
+    """Ekran disindan gelen ses (acik dongu): kenarda genisleyen yaylar."""
+    for k in range(3):
+        ph = (t * 1.4 + k / 3) % 1.0
+        rad = 50 + ph * 160
+        a = 1.0 - ph
+        rect = r.skia.Rect.MakeLTRB(x - rad, y - rad, x + rad, y + rad)
+        c.drawArc(rect, 145, 70, False, r.paint(r.rgb(52, 42, 70, int(200 * a)), stroke=22))
+        c.drawArc(rect, 145, 70, False, r.paint(r.rgb(255, 205, 50, int(255 * a)), stroke=12))
+
+
+def draw_strip(c, t, P, spr, s, tl):
+    """'Hepsini bul' seridi (biriken ilerleme): bulunmayan siluet, aranan sari halkayla nabiz atar,
+    bulunan renkli. Sarkida bulunanlar vurusla ziplar. Tekrarda kalkar (hayvanlar seritten iner)."""
+    if t < P.strip_t or t > P.strip_off + 0.6:
+        return
+    n = len(P.finds)
+    if t >= P.strip_off:
+        k = 1 - r.ease_in_out(r.clamp01((t - P.strip_off) / 0.6))
+    else:
+        k = r.ease_out_back(r.clamp01((t - P.strip_t) / 0.6))
+    y = STRIP_Y - (1 - k) * 220
+    w = (n - 1) * SLOT_GAP + SLOT + 44
+    rr = lambda dx, dy: r.skia.RRect.MakeRectXY(
+        r.skia.Rect.MakeXYWH(r.W / 2 - w / 2 + dx, y - SLOT / 2 - 16 + dy, w, SLOT + 32), 44, 44)
+    c.drawRRect(rr(6, 8), r.paint(r.rgb(30, 20, 50, 70)))
+    c.drawRRect(rr(0, 0), r.paint(r.rgb(255, 255, 255, 225)))
+    c.drawRRect(rr(0, 0), r.paint(r.INK, stroke=8))
+    beat = jump((tl / s["beat"]) % 1.0)[0] * 12 if s["kind"] == "song" else 0.0
+    for i, f in enumerate(P.finds):
+        x = slot_x(i, n)
+        c.drawCircle(x, y, SLOT * 0.5, r.paint(r.rgb(225, 232, 245)))
+        searching = P.search_t[i] <= t < P.found_t[i]
+        if searching:
+            c.drawCircle(x, y, SLOT * 0.5 + 3 + 3 * math.sin(t * 8), r.paint(r.rgb(255, 196, 40), stroke=9))
+        if P.found_t[i] <= t < P.strip_off:
+            spr.draw(c, f["animal"], x, y - beat, SLOT * 0.95)
+            if t - P.found_t[i] < 1.6:
+                r.sparkles(c, x, y, t - P.found_t[i], seed=200 + i, radius=90, n=6)
+        elif t < P.found_t[i]:
+            pulse = 1 + 0.07 * math.sin(t * 8) if searching else 1.0
+            spr.draw(c, f["animal"], x, y, SLOT * 0.8 * pulse, alpha=0.85, sil=True)
+
+
 def draw(c, t, P, meadow, spr, f, fw=r.W, fh=r.H, short=None):
-    """fw x fh tuvale bir kare. short=i: dikey Shorts kadraji (i. oyun), yakin plan + ust baslik."""
+    """fw x fh tuvale bir kare. short=i: dikey Shorts kadraji (i. oyun), yakin plan + ust baslik.
+    meadow: Places (mekan secici)."""
     s = _seg_at(P.segs, t)
     tl = t - s["start"]
     if s["kind"] == "song":
@@ -919,7 +1075,7 @@ def draw(c, t, P, meadow, spr, f, fw=r.W, fh=r.H, short=None):
     c.translate(fw / 2, fh / 2 + shake)
     c.scale(z, z)
     c.translate(-cx, -cy)
-    meadow.draw(c, t, P.cam.at(t) + 20 * math.sin(t * 0.3))
+    meadow.draw(c, t, P)
 
     beat_hop = 0.0
     if s["kind"] == "song":
@@ -986,9 +1142,13 @@ def draw(c, t, P, meadow, spr, f, fw=r.W, fh=r.H, short=None):
     on_head = next((h for h in P.on_head if h[0] <= t < h[1]), None)
     zoom_actor = s.get("actor") if s["kind"] == "zoom" else None
     zoom_front = zoom_actor is not None and _zoom_pos(s, tl)[2]
+    fly = s.get("fly") if s["kind"] == "join" else None   # seride ucan: seritten sonra (ustte) cizilir
+
+    def in_world(i):
+        return i != fly and not (P.found_t[i] <= t < P.strip_off)
 
     for i in range(nA):                                   # saklanma yerinin arkasindakiler
-        if P.shown_from[i] <= t < P.front_from[i]:
+        if P.shown_from[i] <= t < P.front_from[i] and in_world(i):
             draw_animal(i)
     if s.get("peek") is not None:                         # agacin iki yanindan bakis (govde kirpar)
         i = s["peek"]
@@ -1024,7 +1184,8 @@ def draw(c, t, P, meadow, spr, f, fw=r.W, fh=r.H, short=None):
                     hollow=rgbt(h["hollow"]))
 
     for i in range(nA):                                   # ondeki hayvanlar
-        if t >= P.front_from[i] and not (on_head and on_head[2] == i) and not (zoom_front and zoom_actor == i):
+        if (t >= P.front_from[i] and in_world(i) and not (on_head and on_head[2] == i)
+                and not (zoom_front and zoom_actor == i)):
             draw_animal(i)
     for name, x, a, b in P.extras:                        # dans molasi misafirleri
         if a <= t < b:
@@ -1091,8 +1252,8 @@ def draw(c, t, P, meadow, spr, f, fw=r.W, fh=r.H, short=None):
                     spr.draw(c, name, fx_, fy, 120, rot=8 * math.sin(t * 3 + k), shadow_y=GY + 8)
         else:
             k = r.ease_out_back(a / 0.9)
-            spr.draw(c, "rainbow", 1250, 330, 700 * k)
-            r.sparkles(c, 1250, 330, (a % 2.0) - 0.2, seed=91, radius=320, n=10)
+            spr.draw(c, "rainbow", 1280, 255, 650 * k)          # S1: iki sira dizilisin ustunde kalir
+            r.sparkles(c, 1280, 255, (a % 2.0) - 0.2, seed=91, radius=300, n=10)
     if t >= P.sil:
         a = t - P.sil
         spr.draw(c, P.teaser, SIL[0], SIL[1] + 8 * math.sin(t * 2), SIL[2] * r.ease_out_back(a / 0.6), sil=True)
@@ -1135,10 +1296,27 @@ def draw(c, t, P, meadow, spr, f, fw=r.W, fh=r.H, short=None):
         if s["kind"] == "pause":
             r.ask_bubble(c, fw * 0.74, fh * 0.30, tl / 0.35, tl / s["dur"], t)
         return
+    # ---- ekran ustu (S1): baslik, ekran disi ses, iris, serit ----
+    dsx, dsy = r.W / 2 + (x - cx) * z, r.H / 2 + (DINO_Y - 60 - cy) * z      # Dino'nun ekran konumu
+    if s["kind"] == "intro" and P.title:
+        import thumbs
+        c.save()
+        c.translate(r.W / 2, 190)
+        k = max(0.01, r.ease_out_back(r.clamp01((tl - 0.2) / 0.5)))
+        c.scale(k, k)
+        thumbs._text(c, P.title, 0, 0, 1500, size=130, rot=-3)
+        c.restore()
+    if s.get("offscreen"):
+        _sound_waves(c, r.W - 30, 560, t)
+    if s.get("iris"):
+        r.iris(c, dsx, dsy, _iris_k(tl))
+    elif s["kind"] == "outro":
+        r.iris(c, dsx, dsy, (tl - 0.3) / 1.1)
+    draw_strip(c, t, P, spr, s, tl)
+    if fly is not None:                                   # "wide" plan: dunya = ekran koordinati
+        draw_animal(fly)
     if s["kind"] == "song":
         r.karaoke(c, s["lines"], s["timings"], tl)
-        if s["phase"] == "bye":
-            r.iris(c, r.W / 2 + (x - cx) * z, r.H / 2 + (DINO_Y - 60 - cy) * z, (tl - (s["dur"] - 1.3)) / 1.2)
     elif "text" in s:
         r.caption(c, s["text"], key=s.get("key"), key_color=s.get("color", r.rgb(235, 70, 70)))
     if s["kind"] == "pause":
@@ -1158,7 +1336,7 @@ def render(ep, work, out_mp4, frames_dir=None):
     music.write_wav(str(wav), P.audio)
 
     spr = r.Sprites(outline=14)
-    meadow = r.Meadow()
+    meadow = Places()
     surf = r.new_surface()
     c = surf.getCanvas()
     n_frames = int(P.total * FPS)
@@ -1213,7 +1391,7 @@ def render_shorts(P, work, n=2, frames_dir=None):
     import music
     work = Path(work)
     spr = r.Sprites(outline=14)
-    meadow = r.Meadow()
+    meadow = Places()
     surf = skia_surface(SW, SH)
     c = surf.getCanvas()
     out = []
