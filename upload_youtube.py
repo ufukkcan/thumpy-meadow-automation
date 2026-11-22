@@ -46,7 +46,7 @@ def upload(video_path: str, title: str, description: str, tags: list[str], publi
             "title": title[:100],
             "description": description[:5000],
             "tags": tags,
-            "categoryId": "27",
+            "categoryId": "1",          # Film & Animation (K-26; eski: 27 Education)
             "defaultLanguage": "en",
             "defaultAudioLanguage": "en",
         },
