@@ -16,6 +16,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
+import skia
 
 import critters as cr
 import render2 as r
@@ -49,6 +50,10 @@ BIG_PROPS = {"christmas_tree": 520, "snowman": 380, "house": 460, "tractor": 380
              "bed": 380, "pine": 480, "sunflower": 360, "bathtub": 340, "bicycle": 320, "sled": 300}
 DINO_EXPR = {"happy": "happy", "surprised": "surprised", "scared": "surprised", "sad": "listen", "think": "listen",
              "neutral": "neutral", "listen": "listen"}
+# Abone/begen cagrisi (K-26, docs/arastirma-cta.md): yalnizca en sonda, ebeveyne hitap, tek cumle; zil yok (MFK'da
+# kapali), YouTube logosu yok (marka taklidi degil). Zamanlar cagri satirinin basindan (sn).
+CTA_LINE = "Grown-ups, tap subscribe for more songs!"
+CTA_IN, CTA_CLICK, CTA_THUMB = 0.15, 1.5, 1.9
 
 
 def _xs(n):
@@ -107,7 +112,8 @@ def build(ep, work, estimate=False):
     for k, st in enumerate(ep["stories"]):
         cast = ["dino"] + [c for c in st["cast"] if c != "dino"][:3]
         stories.append(SimpleNamespace(k=k, name=st["name"], place=st["place"], weather=st.get("weather"),
-                                       clears=bool(st.get("clears")), cast=cast,
+                                       clears=bool(st.get("clears")), cast=cast, melody=st.get("melody"),
+                                       hook=st.get("hook", []), all_props=st.get("props", []),
                                        xs=dict(zip(cast, _xs(len(cast)))), props=st.get("props", [])[:2],
                                        shows=[], start=0.0, end=0.0, clear_t=1e9))
     P = SimpleNamespace(stories=stories, cam=Track(0.0), places=[(0.0, stories[0].place, 0.0)], spans=[],
@@ -160,6 +166,11 @@ def build(ep, work, estimate=False):
         P.spans.append((S.start, S.end))
     s = say(tl, "dino", ep.get("goodbye") or "Bye bye, friends! See you next time!", story=len(stories) - 1,
             feel="happy", do="wave", everyone=True, shot=("wide",))
+    s = say(tl, "dino", CTA_LINE, gap=0.9, story=len(stories) - 1, feel="happy", do="wave", everyone=True,
+            shot=("wide",))
+    P.cta_t = s["start"]
+    tl.bell(s["start"] + CTA_CLICK)
+    tl.slide(s["start"] + CTA_THUMB)
     tl.seg("outro", 1.6, story=len(stories) - 1, do="wave", shot=("char", "dino"))
     total = tl.t
     P.segs, P.total, P.chapters = tl.segs, total, tl.chapters
@@ -424,6 +435,9 @@ def draw(c, t, P, places, spr, f, fw=r.W, fh=r.H, short=None, hud=True, shot=Non
             c.scale(k, k)
             thumbs._text(c, S.name, 0, 0, 1400, size=96, rot=-2, fill=r.rgb(255, 255, 255))
             c.restore()
+    cta_t = getattr(P, "cta_t", None)
+    if cta_t is not None and t >= cta_t:
+        _cta(c, t - cta_t)
     if s.get("iris"):
         r.iris(c, r.W / 2, r.H / 2, show._iris_k(tl))
     elif s["kind"] == "outro":
@@ -444,6 +458,67 @@ def draw(c, t, P, places, spr, f, fw=r.W, fh=r.H, short=None, hud=True, shot=Non
     elif "text" in s:
         key = s.get("who") if s.get("who") in S.xs else None
         r.caption(c, s["text"], key=None, key_color=cr.COLOR.get(key, r.rgb(235, 70, 70)) if key else r.rgb(235, 70, 70))
+
+
+def _thumb_icon(c, x, y, R, filled):
+    """Basparmak (begen) rozeti; filled: mavi dolu (tiklandi)."""
+    c.drawCircle(x, y, R, r.paint(r.rgb(255, 255, 255)))
+    c.drawCircle(x, y, R, r.paint(r.INK, stroke=8))
+    col = r.rgb(40, 120, 235) if filled else r.rgb(255, 255, 255)
+    k = R / 80
+    c.save()
+    c.translate(x + 4 * k, y + 6 * k)
+    c.rotate(-8)
+    parts = [skia.Path().addRRect(skia.RRect.MakeRectXY(skia.Rect.MakeLTRB(-30 * k, -8 * k, 30 * k, 44 * k), 14 * k, 14 * k)),
+             skia.Path().addRRect(skia.RRect.MakeRectXY(skia.Rect.MakeLTRB(-50 * k, -6 * k, -36 * k, 44 * k), 5 * k, 5 * k))]
+    th = skia.Path()
+    th.addRRect(skia.RRect.MakeRectXY(skia.Rect.MakeLTRB(-16 * k, -52 * k, 6 * k, 0), 11 * k, 11 * k))
+    parts.append(th)
+    for p in parts:
+        c.drawPath(p, r.paint(col))
+        c.drawPath(p, r.paint(r.INK, stroke=7 * k))
+    c.restore()
+
+
+def _cta(c, a):
+    """Abone ol dugmesi + imlec tiklamasi + begen rozeti (ekran koordinatlari, ust orta). a: cagridan beri sn."""
+    k = r.ease_out_back(r.clamp01((a - CTA_IN) / 0.45))
+    if k <= 0.01:
+        return
+    clicked = a >= CTA_CLICK
+    press = 1 - 0.08 * math.exp(-((a - CTA_CLICK) / 0.08) ** 2) if a >= CTA_CLICK - 0.2 else 1.0
+    bx, by, bw, bh = 1010, 250, 600, 140
+    c.save()
+    c.translate(bx, by)
+    c.scale(k * press, k * press)
+    body = skia.Path().addRRect(skia.RRect.MakeRectXY(skia.Rect.MakeLTRB(-bw / 2, -bh / 2, bw / 2, bh / 2), bh / 2, bh / 2))
+    c.drawPath(body, r.paint(r.rgb(30, 20, 50, 110), blur=8))
+    c.drawPath(body, r.paint(r.rgb(120, 120, 130) if clicked else r.rgb(235, 35, 45)))
+    c.drawPath(body, r.paint(r.INK, stroke=9))
+    f = r.font(70 if not clicked else 62)
+    txt = "SUBSCRIBED" if clicked else "SUBSCRIBE"
+    c.drawString(txt, -f.measureText(txt) / 2, 25, f, r.paint(r.rgb(255, 255, 255)))
+    c.restore()
+    if a >= CTA_THUMB:                                        # begen rozeti
+        kt = r.ease_out_back(r.clamp01((a - CTA_THUMB) / 0.4))
+        c.save()
+        c.translate(bx - bw / 2 - 130, by)
+        c.scale(kt, kt)
+        _thumb_icon(c, 0, 0, 80, filled=a >= CTA_THUMB + 0.35)
+        c.restore()
+    if 0.55 <= a < CTA_CLICK + 0.9:                           # imlec: sag alttan dugmeye gelir, tiklar
+        m = r.ease_in_out(r.clamp01((a - 0.55) / 0.75))
+        cx, cy = 1560 + (bx + 170 - 1560) * m, 760 + (by + 30 - 760) * m
+        if CTA_CLICK <= a < CTA_CLICK + 0.5:
+            rr = 30 + 160 * (a - CTA_CLICK)
+            c.drawCircle(cx, cy, rr, r.paint(r.rgb(255, 255, 255), stroke=8, alpha=1 - (a - CTA_CLICK) / 0.5))
+        arrow = skia.Path()
+        arrow.moveTo(cx, cy)
+        for px, py in ((0, 78), (20, 60), (36, 94), (50, 87), (34, 54), (60, 54)):
+            arrow.lineTo(cx + px, cy + py)
+        arrow.close()
+        c.drawPath(arrow, r.paint(r.rgb(255, 255, 255)))
+        c.drawPath(arrow, r.paint(r.INK, stroke=7))
 
 
 # ---------------- render ----------------
@@ -497,60 +572,11 @@ def estimate_seconds(ep):
     return build(ep, "/tmp", estimate=True).total
 
 
-# ---------------- kucuk resim (arastirma: yazi yok, sorun ani + abartili duygu, yakin plan) ----------------
+# ---------------- kucuk resim: afis v2 (poster.py; K-26) ----------------
 def thumbnails(P, out_prefix):
-    """3 konsept: ilk 3 hikayenin kanca ani (sorun + duygulu yuz). Donus: ([yol x3], onizleme_yolu)."""
-    from PIL import Image
-    spr, places = r.Sprites(outline=14), show.Places()
-    surf = r.new_surface()
-    c = surf.getCanvas()
-    paths, ims = [], []
-    for k in range(3):
-        S = P.stories[k % len(P.stories)]
-        hook = [s for s in P.segs if s.get("story") == S.k and s["kind"] == "say" and S.start <= s["start"] < S.end]
-        s = next((x for x in hook if x.get("feel") in ("scared", "sad", "surprised")), hook[0] if hook else P.segs[0])
-        t = s["start"] + min(0.7, s["dur"] * 0.5)
-        c.clear(r.rgb(0, 0, 0))
-        who = s.get("who") if s.get("who") in S.xs else "dino"
-        draw(c, t, P, places, spr, int(t * FPS), hud=False, shot=("face", who))
-        im = Image.frombytes("RGBA", (r.W, r.H), r.frame_bytes(surf)).convert("RGB").resize((1280, 720), Image.LANCZOS)
-        p = f"{out_prefix}_{'ABC'[k]}.jpg"
-        im.save(p, "JPEG", quality=92)
-        paths.append(p)
-        ims.append(im)
-    prev = Image.new("RGB", (3 * 220, 128), "white")
-    for k, im in enumerate(ims):
-        prev.paste(im.resize((210, 118), Image.LANCZOS), (5 + k * 220, 5))
-    pp = f"{out_prefix}_onizleme.png"
-    prev.save(pp)
-    return paths, pp
-
-
-def poster(st, path, hero=None, feel="surprised", prop=None, dino_feel="surprised", t=3.0, w=1280, h=720):
-    """Kucuk resim afisi (videodan kare degil): mekan + hava, Dino solda buyuk, kahraman sagda buyuk ve
-    duygulu (yuzler kadrajin ~%40'i), sorun objesi ortada. Arastirma: yazi yok, sorun ani, abartili duygu."""
-    from PIL import Image
-    spr = r.Sprites(outline=14)
-    bg = r.Meadow(kind=st["place"])
-    surf = r.new_surface()
-    c = surf.getCanvas()
-    bg.draw(c, t, 0.0)
-    if st.get("weather") == "rain":
-        c.drawRect(r.skia.Rect.MakeWH(r.W, r.H), r.paint(r.rgb(60, 70, 95, 70)))
-    hero = hero or next((b["who"] for b in st.get("hook", []) if b.get("who") in cr.SPEC), st["cast"][0])
-    if prop:
-        spr.draw(c, prop, 960, 360, 380, rot=-10)
-        r.sparkles(c, 960, 360, 0.6, seed=5, radius=230, n=9)
-    r.dino(c, 440, 760, s=1.55, t=t, expr=DINO_EXPR.get(dino_feel, "surprised"), look=1.0, arms=(150, 150),
-           mouth=0.6)
-    cr.draw(c, hero, 1420, 1235, s=1.95, t=t, expr=feel, talk=0.75, blink=0.0, look=-0.7, arms=(145, 145), tilt=-6)
-    if st.get("weather") == "snow":
-        r.snowfall(c, t, n=120, seed=11)
-    elif st.get("weather") == "rain":
-        r.rainfall(c, t)
-    im = Image.frombytes("RGBA", (r.W, r.H), r.frame_bytes(surf)).convert("RGB").resize((w, h), Image.LANCZOS)
-    im.save(path, "JPEG", quality=92)
-    return path
+    """3 afis konsepti (poster.make_three). Donus: ([yol x3], onizleme_yolu)."""
+    import poster
+    return poster.make_three(P, out_prefix)
 
 
 # ---------------- Shorts: hikayenin kancasi + ilk kitasi (<=58 sn), dikey ----------------
