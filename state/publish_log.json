@@ -55,6 +55,13 @@
       "day_type": "weekday",
       "slot": "15:30",
       "views_48h": null
+    },
+    {
+      "video_id": "EEkDLZ9G5TU",
+      "publish_at": "2026-11-22T17:57:00Z",
+      "day_type": "weekend",
+      "slot": "asap",
+      "views_48h": null
     }
   ]
 }

@@ -7,7 +7,14 @@
     "Hide and Seek Animals | Hide and Seek Picnic | Thumpy Meadow",
     "Farm Animal Sounds Guessing Game | Rainbow Animal Hide & Seek | Thumpy Meadow",
     "Guess the Animal Sounds Preschool | Dino's Birthday Surprise | Thumpy Meadow",
-    "Guess the Animal Sounds Preschool | Dino's Picnic Surprise | Thumpy Meadow"
+    "Guess the Animal Sounds Preschool | Dino's Picnic Surprise | Thumpy Meadow",
+    "Jingle Bells Snow Rescue! Winter Animals Song | Thumpy Meadow"
   ],
-  "next_friend": "dog"
+  "next_friend": "dog",
+  "stories_used": [
+    "Stuck in the Snow!",
+    "Sled Hill Friends!",
+    "Find the Bell!",
+    "Snowman Hug Day!"
+  ]
 }
