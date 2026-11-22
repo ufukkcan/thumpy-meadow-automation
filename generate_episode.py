@@ -926,8 +926,11 @@ def generate_story_ideas() -> list[dict]:
     st = _load_state()
     used = ", ".join(load_used()[-40:]) or "(yok)"
     used_stories = ", ".join(st.get("stories_used", [])[-60:]) or "(yok)"
-    season = ("MEVSIM: Noel donemi (25 Kasim - 6 Ocak arasi Noel/kis videolari en cok izlenir): 3 fikrin EN AZ "
-              "2'sinde en az bir Noel ya da kar hikayesi olsun; Jingle Bells melodisi kullanilabilir.\n"
+    # Arastirma (docs/arastirma-kesif.md): Noel 2025 'Jingle Bells' basliklari medyan 803k; Noel'den 20+ gun once
+    # yayinlanmali. Ilk fikir tam Noel bolumu (test ve uretim ilk sirayi one cikarir).
+    season = ("MEVSIM: Noel donemi (25 Kasim - 6 Ocak arasi Noel/kis videolari en cok izlenir): 1. fikir MUTLAKA "
+              "bastan sona Noel/kis temali olsun (tum hikayeler kar, Noel agaci, hediye, kizak vb.); 3 fikrin EN AZ "
+              "2'si boyle olsun. Her Noel fikrinde EN AZ bir hikaye Jingle Bells melodisini kullansin.\n"
               if _xmas_season() else "")
     data = _ask(STORY_IDEAS_PROMPT.format(n=N_STORIES, season=season, library=_story_library(), used=used,
                                           used_stories=used_stories), max_tokens=2500)
