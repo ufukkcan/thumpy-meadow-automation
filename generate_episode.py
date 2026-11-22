@@ -971,9 +971,16 @@ def _song_title(s: dict) -> str:
     return s.get("song_title") or f"{vocal_break.NAMES.get(s.get('melody'), 'Kids')} Song"
 
 
+def _short_song(s: dict) -> str:
+    """Short basligi: taninmis kamu mali sarki adi aramada guclu (Jingle Bells, Old MacDonald)."""
+    if s.get("melody") in ("jingle", "oldmac"):
+        return f"{vocal_break.NAMES[s['melody']]} Song"
+    return _song_title(s)
+
+
 def story_short_meta(ep: dict, k: int, full_video_id: str | None) -> dict:
     s = ep["stories"][k]
-    title = f"{s['name']} {_song_title(s)} | Thumpy Meadow"
+    title = f"{s['name']} {_short_song(s)} | Thumpy Meadow"
     desc = [f"{s['name']} A sing-along cartoon song with Dino and friends for toddlers and preschoolers."]
     if full_video_id:
         desc.append(f"Watch all the songs in the full episode: https://youtu.be/{full_video_id}")

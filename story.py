@@ -526,6 +526,33 @@ def thumbnails(P, out_prefix):
     return paths, pp
 
 
+def poster(st, path, hero=None, feel="surprised", prop=None, dino_feel="surprised", t=3.0, w=1280, h=720):
+    """Kucuk resim afisi (videodan kare degil): mekan + hava, Dino solda buyuk, kahraman sagda buyuk ve
+    duygulu (yuzler kadrajin ~%40'i), sorun objesi ortada. Arastirma: yazi yok, sorun ani, abartili duygu."""
+    from PIL import Image
+    spr = r.Sprites(outline=14)
+    bg = r.Meadow(kind=st["place"])
+    surf = r.new_surface()
+    c = surf.getCanvas()
+    bg.draw(c, t, 0.0)
+    if st.get("weather") == "rain":
+        c.drawRect(r.skia.Rect.MakeWH(r.W, r.H), r.paint(r.rgb(60, 70, 95, 70)))
+    hero = hero or next((b["who"] for b in st.get("hook", []) if b.get("who") in cr.SPEC), st["cast"][0])
+    if prop:
+        spr.draw(c, prop, 960, 360, 380, rot=-10)
+        r.sparkles(c, 960, 360, 0.6, seed=5, radius=230, n=9)
+    r.dino(c, 440, 760, s=1.55, t=t, expr=DINO_EXPR.get(dino_feel, "surprised"), look=1.0, arms=(150, 150),
+           mouth=0.6)
+    cr.draw(c, hero, 1420, 1235, s=1.95, t=t, expr=feel, talk=0.75, blink=0.0, look=-0.7, arms=(145, 145), tilt=-6)
+    if st.get("weather") == "snow":
+        r.snowfall(c, t, n=120, seed=11)
+    elif st.get("weather") == "rain":
+        r.rainfall(c, t)
+    im = Image.frombytes("RGBA", (r.W, r.H), r.frame_bytes(surf)).convert("RGB").resize((w, h), Image.LANCZOS)
+    im.save(path, "JPEG", quality=92)
+    return path
+
+
 # ---------------- Shorts: hikayenin kancasi + ilk kitasi (<=58 sn), dikey ----------------
 def render_shorts(P, work, n=2, frames_dir=None):
     import subprocess
