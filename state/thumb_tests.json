@@ -48,5 +48,15 @@
     "current": "A",
     "publish_at": "2026-11-19T18:00:00Z",
     "status": "waiting_scope"
+  },
+  "oLhgJ3yarNI": {
+    "files": [
+      "state/thumbs/oLhgJ3yarNI_A.jpg",
+      "state/thumbs/oLhgJ3yarNI_B.jpg",
+      "state/thumbs/oLhgJ3yarNI_C.jpg"
+    ],
+    "current": "A",
+    "publish_at": "2026-11-20T20:30:00Z",
+    "status": "waiting_scope"
   }
 }

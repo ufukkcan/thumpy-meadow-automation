@@ -1,49 +1,49 @@
 {
   "status": "choosing",
-  "batch": "77170480",
+  "batch": "367caee1",
   "ideas": [
     {
-      "working_title": "Dino's Birthday Hide and Seek",
-      "summary": "Dino'nun doğum günü partisinde at, kurbağa, ördek, kedi, horoz, baykuş ve civciv saklanır; çocuk hayvan seslerini tahmin ederek hepsini bulur ve sürpriz partiyle kutlama başlar.",
+      "working_title": "Dino's Birthday Hide and Seek | Animal Sounds Game for Kids | Thumpy Meadow",
+      "summary": "Dino'nun doğum günü partisinde inek, köpek, baykuş, koyun, kurbağa, horoz ve ördek saklıdır; finalde pasta ve balonlar çıkar.",
       "frame": "birthday",
       "animals": [
-        "horse",
-        "frog",
-        "duck",
-        "cat",
-        "rooster",
+        "cow",
+        "dog",
         "owl",
-        "chick"
+        "sheep",
+        "frog",
+        "rooster",
+        "duck"
       ]
     },
     {
-      "working_title": "Picnic Surprise with Animal Sounds",
-      "summary": "Piknik sepetinin etrafına at, inek, köpek, koyun, kuş, ördek ve kurbağa saklanır; çocuk sesleri dinleyerek hayvanları bulur ve üzerlerine meyveler yağar.",
+      "working_title": "Animal Sound Guessing Game for Toddlers | Picnic Hide and Seek | Thumpy Meadow",
+      "summary": "Piknik örtüsünün etrafında köpek, kedi, at, civciv, kuş, koyun ve kurbağa saklanmıştır; finalde meyveler yağar ve Dino'ya çilek verilir.",
       "frame": "picnic",
       "animals": [
-        "horse",
-        "cow",
         "dog",
-        "sheep",
+        "cat",
+        "horse",
+        "chick",
         "bird",
-        "duck",
+        "sheep",
         "frog"
       ]
     },
     {
-      "working_title": "Rainbow Animal Sound Hunt",
-      "summary": "Gökkuşağının renkli bulutlarına ve ağaçlarına at, baykuş, horoz, kedi, inek, civciv ve kuş saklanır; çocuk sesleri tahmin ederek tüm hayvanları bulur ve gökyüzü yıldızlarla dolup taşar.",
+      "working_title": "Rainbow Animal Sounds for Kids | Guess Who's Hiding | Thumpy Meadow",
+      "summary": "Gökkuşağının renkli bulutlarında köpek, ördek, baykuş, kuş, horoz, inek ve at saklanmıştır; finalde gökkuşağı ve yıldızlar belirir.",
       "frame": "rainbow",
       "animals": [
-        "horse",
+        "dog",
+        "duck",
         "owl",
+        "bird",
         "rooster",
-        "cat",
         "cow",
-        "chick",
-        "bird"
+        "horse"
       ]
     }
   ],
-  "trigger_date": "2026-11-19"
+  "trigger_date": "2026-11-21"
 }
