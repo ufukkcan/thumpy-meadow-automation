@@ -54,6 +54,12 @@ DINO_EXPR = {"happy": "happy", "surprised": "surprised", "scared": "surprised", 
 # kapali), YouTube logosu yok (marka taklidi degil). Zamanlar cagri satirinin basindan (sn).
 CTA_LINE = "Grown-ups, tap subscribe for more songs!"
 CTA_IN, CTA_CLICK, CTA_THUMB = 0.15, 1.5, 1.9
+# Acilis paketi (H13, 11-23 tutma olcumu: kayip ilk ~20 sn; "stuck" sarkisi calarken chick gulumsuyordu):
+# sorundaki karakter kurtarilana kadar GORSEL olarak sorunda. stuck: kar/camur yigininda gomulu, cirpinir;
+# scared: titrer; sad: uzgun, boynu bukuk. Kurtarilinca firlar + sevinir.
+TROUBLE_LOOKS = ("stuck", "scared", "sad")
+SINK = 0.30                                   # stuck: boyun bu kadari karin/camurun icinde
+XMAS_SKY = {"snow": "snowx", "forest": "forestx"}   # Noel hikayesinde aksam mavisi gokyuzu (afis v2 ile ayni)
 
 
 def _xs(n):
@@ -101,6 +107,38 @@ def _talk(tl, k, beat):
         everyone=who == "all", shot=shot)
 
 
+def trouble_of(st, cast):
+    """Hikayede sorundaki karakter: (kim, gorunum, kurtuldugu kita indeksi) ya da None.
+    Senaryodaki "trouble" alani; yoksa (eski senaryolar) kancadaki ilk hayvan, adinda "stuck" + kendi adi
+    geciyorsa stuck, kurtulus = kendisinin mutlu oldugu ilk kita (yoksa bitis cumlesi)."""
+    verses = st.get("verses", [])
+    tr = st.get("trouble") if isinstance(st.get("trouble"), dict) else {}
+    who = tr.get("who") if tr.get("who") in cast and tr.get("who") != "dino" else None
+    if who is None:
+        who = next((b.get("who") for b in st.get("hook", []) if b.get("who") in cast and b.get("who") != "dino"), None)
+    if who is None:
+        return None
+    look = tr.get("look")
+    if look not in TROUBLE_LOOKS:
+        name = st.get("name", "").lower()
+        look = "stuck" if "stuck" in name and who in name else "scared"
+    if look == "stuck" and st.get("place") == "home":           # ev icinde yigin yok
+        look = "scared"
+    until = tr.get("until")
+    if not isinstance(until, int) or not 0 < until <= len(verses):
+        until = next((vi for vi, v in enumerate(verses) if vi > 0 and v.get("focus") == who
+                      and v.get("feel", "happy") == "happy"), len(verses))
+    return who, look, until
+
+
+def _xmas_flags(stories):
+    import poster
+    ep_x = poster.is_xmas(stories)
+    for S in stories:
+        S.xmas = ep_x and poster._story_xmas(S)
+        S.sky_place = XMAS_SKY.get(S.place, S.place) if S.xmas else S.place
+
+
 def build(ep, work, estimate=False):
     """Senaryo -> zaman cizelgesi + ses. estimate=True: ses uretmeden sure (Telegram onayi icin)."""
     import music
@@ -115,11 +153,12 @@ def build(ep, work, estimate=False):
                                        clears=bool(st.get("clears")), cast=cast, melody=st.get("melody"),
                                        hook=st.get("hook", []), all_props=st.get("props", []),
                                        xs=dict(zip(cast, _xs(len(cast)))), props=st.get("props", [])[:2],
-                                       shows=[], start=0.0, end=0.0, clear_t=1e9))
-    P = SimpleNamespace(stories=stories, cam=Track(0.0), places=[(0.0, stories[0].place, 0.0)], spans=[],
+                                       shows=[], start=0.0, end=0.0, clear_t=1e9, trouble=None))
+    _xmas_flags(stories)
+    P = SimpleNamespace(stories=stories, cam=Track(0.0), places=[(0.0, stories[0].sky_place, 0.0)], spans=[],
                         title=ep.get("title_rest") or "", fx=[], mouth={})
 
-    # ---- jingle: Dino firlar + bolum adi; mekan zaten ilk hikayenin mekani ----
+    # ---- jingle: Dino zipliyor (ilk karede ekranda; H13) + bolum adi; mekan zaten ilk hikayenin mekani ----
     tl.chapter(stories[0].name)
     s = tl.seg("intro", 2.6, story=0, shot=("wide",))
     tl.slide(s["start"] + 0.05)
@@ -131,14 +170,18 @@ def build(ep, work, estimate=False):
         if k > 0:
             tl.chapter(S.name)
             s = tl.seg("card", 2.0, story=k, shot=("wide",), iris=True)
-            P.places.append((s["start"] + show.IRIS_SWITCH, S.place, 0.0))
+            P.places.append((s["start"] + show.IRIS_SWITCH, S.sky_place, 0.0))
             tl.slide(s["start"] + 0.15, up=False)
             tl.slide(s["start"] + 1.2)
         S.start = tl.t
+        trb = trouble_of(st, S.cast)
+        t_from = 0.0 if k == 0 else S.start - 1.0                 # 1. hikaye: ilk kareden itibaren sorunda
         for beat in st.get("hook", []):
             _talk(tl, k, beat)
         others = [c for c in S.cast if c != "dino"]
         for vi, v in enumerate(st["verses"]):
+            if trb and vi == trb[2]:                               # kurtulus ani: bu kitanin konusmasindan once
+                S.trouble = (trb[0], trb[1], t_from, tl.t)
             for beat in v.get("talk", [])[:2]:
                 _talk(tl, k, beat)
             focus = v.get("focus") if v.get("focus") in S.cast else S.cast[min(vi + 1, len(S.cast) - 1)]
@@ -153,6 +196,12 @@ def build(ep, work, estimate=False):
             if vi == 0:
                 tl.bell(s["start"])
         end = st.get("ending") or {"who": "dino", "say": "Hooray! We did it!", "do": "hug"}
+        if trb and S.trouble is None:                              # kurtulus bitis cumlesinde
+            S.trouble = (trb[0], trb[1], t_from, tl.t)
+        if S.trouble:
+            who, t1 = S.trouble[0], S.trouble[3]
+            tl.boing(t1 + 0.05)
+            P.fx.append(("sparkle", t1 + 0.1, S.xs[who], FEET - 200, 40 + k))
         if S.clears and S.clear_t > 1e8:
             S.clear_t = tl.t
         say(tl, end.get("who", "dino") if end.get("who") in S.cast else "dino", end["say"], story=k,
@@ -208,11 +257,12 @@ def build(ep, work, estimate=False):
 
 
 # ---------------- cizim ----------------
-def _cam(spec, S, fw=r.W, fh=r.H):
+def _cam(spec, S, fw=r.W, fh=r.H, dy=0.0):
+    """dy: yakin plandaki karakter karda gomuluyse kamera o kadar asagi (yuzu altyazinin ustunde kalsin)."""
     if spec[0] == "face" and spec[1] in S.xs:                       # kucuk resim: yuz yakin plani
         cx, cy, z = S.xs[spec[1]] + 120, FEET - 300, 2.0
     elif spec[0] == "char" and spec[1] in S.xs:
-        cx, cy, z = S.xs[spec[1]], FEET - 230, 1.45
+        cx, cy, z = S.xs[spec[1]], FEET - 230 + dy, 1.45
     elif spec[0] == "two" and spec[1] in S.xs and spec[2] in S.xs:
         cx, cy, z = (S.xs[spec[1]] + S.xs[spec[2]]) / 2, FEET - 250, 1.2
     else:
@@ -241,6 +291,13 @@ def _pose(name, s, t, tl, P, S, f):
         do, feel = s.get("do", "hug"), "happy"
     elif k == "intro":
         do, feel = ("intro" if name == "dino" else "groove"), "happy"
+    tr = S.trouble
+    if tr and name == tr[0]:                         # sorundaki karakter (H13): kurtarilana kadar sorunda
+        if tr[2] <= t < tr[3]:
+            do, feel = {"stuck": ("struggle", "scared"), "scared": ("shiver", "scared"),
+                        "sad": ("droop", "sad")}[tr[1]]
+        elif tr[3] <= t < tr[3] + 1.2:
+            do, feel = "jump", "happy"
     talk = 0.0
     if k == "song":
         cw = show._cur_word(s, tl)
@@ -283,6 +340,12 @@ def _pose(name, s, t, tl, P, S, f):
     elif do == "shiver":
         dx = 5 * math.sin(t * 55)
         arms, feel = (-10, -10), "scared" if feel == "neutral" else feel
+    elif do == "struggle":                           # yiginda cirpinma: titreme + kollar inip kalkar
+        dx = 4 * math.sin(t * 55)
+        a = 50 + 95 * abs(math.sin(t * 8))
+        arms, tilt = (a, a), 7 * math.sin(t * 5)
+    elif do == "droop":
+        arms, tilt, sq = (-5, -5), -9, 0.02 * math.sin(t * 2)
     elif do == "run":
         hop = 22 * abs(math.sin(t * 13))
         tilt, arms = 6, (40 + 40 * math.sin(t * 13), 40 - 40 * math.sin(t * 13))
@@ -320,19 +383,58 @@ def _pose(name, s, t, tl, P, S, f):
     return dx, hop, sq, tilt, arms, sx, feel, talk, look, blink
 
 
+def _sink(name, S, t):
+    """stuck: (gomulme derinligi px, yigin olcegi 0..1). Kurtulusta 0,5 sn'de firlar, yigin 0,6 sn'de erir."""
+    tr = S.trouble
+    if not tr or tr[0] != name or tr[1] != "stuck" or t < tr[2]:
+        return 0.0, 0.0
+    d = SINK * cr.height(name, CRIT_S)
+    if t < tr[3]:
+        return d, 1.0
+    a = t - tr[3]
+    return d * max(0.0, 1 - r.ease_out_back(r.clamp01(a / 0.5))), 1 - r.clamp01(a / 0.6)
+
+
+SURF = FEET - 6                                # stuck: karakter bu cizginin altinda gorunmez (kar/camur yuzeyi)
+
+
+def _mound(c, x, name, k, S):
+    """Gomulu karakterin onunde alcak, yuvarlak kar (karli mekan/hava) ya da camur kenari."""
+    if k <= 0:
+        return
+    h = cr.height(name, CRIT_S)
+    w, hh = 0.58 * h * (0.4 + 0.6 * k), 0.10 * h * k
+    p = r.oval_path(x, SURF, w, hh)
+    for ox, oy, rr in ((-0.55, 0.25, 0.5), (0.55, 0.3, 0.48)):
+        p = r.skia.Op(p, r.oval_path(x + ox * w, SURF + oy * hh, rr * w, 0.8 * hh), r.skia.PathOp.kUnion_PathOp)
+    snowy = S.place == "snow" or S.weather == "snow"
+    cols = [r.rgb(255, 255, 255), r.rgb(214, 228, 248)] if snowy else [r.rgb(160, 110, 70), r.rgb(115, 75, 45)]
+    r.inked(c, [p], r.paint(shader=r.linear((0, SURF - hh), (0, SURF + hh), cols)), w=9)
+    for ox in (-0.4, 0.15, 0.55):                      # parlama / camur benekleri
+        c.drawOval(r.oval(x + ox * w, SURF - 0.35 * hh, 0.10 * w, 0.18 * hh),
+                   r.paint(r.rgb(255, 255, 255, 220) if snowy else r.rgb(90, 55, 30, 180)))
+
+
 def _draw_char(c, name, s, t, tl, P, S, f):
     dx, hop, sq, tilt, arms, sx, feel, talk, look, blink = _pose(name, s, t, tl, P, S, f)
     x = S.xs[name] + dx
-    if s["kind"] == "intro" and name == "dino":
-        hop -= (1 - r.ease_out_back(r.clamp01(tl / 0.7))) * 420
+    hat = getattr(S, "xmas", False)
     if name == "dino":
         r.dino_shadow(c, x, FEET, lift=max(0.0, hop))
         r.dino(c, x, FEET - 170 - hop, s=DINO_S, t=t, mouth=talk, expr=DINO_EXPR.get(feel, "neutral"),
-               look=look, arms=arms, squash=sq, lean=tilt * 0.6)
+               look=look, arms=arms, squash=sq, lean=tilt * 0.6, hat=hat)
     else:
-        cr.shadow(c, x, FEET, CRIT_S * cr.SPEC[name]["scale"], lift=max(0.0, hop))
-        cr.draw(c, name, x, FEET - hop, s=CRIT_S, t=t, expr=feel, talk=talk, blink=blink, look=look,
-                arms=arms, tilt=tilt, squash=sq, sx=sx)
+        depth, mk = _sink(name, S, t)
+        if depth <= 0:
+            cr.shadow(c, x, FEET, CRIT_S * cr.SPEC[name]["scale"], lift=max(0.0, hop))
+        else:                                        # yuzeyin alti cizilmez: karakter karin icinde
+            c.save()
+            c.clipRect(r.skia.Rect.MakeLTRB(-5000, -5000, 5000, SURF))
+        cr.draw(c, name, x, FEET - hop + depth, s=CRIT_S, t=t, expr=feel, talk=talk, blink=blink, look=look,
+                arms=arms, tilt=tilt, squash=sq, sx=sx, hat=hat)
+        if depth > 0:
+            c.restore()
+        _mound(c, S.xs[name], name, mk, S)
 
 
 def _story_at(P, s, tl=0.0):
@@ -355,7 +457,8 @@ def draw(c, t, P, places, spr, f, fw=r.W, fh=r.H, short=None, hud=True, shot=Non
         spec = shot
     if short is not None and spec[0] == "wide":
         spec = ("char", s.get("focus") or s.get("who") if (s.get("focus") or s.get("who")) in S.xs else "dino")
-    cx, cy, z = _cam(spec, S, fw, fh)
+    dy = _sink(spec[1], S, t)[0] * 1.6 if spec[0] == "char" and spec[1] in S.xs and spec[1] != "dino" else 0.0
+    cx, cy, z = _cam(spec, S, fw, fh, dy)
     if short is not None:
         z = max(z, fh / r.H)
         hw, hh = fw / 2 / z, fh / 2 / z
@@ -409,13 +512,15 @@ def draw(c, t, P, places, spr, f, fw=r.W, fh=r.H, short=None, hud=True, shot=Non
     if not hud:
         return
     if short is not None:
+        # dikey kadrajda dunyanin tamami gorunur (kamera kayamaz): gomulu karakter varsa altyazi gokyuzune
+        cap_y = int(fh * (0.26 if S.trouble and _sink(S.trouble[0], S, t)[0] > 0 else 0.70))
         if s["kind"] == "song":
             li = max(0, sum(1 for x in s["starts"] if x <= tl) - 1)
             cw = show._cur_word(s, tl)
             r.caption(c, s["lines"][min(li, len(s["lines"]) - 1)], key=cw[2] if cw else None,
-                      key_color=r.rgb(255, 140, 30), y=int(fh * 0.70), cw=fw)
+                      key_color=r.rgb(255, 140, 30), y=cap_y, cw=fw)
         elif "text" in s:
-            r.caption(c, s["text"], y=int(fh * 0.70), cw=fw)
+            r.caption(c, s["text"], y=cap_y, cw=fw)
         return
     # ---- ekran ustu ----
     import thumbs

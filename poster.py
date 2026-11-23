@@ -126,28 +126,7 @@ def _flakes(c, n=46, seed=9):
 
 
 # ---------------- ogeler ----------------
-def santa_hat(c, cx, cy, w, tilt=0.0, flop=1, red=(225, 38, 52), dark=(180, 20, 40)):
-    """(cx, cy): kurk bandin merkezi, w: bant genisligi."""
-    c.save()
-    c.translate(cx, cy)
-    c.rotate(tilt)
-    cone = skia.Path()
-    cone.moveTo(-w * 0.46, 0)
-    cone.cubicTo(-w * 0.40, -w * 0.62, flop * w * 0.10, -w * 0.95, flop * w * 0.62, -w * 0.70)
-    cone.cubicTo(flop * w * 0.40, -w * 0.55, w * 0.42, -w * 0.30, w * 0.46, 0)
-    cone.close()
-    inked(c, [cone], paint(rgb(*red)), w=12)
-    c.save()
-    c.clipPath(cone, skia.ClipOp.kIntersect, True)
-    c.drawOval(r.oval(w * 0.30, -w * 0.20, w * 0.35, w * 0.55), paint(rgb(*dark)))
-    c.drawOval(r.oval(-w * 0.18, -w * 0.38, w * 0.06, w * 0.18), paint(rgb(255, 120, 120), alpha=0.7))
-    c.restore()
-    band = skia.Path()
-    band.addRRect(skia.RRect.MakeRectXY(skia.Rect.MakeLTRB(-w * 0.56, -w * 0.11, w * 0.56, w * 0.12), w * 0.11, w * 0.11))
-    inked(c, [band], paint(rgb(255, 255, 255)), w=12)
-    c.drawOval(r.oval(0, w * 0.05, w * 0.50, w * 0.05), paint(rgb(210, 225, 245)))
-    inked(c, [oval_path(flop * w * 0.64, -w * 0.70, w * 0.14, w * 0.14)], paint(rgb(255, 255, 255)), w=12)
-    c.restore()
+santa_hat = r.santa_hat                                   # videoda da ayni sapka (render2'ye tasindi)
 
 
 def glow_prop(c, spr, name, x, y, size, rot=-14, ring=False):

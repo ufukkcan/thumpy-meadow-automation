@@ -499,6 +499,10 @@ def story_as_text(ep: dict, est_minutes: float) -> str:
                    + f", melodi: {mel}, kadro: Dino + {', '.join(st['cast'])} ===")
         if st.get("props"):
             out.append(f"  [sahnede: {', '.join(st['props'])}]")
+        tr = story_engine.trouble_of(st, ["dino"] + st["cast"])
+        if tr:
+            when = f"{tr[2] + 1}. kitada" if tr[2] < len(st["verses"]) else "sonda"
+            out.append(f"  [sorunda: {tr[0]} ({tr[1]}), {when} kurtulur]")
         for b in st.get("hook", []):
             out.append(f"- {b['who']}: {b['say']}" if b.get("say") else f"- {b['who']}: [gercek ses]")
         pat = vocal_break.pattern(st["melody"])
@@ -685,6 +689,10 @@ YAPI: TAM {n} hikaye, ayni kadro (Dino + fikirdeki hayvanlar). Her hikaye:
 - hook: 1-2 konusma: ILK satir sorunu gosterir (or. cow: "Oh no! The rain is coming!"), 3-9 kelime, cok basit.
   Her konusma: {{"who": "<karakter ya da dino>", "say": "...", "feel": "<duygu>", "do": "<eylem>"}}.
   Bir hayvan gercek sesini cikarabilir: {{"who": "cow", "sound": true}} (sadece gercek sesi olanlar).
+- trouble: sorun EKRANDA gorunur (cocuk sozu degil resmi izler): {{"who": "<sorundaki hayvan, Dino degil>",
+  "look": "stuck" (kar/camur yigininda gomulu, cirpinir) | "scared" (titrer) | "sad" (uzgun), "until": <kurtuldugu
+  kitanin sirasi, 1'den baslar; o kitadan itibaren sevinir>}}. Sorun bir esyadaysa (or. kizak) ona en cok uzulen
+  hayvani yaz. Ev icinde "stuck" kullanma.
 - verses: melodinin kita_sayisi araliginda kita. Her kita: lines (melodinin satir sayisi KADAR satir, her satir
   hece sayisi BIREBIR), focus (o kitada one cikan karakter), do (eylem), feel, istege bagli show (o kitada ortaya
   cikan obje), istege bagli talk (kitadan once EN FAZLA 1 kisa konusma), istege bagli clear (hava bu kitada
@@ -714,6 +722,7 @@ SADECE gecerli JSON dondur, baska hicbir sey yazma:
  "stories": [{{"name": "...", "song_title": "...", "place": "farm", "weather": "rain", "clears": true,
    "melody": "oldmac", "cast": ["cow", "duck"], "props": [],
    "hook": [{{"who": "cow", "say": "...", "feel": "scared", "do": "shiver"}}],
+   "trouble": {{"who": "cow", "look": "stuck", "until": 3}},
    "verses": [{{"focus": "cow", "do": "run", "feel": "scared", "lines": ["..."]}}],
    "ending": {{"who": "dino", "say": "...", "do": "hug"}}, "next": "..."}}],
  "goodbye": "..."}}"""
@@ -819,6 +828,14 @@ def normalize_story_episode(raw: dict, cast_hint: list[str] | None = None) -> di
                "clears": bool(st.get("clears")) and weather is not None, "melody": mel, "cast": cast,
                "props": [p for p in _as_list(st.get("props")) if p in assets.STORY_PROPS][:2],
                "hook": hook, "verses": verses, "ending": end}
+        tr = st.get("trouble") if isinstance(st.get("trouble"), dict) else {}
+        if tr.get("who") in cast:                      # H13: kita sirasi 1'den -> motor 0'dan (kurtulus kitasi)
+            until = tr.get("until")
+            until = until - 1 if isinstance(until, int) and 1 < until <= len(verses) else None
+            look = tr.get("look") if tr.get("look") in story_engine.TROUBLE_LOOKS else "scared"
+            out["trouble"] = {"who": tr["who"], "look": "scared" if look == "stuck" and place == "home" else look}
+            if until is not None:
+                out["trouble"]["until"] = until
         nx = _line(st.get("next"), "", max_words=9)
         if nx:
             out["next"] = nx

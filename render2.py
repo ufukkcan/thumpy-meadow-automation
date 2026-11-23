@@ -566,8 +566,9 @@ def _kit_home(rnd):
 
 
 PLACES = {"meadow": _kit_meadow, "farm": _kit_farm, "pond": _kit_pond, "snow": _kit_snow,
-          "forest": _kit_forest, "home": _kit_home, "night": _kit_meadow}
-SKY = {"snow": "winter", "home": None, "night": "night"}     # digerleri "day"
+          "forest": _kit_forest, "home": _kit_home, "night": _kit_meadow,
+          "snowx": _kit_snow, "forestx": _kit_forest}        # x: Noel aksami (afis v2 gece mavisi, H13)
+SKY = {"snow": "winter", "home": None, "night": "night", "snowx": "xmas", "forestx": "xmas"}   # digerleri "day"
 
 
 def _sun(c, t, sx=1640, sy=170, pale=False):
@@ -640,7 +641,7 @@ class Meadow:
         self.clouds = [(rnd.uniform(0, W + 400), rnd.uniform(90, 330), rnd.uniform(0.7, 1.15),
                         rnd.uniform(8, 20)) for _ in range(6)]
         self.sky = SKY.get(kind, "day")
-        if self.sky == "night":
+        if self.sky in ("night", "xmas"):
             self.stars = [(rnd.uniform(0, W), rnd.uniform(20, 520), rnd.uniform(2, 5), rnd.uniform(0, 6))
                           for _ in range(70)]
 
@@ -658,6 +659,14 @@ class Meadow:
                        paint(shader=linear((0, 0), (0, 720), [rgb(30, 40, 95), rgb(85, 90, 165)])))
             for x, y, s, ph in self.stars:
                 c.drawCircle(x, y, s * (0.75 + 0.25 * math.sin(t * 2 + ph)), paint(rgb(255, 250, 220)))
+            _moon(c, t)
+        elif self.sky == "xmas":                             # afis v2 _night ile ayni renkler; zemin aydinlik kalir
+            c.drawRect(skia.Rect.MakeWH(W, H), paint(shader=linear((0, 0), (0, 700), [rgb(18, 32, 96), rgb(52, 92, 196),
+                                                                                    rgb(120, 170, 240)], [0, 0.55, 1])))
+            c.drawCircle(1450, 420, 620, paint(shader=radial((1450, 420), 620, [rgb(255, 200, 120, 150),
+                                                                               rgb(255, 160, 90, 0)])))
+            for x, y, s, ph in self.stars:
+                c.drawCircle(x, y * 0.8, s * (0.75 + 0.25 * math.sin(t * 2 + ph)), paint(rgb(255, 255, 230)))
             _moon(c, t)
         for img, k in ((self.far, 0.15), (self.mid, 0.4), (self.near, 1.0)):
             wd = img.width()
@@ -719,7 +728,7 @@ def _arm_lift(side, t, wave, excited, arms):
 
 
 def dino(c, cx, cy, s=1.0, t=0.0, mouth=0.0, wave=0.0, excited=False, squash=0.0, look=0.0,
-         expr="neutral", arms=None, lean=0.0, look_y=0.0, dizzy=0.0, sweat=0.0):
+         expr="neutral", arms=None, lean=0.0, look_y=0.0, dizzy=0.0, sweat=0.0, hat=False):
     """cx, cy: govde merkezi. mouth 0..1 (ses), wave 0..1 (sag el sallama),
     squash >0 basilma (zipla inis), <0 uzama. expr: neutral | happy | surprised | listen.
     arms: (sol, sag) kol acisi (derece; 0 asagi, 150 yukari, eksi = iceri / alkis).
@@ -859,6 +868,32 @@ def dino(c, cx, cy, s=1.0, t=0.0, mouth=0.0, wave=0.0, excited=False, squash=0.0
         drop.close()
         c.drawPath(drop, paint(INK, stroke=7, alpha=sweat))
         c.drawPath(drop, paint(rgb(150, 210, 255), alpha=sweat))
+    if hat:                                             # Noel sapkasi (afis v2 ile ayni yer/oran)
+        santa_hat(c, 10, -0.52 * bh, 168, tilt=-8, flop=-1)
+    c.restore()
+
+
+def santa_hat(c, cx, cy, w, tilt=0.0, flop=1, red=(225, 38, 52), dark=(180, 20, 40)):
+    """Noel sapkasi. (cx, cy): kurk bandin merkezi, w: bant genisligi. (poster.py'den tasindi.)"""
+    c.save()
+    c.translate(cx, cy)
+    c.rotate(tilt)
+    cone = skia.Path()
+    cone.moveTo(-w * 0.46, 0)
+    cone.cubicTo(-w * 0.40, -w * 0.62, flop * w * 0.10, -w * 0.95, flop * w * 0.62, -w * 0.70)
+    cone.cubicTo(flop * w * 0.40, -w * 0.55, w * 0.42, -w * 0.30, w * 0.46, 0)
+    cone.close()
+    inked(c, [cone], paint(rgb(*red)), w=12)
+    c.save()
+    c.clipPath(cone, skia.ClipOp.kIntersect, True)
+    c.drawOval(oval(w * 0.30, -w * 0.20, w * 0.35, w * 0.55), paint(rgb(*dark)))
+    c.drawOval(oval(-w * 0.18, -w * 0.38, w * 0.06, w * 0.18), paint(rgb(255, 120, 120), alpha=0.7))
+    c.restore()
+    band = skia.Path()
+    band.addRRect(skia.RRect.MakeRectXY(skia.Rect.MakeLTRB(-w * 0.56, -w * 0.11, w * 0.56, w * 0.12), w * 0.11, w * 0.11))
+    inked(c, [band], paint(rgb(255, 255, 255)), w=12)
+    c.drawOval(oval(0, w * 0.05, w * 0.50, w * 0.05), paint(rgb(210, 225, 245)))
+    inked(c, [oval_path(flop * w * 0.64, -w * 0.70, w * 0.14, w * 0.14)], paint(rgb(255, 255, 255)), w=12)
     c.restore()
 
 

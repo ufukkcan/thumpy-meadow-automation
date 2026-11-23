@@ -374,7 +374,7 @@ def _tail(c, spec, BW, by, t):
 
 
 def draw(c, kind, x, y, s=1.0, t=0.0, expr="neutral", talk=0.0, blink=None, look=0.0, look_y=0.0,
-         arms=(18, 18), tilt=0.0, squash=0.0, sx=1.0, alpha=1.0):
+         arms=(18, 18), tilt=0.0, squash=0.0, sx=1.0, alpha=1.0, hat=False):
     """Bir karakter. x, y: ayak hizasi. talk: konusma genligi 0..1 (agiz sekli). blink=None: otomatik.
     arms: (sol, sag) kol kaldirma acisi (derece). tilt: bas egimi. sx: -1 aynalar."""
     spec = SPEC[kind]
@@ -434,6 +434,8 @@ def draw(c, kind, x, y, s=1.0, t=0.0, expr="neutral", talk=0.0, blink=None, look
     c.translate(0, by - BH * 0.5 - R * 0.45)
     c.rotate(tilt)
     _head(c, R, spec, t, expr, shape, blink, look, look_y)
+    if hat:                                            # Noel sapkasi (afis v2 trio ile ayni yer/oran)
+        r.santa_hat(c, 20, -84, 132, tilt=12, flop=1)
     c.restore()
     c.restore()
     if alpha < 1.0:
