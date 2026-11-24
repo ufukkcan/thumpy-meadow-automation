@@ -1,5 +1,5 @@
 {
-  "status": "choosing",
+  "status": "reviewing",
   "batch": "3e479757",
   "ideas": [
     {
@@ -54,5 +54,554 @@
       "format": "story"
     }
   ],
-  "trigger_date": "2026-11-24"
+  "trigger_date": "2026-11-24",
+  "idea": {
+    "working_title": "Frozen Pond Rescue! Christmas Animals Song",
+    "summary": "Noel temalı dört hikayede kayıp objeler, donmuş mekanlar ve sıcak sarılmalar seyirciyi bekliyor.",
+    "stories": [
+      "Duck Slips on the Ice! (göl kenarı; ördek donmuş gölde kayar ve yardım ister)",
+      "The Christmas Tree is Too Heavy! (çiftlik; Noel ağacını ahıra taşımak için herkese ihtiyaç var)",
+      "Cow's Bell is Buried in Snow! (karlı tepe; ineğin zili karın altında kalır)",
+      "Piglet Rides the Wrong Sled! (karlı tepe; domuzun kızağı kontrolden çıkar)"
+    ],
+    "cast": [
+      "duck",
+      "cow",
+      "piglet",
+      "chick"
+    ],
+    "format": "story"
+  },
+  "rewrites": 0,
+  "episode": {
+    "title": "Winter Song for Kids | Frozen Pond Rescue! | Thumpy Meadow",
+    "title_phrases": [
+      "christmas animals song for toddlers",
+      "frozen pond rescue song kids",
+      "winter animals song for babies",
+      "christmas song for toddlers animals",
+      "snow animals song for kids"
+    ],
+    "title_rest": "Frozen Pond Rescue!",
+    "description_intro": "Join Dino and friends for four cozy Christmas adventures — a slippery pond, a heavy tree, a lost bell, and a runaway sled! Sing along and help the animals solve every snowy problem together with hugs and teamwork.",
+    "learning_points": [
+      "Friends help each other when things go wrong",
+      "Teamwork makes hard tasks easier",
+      "It is okay to ask for help",
+      "Winter is full of fun and cozy moments",
+      "Kindness makes everyone feel warm inside"
+    ],
+    "tags": [
+      "christmas animals song",
+      "frozen pond song",
+      "winter song for kids",
+      "toddler christmas song",
+      "animals song toddlers",
+      "thumpy meadow",
+      "kids christmas cartoon",
+      "baby song christmas",
+      "duck song kids",
+      "cow song toddlers",
+      "piglet song kids",
+      "chick song toddlers",
+      "snow song for babies",
+      "christmas cartoon song",
+      "nursery song christmas",
+      "Thumpy Meadow"
+    ],
+    "hashtags": [
+      "ChristmasAnimalsSong",
+      "FrozenPondRescue",
+      "ThumpyMeadow"
+    ],
+    "thumbnail_texts": [
+      "",
+      "",
+      ""
+    ],
+    "localizations": {
+      "es": {
+        "title": "¡Rescate en el Estanque Helado! Canción de Animales Navideños | Thumpy Meadow",
+        "description": "¡Únete a Dino y sus amigos en cuatro aventuras navideñas llenas de nieve, abrazos y trabajo en equipo! Canta con el pato, la vaca, el cerdito y el pollito mientras resuelven juntos cada problema invernal."
+      },
+      "pt": {
+        "title": "Resgate no Lago Gelado! Música de Animais de Natal | Thumpy Meadow",
+        "description": "Junte-se ao Dino e aos amigos em quatro aventuras natalinas cheias de neve, abraços e trabalho em equipe! Cante com o pato, a vaca, o porquinho e o pintinho enquanto resolvem cada problema juntos."
+      },
+      "tr": {
+        "title": "Donmuş Gölde Kurtarma! Noel Hayvanları Şarkısı | Thumpy Meadow",
+        "description": "Dino ve arkadaşlarıyla dört sıcacık Noel macerasına katıl! Ördek, inek, domuz yavrusu ve civciv birlikte her kar problemini arkadaşlık ve yardımlaşmayla çözüyor."
+      },
+      "id": {
+        "title": "Penyelamatan di Danau Beku! Lagu Hewan Natal | Thumpy Meadow",
+        "description": "Bergabunglah bersama Dino dan teman-teman dalam empat petualangan Natal yang hangat! Bebek, sapi, anak babi, dan anak ayam menyelesaikan setiap masalah bersama dengan kerja sama dan pelukan."
+      }
+    },
+    "stories": [
+      {
+        "name": "Duck Slips on the Ice!",
+        "song_title": "Frozen Pond Song",
+        "place": "pond",
+        "weather": "snow",
+        "clears": true,
+        "melody": "jingle",
+        "cast": [
+          "duck",
+          "chick"
+        ],
+        "props": [
+          "snowflake",
+          "scarf"
+        ],
+        "hook": [
+          {
+            "who": "duck",
+            "say": "Oh! The pond is all frozen!",
+            "feel": "surprised",
+            "do": "look"
+          },
+          {
+            "who": "duck",
+            "sound": true
+          }
+        ],
+        "verses": [
+          {
+            "lines": [
+              "Jingle bells, jingle bells,",
+              "snow is falling down,",
+              "Duck went out to see the big cold pond,",
+              "and slid across the ground,",
+              "Jingle bells, jingle bells,",
+              "wings were flapping wide,",
+              "Duck kept sliding left and right so fast,",
+              "calling for a guide!"
+            ],
+            "focus": "duck",
+            "do": "shiver",
+            "feel": "scared",
+            "show": "snowflake"
+          },
+          {
+            "lines": [
+              "Jingle bells, jingle bells,",
+              "Chick came running fast,",
+              "Chick called out to poor sliding Duck,",
+              "holding on so tight,",
+              "Jingle bells, jingle bells,",
+              "Chick threw out the scarf,",
+              "Duck grabbed on and held it very tight,",
+              "then began to laugh!"
+            ],
+            "focus": "chick",
+            "do": "wave",
+            "feel": "happy",
+            "show": "scarf",
+            "talk": [
+              {
+                "who": "chick",
+                "say": "I will help you, Duck!",
+                "feel": "happy",
+                "do": "clap"
+              }
+            ]
+          },
+          {
+            "lines": [
+              "Jingle bells, jingle bells,",
+              "Dino cheered them on,",
+              "Duck stepped off the slippery cold ice,",
+              "all the sliding was gone,",
+              "Jingle bells, jingle bells,",
+              "snowflakes drifting slow,",
+              "Friends all hugged together by the pond,",
+              "dancing in the glow!"
+            ],
+            "focus": "dino",
+            "do": "hug",
+            "feel": "happy",
+            "talk": [
+              {
+                "who": "dino",
+                "say": "Together we did it!",
+                "feel": "happy",
+                "do": "clap"
+              }
+            ],
+            "clear": true
+          }
+        ],
+        "ending": {
+          "who": "duck",
+          "say": "Thank you, friends! That was so fun!",
+          "feel": "neutral",
+          "do": "dance"
+        },
+        "trouble": {
+          "who": "duck",
+          "look": "scared",
+          "until": 2
+        },
+        "next": "Hmm, what is making that big crunch?"
+      },
+      {
+        "name": "The Christmas Tree Is Too Heavy!",
+        "song_title": "Big Christmas Tree Song",
+        "place": "farm",
+        "weather": "snow",
+        "clears": false,
+        "melody": "oldmac",
+        "cast": [
+          "cow",
+          "duck"
+        ],
+        "props": [
+          "christmas_tree",
+          "star"
+        ],
+        "hook": [
+          {
+            "who": "cow",
+            "say": "Oh my! This tree is so heavy!",
+            "feel": "surprised",
+            "do": "think"
+          },
+          {
+            "who": "cow",
+            "sound": true
+          }
+        ],
+        "verses": [
+          {
+            "lines": [
+              "On the farm there is a tree,",
+              "E I E I O,",
+              "Cow wants it inside the barn now see,",
+              "E I E I O,",
+              "With a push push here and a push push there,",
+              "Here a push, there a push, everywhere a push push,",
+              "But the tree won't budge at all,",
+              "E I E I O!"
+            ],
+            "focus": "cow",
+            "do": "stomp",
+            "feel": "sad",
+            "show": "christmas_tree"
+          },
+          {
+            "lines": [
+              "Duck came over to the tree,",
+              "E I E I O,",
+              "Flapping both its wings so cheerful and free,",
+              "E I E I O,",
+              "With a quack quack here and a quack quack there,",
+              "Here a quack, there a quack, everywhere a quack quack,",
+              "Now they push the tree along,",
+              "E I E I O!"
+            ],
+            "focus": "duck",
+            "do": "flap",
+            "feel": "happy",
+            "talk": [
+              {
+                "who": "duck",
+                "say": "I will push with you, Cow!",
+                "feel": "happy",
+                "do": "clap"
+              }
+            ]
+          },
+          {
+            "lines": [
+              "Dino marched up to the tree,",
+              "E I E I O,",
+              "Helping all his friends so careful and free,",
+              "E I E I O,",
+              "With a heave heave here and a heave heave there,",
+              "Here a heave, there a heave, everywhere a heave heave,",
+              "Now the tree is in the barn!",
+              "E I E I O!"
+            ],
+            "focus": "dino",
+            "do": "march",
+            "feel": "happy",
+            "talk": [
+              {
+                "who": "dino",
+                "say": "One, two, three, push!",
+                "feel": "happy",
+                "do": "stomp"
+              }
+            ]
+          },
+          {
+            "lines": [
+              "On the top they put a star,",
+              "E I E I O,",
+              "Shining bright and near and very far,",
+              "E I E I O,",
+              "With a glow glow here and a glow glow there,",
+              "Here a glow, there a glow, everywhere a glow glow,",
+              "Everyone is dancing now!",
+              "E I E I O!"
+            ],
+            "focus": "cow",
+            "do": "dance",
+            "feel": "happy",
+            "show": "star"
+          }
+        ],
+        "ending": {
+          "who": "cow",
+          "say": "What a beautiful Christmas tree!",
+          "feel": "neutral",
+          "do": "clap"
+        },
+        "trouble": {
+          "who": "cow",
+          "look": "stuck",
+          "until": 2
+        },
+        "next": "Oh? What is that sound under the snow?"
+      },
+      {
+        "name": "Cow's Bell Is Buried in Snow!",
+        "song_title": "Lost Bell in Snow Song",
+        "place": "snow",
+        "weather": "snow",
+        "clears": true,
+        "melody": "mary",
+        "cast": [
+          "cow",
+          "chick"
+        ],
+        "props": [
+          "bell",
+          "snowman"
+        ],
+        "hook": [
+          {
+            "who": "cow",
+            "say": "My bell! Where is my bell?",
+            "feel": "sad",
+            "do": "look"
+          },
+          {
+            "who": "chick",
+            "say": "Let us look together!",
+            "feel": "happy",
+            "do": "point"
+          }
+        ],
+        "verses": [
+          {
+            "lines": [
+              "Cow has lost her little bell,",
+              "little bell, little bell,",
+              "Cow has lost her small and little bell,",
+              "under all the snow!"
+            ],
+            "focus": "cow",
+            "do": "look",
+            "feel": "sad",
+            "show": "snowman"
+          },
+          {
+            "lines": [
+              "Chick went hopping through the snow,",
+              "through the snow, through the snow,",
+              "Chick went hopping all through the snow,",
+              "hearing all the way!"
+            ],
+            "focus": "chick",
+            "do": "hop",
+            "feel": "happy",
+            "talk": [
+              {
+                "who": "chick",
+                "say": "I hear something! Over here!",
+                "feel": "surprised",
+                "do": "point"
+              }
+            ]
+          },
+          {
+            "lines": [
+              "Dino thought of something smart,",
+              "something smart, something smart,",
+              "Dino thought of something very smart,",
+              "dig into the snow!"
+            ],
+            "focus": "dino",
+            "do": "think",
+            "feel": "think"
+          },
+          {
+            "lines": [
+              "There the shiny bell was found,",
+              "bell was found, bell was found,",
+              "There the bright and shiny bell was found,",
+              "ringing in the cold!"
+            ],
+            "focus": "cow",
+            "do": "jump",
+            "feel": "happy",
+            "show": "bell",
+            "clear": true
+          },
+          {
+            "lines": [
+              "Now they dance on snowy hills,",
+              "snowy hills, snowy hills,",
+              "Now they dance across the snowy hills,",
+              "jingle all the way!"
+            ],
+            "focus": "chick",
+            "do": "dance",
+            "feel": "happy"
+          }
+        ],
+        "ending": {
+          "who": "cow",
+          "say": "My bell is back! Thank you so much!",
+          "feel": "neutral",
+          "do": "jump"
+        },
+        "trouble": {
+          "who": "cow",
+          "look": "sad",
+          "until": 2
+        },
+        "next": "Oh! Whose sled is going that way?"
+      },
+      {
+        "name": "Piglet Rides the Wrong Sled!",
+        "song_title": "Runaway Sled Song",
+        "place": "snow",
+        "weather": "snow",
+        "clears": true,
+        "melody": "twinkle",
+        "cast": [
+          "piglet",
+          "chick"
+        ],
+        "props": [
+          "sled",
+          "candy"
+        ],
+        "hook": [
+          {
+            "who": "piglet",
+            "say": "Whoa! This is not my sled!",
+            "feel": "surprised",
+            "do": "wave"
+          },
+          {
+            "who": "chick",
+            "say": "Piglet! Hold on tight!",
+            "feel": "scared",
+            "do": "flap"
+          }
+        ],
+        "verses": [
+          {
+            "lines": [
+              "Piglet hopped upon a sled,",
+              "going somewhere fast ahead,",
+              "Round and round the sled did spin,",
+              "Piglet laughed with a wide grin,",
+              "Spinning round the snowy hill,",
+              "what a funny spinning thrill!"
+            ],
+            "focus": "piglet",
+            "do": "shiver",
+            "feel": "scared",
+            "show": "sled"
+          },
+          {
+            "lines": [
+              "Little Chick went running fast,",
+              "flapping wings from first to last,",
+              "Chick called out a cheerful peep,",
+              "over snow both wide and deep,",
+              "Chick reached out a fluffy wing,",
+              "what a helpful little thing!"
+            ],
+            "focus": "chick",
+            "do": "run",
+            "feel": "happy",
+            "talk": [
+              {
+                "who": "chick",
+                "say": "I am coming, Piglet!",
+                "feel": "happy",
+                "do": "flap"
+              }
+            ]
+          },
+          {
+            "lines": [
+              "Dino stomped into the snow,",
+              "caught the sled and stopped it so,",
+              "Piglet tumbled soft and slow,",
+              "landed gently down below,",
+              "Piglet laughed and said hooray,",
+              "what a funny snowy day!"
+            ],
+            "focus": "dino",
+            "do": "stomp",
+            "feel": "happy",
+            "clear": true
+          },
+          {
+            "lines": [
+              "Now they share some candy sweet,",
+              "snowy treats are quite a treat,",
+              "Piglet, Chick and Dino too,",
+              "dancing under skies of blue,",
+              "All the friends held hands and spun,",
+              "winter play is so much fun!"
+            ],
+            "focus": "piglet",
+            "do": "dance",
+            "feel": "happy",
+            "show": "candy"
+          }
+        ],
+        "ending": {
+          "who": "piglet",
+          "say": "Best sled ride ever! Let us go again!",
+          "feel": "neutral",
+          "do": "dance"
+        },
+        "trouble": {
+          "who": "piglet",
+          "look": "scared",
+          "until": 2
+        }
+      }
+    ],
+    "goodbye": "Bye bye, friends! See you next snowy time!",
+    "song_issues": [
+      "1. hikaye, 2. kita, 3. satir: \"Chick called out to poor sliding Duck,\" (hece 8 = Chick(1) + called(1) + out(1) + to(1) + poor(1) + sliding(2) + Duck(1); hedef 9)",
+      "1. hikaye, 2. kita, 4. satir: \"holding on so tight,\" (hece 5 = holding(2) + on(1) + so(1) + tight(1); hedef 6)",
+      "2. hikaye, 1. kita, 3. satir: \"Cow wants it inside the barn now see,\" (hece 9 = Cow(1) + wants(1) + it(1) + inside(2) + the(1) + barn(1) + now(1) + see(1); hedef 8)",
+      "2. hikaye, 2. kita, 3. satir: \"Flapping both its wings so cheerful and free,\" (hece 10 = Flapping(2) + both(1) + its(1) + wings(1) + so(1) + cheerful(2) + and(1) + free(1); hedef 8)",
+      "2. hikaye, 3. kita, 3. satir: \"Helping all his friends so careful and free,\" (hece 10 = Helping(2) + all(1) + his(1) + friends(1) + so(1) + careful(2) + and(1) + free(1); hedef 8)",
+      "2. hikaye, 4. kita, 3. satir: \"Shining bright and near and very far,\" (hece 9 = Shining(2) + bright(1) + and(1) + near(1) + and(1) + very(2) + far(1); hedef 8)",
+      "3. hikaye, 1. kita, 3. satir: \"Cow has lost her small and little bell,\" (hece 9 = Cow(1) + has(1) + lost(1) + her(1) + small(1) + and(1) + little(2) + bell(1); hedef 8)",
+      "3. hikaye, 3. kita, 3. satir: \"Dino thought of something very smart,\" (hece 9 = Dino(2) + thought(1) + of(1) + something(2) + very(2) + smart(1); hedef 8)",
+      "3. hikaye, 4. kita, 3. satir: \"There the bright and shiny bell was found,\" (hece 9 = There(1) + the(1) + bright(1) + and(1) + shiny(2) + bell(1) + was(1) + found(1); hedef 8)",
+      "3. hikaye, 5. kita, 3. satir: \"Now they dance across the snowy hills,\" (hece 9 = Now(1) + they(1) + dance(1) + across(2) + the(1) + snowy(2) + hills(1); hedef 8)"
+    ],
+    "title_report": [
+      "Gercek aranan sorgu: 120 adet bulundu",
+      "- \"farm animals song for kids\": ilk 10 medyan izlenme 38.7M, medyan abone 2.6M",
+      "- \"farm animals songs for toddlers\": ilk 10 medyan izlenme 38.3M, medyan abone 30.5M",
+      "- \"dinosaur song for kids\": ilk 10 medyan izlenme 40.5M, medyan abone 4.8M",
+      "- \"christmas song for toddlers\": ilk 10 medyan izlenme 50.4M, medyan abone 11.4M",
+      "- \"winter song for kids\": ilk 10 medyan izlenme 2.3M, medyan abone 91K",
+      "SECILEN: \"winter song for kids\" (gercek aranan, rekabet en dusuk)"
+    ]
+  }
 }
