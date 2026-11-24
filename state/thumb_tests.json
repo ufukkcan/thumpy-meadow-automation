@@ -58,5 +58,15 @@
     "current": "A",
     "publish_at": "2026-11-20T20:30:00Z",
     "status": "waiting_scope"
+  },
+  "XIqB1m_VeMA": {
+    "files": [
+      "state/thumbs/XIqB1m_VeMA_A.jpg",
+      "state/thumbs/XIqB1m_VeMA_B.jpg",
+      "state/thumbs/XIqB1m_VeMA_C.jpg"
+    ],
+    "current": "A",
+    "publish_at": "2026-11-24T18:00:00Z",
+    "status": "waiting_scope"
   }
 }
