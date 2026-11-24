@@ -1,49 +1,58 @@
 {
   "status": "choosing",
-  "batch": "367caee1",
+  "batch": "3e479757",
   "ideas": [
     {
-      "working_title": "Dino's Birthday Hide and Seek | Animal Sounds Game for Kids | Thumpy Meadow",
-      "summary": "Dino'nun doğum günü partisinde inek, köpek, baykuş, koyun, kurbağa, horoz ve ördek saklıdır; finalde pasta ve balonlar çıkar.",
-      "frame": "birthday",
-      "animals": [
-        "cow",
-        "dog",
-        "owl",
-        "sheep",
-        "frog",
-        "rooster",
+      "working_title": "Christmas Gift Rescue! Holiday Animals Song",
+      "summary": "Noel gecesi hediyeler, süsler ve kızaklar etrafında gelişen dört kurtarma hikayesi.",
+      "stories": [
+        "The Gift Falls in the Pond! (göl kenarı; Dino'nun Noel hediyesi buzlu göle düşer)",
+        "Kitten's Ornament is Gone! (ev içi oturma odası; kedicik Noel ağacının süsünü kaybeder)",
+        "Piglet's Sled is Stuck! (karlı tepe; domuzun kızağı karın içine saplanır)",
+        "Cookie for Santa is Missing! (çiftlik; Santa'ya bırakılan kurabiye kaybolur)"
+      ],
+      "cast": [
+        "kitten",
+        "piglet",
+        "lamb",
         "duck"
-      ]
+      ],
+      "format": "story"
     },
     {
-      "working_title": "Animal Sound Guessing Game for Toddlers | Picnic Hide and Seek | Thumpy Meadow",
-      "summary": "Piknik örtüsünün etrafında köpek, kedi, at, civciv, kuş, koyun ve kurbağa saklanmıştır; finalde meyveler yağar ve Dino'ya çilek verilir.",
-      "frame": "picnic",
-      "animals": [
-        "dog",
-        "cat",
-        "horse",
+      "working_title": "Snowstorm Sharing! Winter Animals Song",
+      "summary": "Şiddetli kar fırtınasında arkadaşlar birbirini ısıtmak ve paylaşmak için birleşir.",
+      "stories": [
+        "Chick Has No Scarf! (karlı tepe; civciv üşür ama atkısı yoktur)",
+        "Bunny's Cocoa Spilled! (ev içi oturma odası; tavşanın sıcak kakaosu dökülür)",
+        "The Snowman Needs a Nose! (çiçekli çayır; kardan adam için havuç bulmak gerekir)",
+        "Puppy Shares the Sled! (karlı tepe; köpek yavrusu kızağı tek başına kullanmak ister ama arkadaşlarıyla paylaşmayı öğrenir)"
+      ],
+      "cast": [
         "chick",
-        "bird",
-        "sheep",
-        "frog"
-      ]
+        "bunny",
+        "puppy",
+        "lamb"
+      ],
+      "format": "story"
     },
     {
-      "working_title": "Rainbow Animal Sounds for Kids | Guess Who's Hiding | Thumpy Meadow",
-      "summary": "Gökkuşağının renkli bulutlarında köpek, ördek, baykuş, kuş, horoz, inek ve at saklanmıştır; finalde gökkuşağı ve yıldızlar belirir.",
-      "frame": "rainbow",
-      "animals": [
-        "dog",
+      "working_title": "Frozen Pond Rescue! Christmas Animals Song",
+      "summary": "Noel temalı dört hikayede kayıp objeler, donmuş mekanlar ve sıcak sarılmalar seyirciyi bekliyor.",
+      "stories": [
+        "Duck Slips on the Ice! (göl kenarı; ördek donmuş gölde kayar ve yardım ister)",
+        "The Christmas Tree is Too Heavy! (çiftlik; Noel ağacını ahıra taşımak için herkese ihtiyaç var)",
+        "Cow's Bell is Buried in Snow! (karlı tepe; ineğin zili karın altında kalır)",
+        "Piglet Rides the Wrong Sled! (karlı tepe; domuzun kızağı kontrolden çıkar)"
+      ],
+      "cast": [
         "duck",
-        "owl",
-        "bird",
-        "rooster",
         "cow",
-        "horse"
-      ]
+        "piglet",
+        "chick"
+      ],
+      "format": "story"
     }
   ],
-  "trigger_date": "2026-11-21"
+  "trigger_date": "2026-11-24"
 }
