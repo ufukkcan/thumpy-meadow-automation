@@ -3,7 +3,7 @@ Kucuk resim afisleri v2 (K-26; docs/arastirma-kesif.md, rakip panolari 11-22).
 
 Rakiplerden olculen kurallar: yuzler kadrajin %60-80'i ve kenardan tasar; gozler acik, agiz acik; doygun renk;
 sol altta sabit kanal logosu; Noel disi yazisiz, Noel'de 1-2 kelime sarki adi + gece mavisi zemin (soluk
-beyaz kar degil); mevsim aksesuari (Noel sapkasi). Yaniltici olmayan: yalnizca bolumdeki karakter/obje/mekan.
+beyaz kar degil; H13: arka plan videonun ilk sahnesi); mevsim aksesuari (Noel sapkasi). Yaniltici olmayan: yalnizca bolumdeki karakter/obje/mekan.
 
 Uc konsept: A sorun ani (Dino uzanir + kahraman saskin + parlayan obje), B nese uclusu (sarki), C ikinci
 hikayenin sorun ani. Noel bolumunde A'ya sarki adi yazilir.
@@ -21,7 +21,6 @@ rgb, paint, inked, oval_path, INK = r.rgb, r.paint, r.inked, r.oval_path, r.INK
 W, H = r.W, r.H
 XMAS_PROPS = {"christmas_tree", "snowman", "gift", "bell", "candy", "cookie", "cocoa", "sled", "scarf", "gloves"}
 SONG_WORD = {"jingle": "Jingle Bells!"}            # yalnizca Noel'de yazi (arastirma: 14/24)
-NIGHT_PLACES = {"snow", "night"}
 
 
 def _story_xmas(S):
@@ -33,96 +32,19 @@ def is_xmas(stories):
     return sum(map(_story_xmas, stories)) * 2 >= len(stories)
 
 
-# ---------------- arka planlar ----------------
-def _night(c, warm):
-    c.drawRect(skia.Rect.MakeWH(W, H), paint(shader=r.linear((0, 0), (0, H), [rgb(18, 32, 96), rgb(52, 92, 196),
-                                                                               rgb(120, 170, 240)], [0, 0.55, 1])))
-    c.drawCircle(warm[0], warm[1], 620, paint(shader=r.radial(warm, 620, [rgb(255, 200, 120, 150), rgb(255, 160, 90, 0)])))
-    rnd = random.Random(3)
-    for _ in range(70):
-        c.drawCircle(rnd.uniform(0, W), rnd.uniform(0, 420), rnd.uniform(1.5, 3.5), paint(rgb(255, 255, 230, rnd.randint(120, 230))))
-    for k in range(9):
-        col = [rgb(255, 210, 90), rgb(255, 120, 140), rgb(120, 230, 210)][k % 3]
-        c.drawCircle(rnd.uniform(0, W), rnd.uniform(60, 520), rnd.uniform(28, 60), paint(col, alpha=0.28, blur=10))
-    _hills(c, rgb(70, 110, 190), rgb(40, 80, 120), rgb(235, 245, 255), [rgb(250, 252, 255), rgb(200, 220, 250)])
-
-
-def _day(c, place, warm):
-    c.drawRect(skia.Rect.MakeWH(W, H), paint(shader=r.linear((0, 0), (0, H), [rgb(40, 140, 245), rgb(110, 195, 255),
-                                                                               rgb(190, 235, 255)], [0, 0.5, 1])))
-    c.drawCircle(warm[0], warm[1], 560, paint(shader=r.radial(warm, 560, [rgb(255, 240, 150, 170), rgb(255, 230, 120, 0)])))
-    rnd = random.Random(5)
-    for _ in range(5):                                       # bulutlar
-        x, y, s = rnd.uniform(0, W), rnd.uniform(60, 330), rnd.uniform(0.8, 1.4)
-        for dx, dy, rr in ((-70, 10, 55), (0, -15, 75), (75, 8, 58)):
-            c.drawCircle(x + dx * s, y + dy * s, rr * s, paint(rgb(255, 255, 255), alpha=0.95))
-    if place == "pond":
-        ground = [rgb(90, 200, 120), rgb(60, 170, 100)]
-    elif place in ("home",):
-        ground = [rgb(255, 214, 150), rgb(240, 180, 120)]
-    else:
-        ground = [rgb(120, 220, 110), rgb(70, 180, 90)]
-    _hills(c, rgb(95, 200, 120), rgb(40, 140, 80), None, ground)
-    if place == "pond":
-        c.drawOval(r.oval(1450, 880, 520, 120), paint(rgb(90, 190, 245)))
-
-
-def _hills(c, hill_col, pine_col, cap_col, ground_cols):
-    hill = skia.Path()
-    hill.moveTo(0, 640)
-    hill.cubicTo(500, 560, 1100, 690, W, 590)
-    hill.lineTo(W, H)
-    hill.lineTo(0, H)
-    hill.close()
-    c.drawPath(hill, paint(hill_col))
-    for x, s in ((120, 1.0), (300, 0.75), (1700, 0.9), (1860, 1.1), (980, 0.6)):
-        for k, (wd, ht) in enumerate(((150, 120), (120, 110), (85, 100))):
-            yy = 640 - k * 70 * s
-            p = skia.Path()
-            p.moveTo(x - wd * s, yy)
-            p.lineTo(x, yy - ht * 1.3 * s)
-            p.lineTo(x + wd * s, yy)
-            p.close()
-            c.drawPath(p, paint(pine_col))
-            if cap_col is not None:
-                cap = skia.Path()
-                cap.moveTo(x - wd * 0.45 * s, yy - ht * 0.75 * s)
-                cap.lineTo(x, yy - ht * 1.3 * s)
-                cap.lineTo(x + wd * 0.45 * s, yy - ht * 0.75 * s)
-                cap.close()
-                c.drawPath(cap, paint(cap_col))
-    ground = skia.Path()
-    ground.moveTo(0, 760)
-    ground.cubicTo(600, 700, 1300, 790, W, 720)
-    ground.lineTo(W, H)
-    ground.lineTo(0, H)
-    ground.close()
-    c.drawPath(ground, paint(shader=r.linear((0, 700), (0, H), ground_cols)))
-
-
-def _cabin(c, x, y, s=1.0):
-    w, h = 520 * s, 330 * s
-    inked(c, [skia.Path().addRect(skia.Rect.MakeXYWH(x, y - h, w, h))], paint(rgb(170, 90, 60)))
-    for k in range(1, 6):
-        c.drawLine(x + 8, y - h + k * h / 6, x + w - 8, y - h + k * h / 6, paint(rgb(130, 65, 45), stroke=6))
-    roof = skia.Path()
-    roof.moveTo(x - 50 * s, y - h + 10)
-    roof.lineTo(x + w / 2, y - h - 190 * s)
-    roof.lineTo(x + w + 50 * s, y - h + 10)
-    roof.close()
-    inked(c, [roof], paint(rgb(240, 248, 255)))
-    win = skia.Rect.MakeXYWH(x + 60 * s, y - h + 70 * s, 140 * s, 120 * s)
-    c.drawRect(win.makeOutset(40, 40), paint(rgb(255, 200, 90), alpha=0.45, blur=30))
-    inked(c, [skia.Path().addRect(win)], paint(rgb(255, 214, 110)))
-    c.drawLine(win.centerX(), win.top(), win.centerX(), win.bottom(), paint(INK, stroke=10))
-    c.drawLine(win.left(), win.centerY(), win.right(), win.centerY(), paint(INK, stroke=10))
-
-
 def _flakes(c, n=46, seed=9):
     rnd = random.Random(seed)
     for _ in range(n):
         rr = rnd.uniform(7, 20)
         c.drawCircle(rnd.uniform(0, W), rnd.uniform(0, H), rr, paint(rgb(255, 255, 255, 230), blur=rr * 0.25))
+
+
+def _scene(c, S):
+    """Afis = video (H13): arka plan, hikayenin videodaki ilk sahnesinin kendisi (mekan kiti + gokyuzu).
+    Donus: gece mi (vinyet rengi icin)."""
+    kind = getattr(S, "sky_place", S.place)
+    r.Meadow(kind=kind).draw(c, 0.0, 0.0)
+    return r.SKY.get(kind, "day") in ("night", "xmas") or kind == "homex"
 
 
 # ---------------- ogeler ----------------
@@ -199,12 +121,9 @@ def _prop(S, xmas):
 
 def problem(S, path, spr, xmas, word=None):
     """Sorun ani: Dino on planda uzanir, kahraman saskin (yakin), sorun objesi parlar."""
-    night = xmas or S.place in NIGHT_PLACES
     surf = r.new_surface()
     c = surf.getCanvas()
-    (_night if night else (lambda cc, warm: _day(cc, S.place, warm)))(c, (1450, 420))
-    if S.place == "snow":
-        _cabin(c, 1190, 760, 1.25)
+    night = _scene(c, S)
     prop = _prop(S, xmas)
     glow_prop(c, spr, prop, 1060, 300, 240, ring=prop == "bell")
     hero = _hero(S)
@@ -215,7 +134,7 @@ def problem(S, path, spr, xmas, word=None):
     r.dino(c, cx, cy, s=s, expr="surprised", mouth=0.7, look=1.0, look_y=-0.1, arms=(40, 120), lean=6)
     if xmas:
         santa_hat(c, cx + 62, cy - 0.50 * r.BODY_H * s, 300 * s * 0.66, tilt=8, flop=-1)
-    if S.weather == "snow" or xmas:
+    if S.weather == "snow" or (xmas and S.place != "home"):     # ev icinde kar yagmaz (video ile ayni)
         _flakes(c)
     elif S.weather == "rain":
         c.drawRect(skia.Rect.MakeWH(W, H), paint(rgb(60, 70, 95, 60)))
@@ -228,10 +147,9 @@ def problem(S, path, spr, xmas, word=None):
 
 def trio(S, path, spr, xmas):
     """Nese uclusu: Dino ortada, iki arkadas yanlarda, hepsi sarki soyluyor (gozler acik)."""
-    night = xmas or S.place in NIGHT_PLACES
     surf = r.new_surface()
     c = surf.getCanvas()
-    (_night if night else (lambda cc, warm: _day(cc, S.place, warm)))(c, (960, 420))
+    night = _scene(c, S)
     glow_prop(c, spr, _prop(S, xmas), 1330, 210, 230, rot=12, ring=_prop(S, xmas) == "bell")
     pals = [n for n in S.cast if n in cr.SPEC][:2]
     while len(pals) < 2:
@@ -248,7 +166,7 @@ def trio(S, path, spr, xmas):
     r.dino(c, cx, cy, s=s, mouth=0.9, excited=True, look=0.0, arms=(150, 150))
     if xmas:
         santa_hat(c, cx + 10, cy - 0.52 * r.BODY_H * s, 300 * s * 0.56, tilt=-8, flop=-1)
-    if S.weather == "snow" or xmas:
+    if S.weather == "snow" or (xmas and S.place != "home"):     # ev icinde kar yagmaz (video ile ayni)
         _flakes(c)
     elif S.weather == "rain":
         c.drawRect(skia.Rect.MakeWH(W, H), paint(rgb(60, 70, 95, 60)))

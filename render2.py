@@ -512,8 +512,9 @@ def _kit_forest(rnd):
     return far, mid, near
 
 
-def _kit_home(rnd):
-    """Ev ici (oturma odasi): duvar + pencere + cerceve + raf; ahsap zemin + hali. Gokyuzu cizilmez."""
+def _kit_home(rnd, night=False):
+    """Ev ici (oturma odasi): duvar + pencere + cerceve + raf; ahsap zemin + hali. Gokyuzu cizilmez.
+    night=True (Noel aksami, H13): pencerede gece mavisi + ay + kar (afis v2 renkleri)."""
     def far(c, w):
         c.drawRect(skia.Rect.MakeWH(w, H), paint(shader=linear((0, 0), (0, 760),
                                                                [rgb(255, 236, 205), rgb(250, 220, 180)])))
@@ -523,10 +524,21 @@ def _kit_home(rnd):
 
     def mid(c, w):
         wx, wy, ww, wh = 1250 + 350, 150, 360, 300  # pencere (varista ekranin sag-ortasi)
-        c.drawRect(skia.Rect.MakeXYWH(wx - ww / 2, wy, ww, wh),
-                   paint(shader=linear((0, wy), (0, wy + wh), [rgb(110, 185, 245), rgb(205, 236, 255)])))
-        c.drawCircle(wx + 90, wy + 80, 34, paint(rgb(255, 225, 110)))
-        _cloud(c, wx - 90, wy + 120, 0.6)
+        if night:
+            c.drawRect(skia.Rect.MakeXYWH(wx - ww / 2, wy, ww, wh),
+                       paint(shader=linear((0, wy), (0, wy + wh), [rgb(18, 32, 96), rgb(52, 92, 196)])))
+            moon = skia.Op(oval_path(wx + 90, wy + 80, 34, 34), oval_path(wx + 110, wy + 70, 30, 30),
+                           skia.PathOp.kDifference_PathOp)
+            c.drawPath(moon, paint(rgb(255, 240, 170)))
+            for _ in range(16):
+                c.drawCircle(wx + rnd.uniform(-ww / 2 + 10, ww / 2 - 10), wy + rnd.uniform(10, wh - 10),
+                             rnd.uniform(3, 7), paint(rgb(255, 255, 255, 230)))
+            c.drawRect(skia.Rect.MakeXYWH(wx - ww / 2, wy + wh - 40, ww, 40), paint(rgb(235, 242, 252)))
+        else:
+            c.drawRect(skia.Rect.MakeXYWH(wx - ww / 2, wy, ww, wh),
+                       paint(shader=linear((0, wy), (0, wy + wh), [rgb(110, 185, 245), rgb(205, 236, 255)])))
+            c.drawCircle(wx + 90, wy + 80, 34, paint(rgb(255, 225, 110)))
+            _cloud(c, wx - 90, wy + 120, 0.6)
         frame = skia.Rect.MakeXYWH(wx - ww / 2, wy, ww, wh)
         c.drawRect(frame, paint(rgb(255, 255, 255), stroke=22))
         c.drawRect(frame, paint(INK, stroke=6))
@@ -567,8 +579,10 @@ def _kit_home(rnd):
 
 PLACES = {"meadow": _kit_meadow, "farm": _kit_farm, "pond": _kit_pond, "snow": _kit_snow,
           "forest": _kit_forest, "home": _kit_home, "night": _kit_meadow,
-          "snowx": _kit_snow, "forestx": _kit_forest}        # x: Noel aksami (afis v2 gece mavisi, H13)
-SKY = {"snow": "winter", "home": None, "night": "night", "snowx": "xmas", "forestx": "xmas"}   # digerleri "day"
+          "snowx": _kit_snow, "forestx": _kit_forest,        # x: Noel aksami (afis v2 gece mavisi, H13)
+          "homex": lambda rnd: _kit_home(rnd, night=True)}
+SKY = {"snow": "winter", "home": None, "night": "night", "snowx": "xmas", "forestx": "xmas",
+       "homex": None}                                                                         # digerleri "day"
 
 
 def _sun(c, t, sx=1640, sy=170, pale=False):

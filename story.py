@@ -59,7 +59,7 @@ CTA_IN, CTA_CLICK, CTA_THUMB = 0.15, 1.5, 1.9
 # scared: titrer; sad: uzgun, boynu bukuk. Kurtarilinca firlar + sevinir.
 TROUBLE_LOOKS = ("stuck", "scared", "sad")
 SINK = 0.30                                   # stuck: boyun bu kadari karin/camurun icinde
-XMAS_SKY = {"snow": "snowx", "forest": "forestx"}   # Noel hikayesinde aksam mavisi gokyuzu (afis v2 ile ayni)
+XMAS_SKY = {"snow": "snowx", "forest": "forestx", "home": "homex"}   # Noel aksami (afis v2 ile ayni gece mavisi)
 
 
 def _xs(n):
