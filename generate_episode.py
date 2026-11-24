@@ -979,6 +979,62 @@ def generate_story_script(idea: dict) -> dict:
     return ep
 
 
+TRIP_RULES = """
+YOLCULUK BICIMI (traktor; ZORUNLU, yukaridaki kurallarla birlikte):
+Dino kirmizi traktoruyla duraktan duraga gider; her hikaye = bir DURAK. Arkadaslar romorka biner.
+- place SADECE: farm, meadow, pond, snow, forest (ev ici ve gece YOK). Her durak FARKLI mekan.
+- Her durakta TEK sorundaki hayvan (trouble.who) ve her durakta FARKLI hayvan. cast: o hayvan (+ en fazla 1).
+- trouble zorunlu. Traktor yardim eder: halatla CEKER, ITER ya da TASIR. Sozlerde "tractor" gecsin ve traktor
+  sesi taklidi olsun ("putt putt", "beep beep").
+- hook: 1. satir sorundaki hayvanin seslenmesi (or. "Help! I am stuck in the mud!").
+- trouble.until = traktorun hayvani kurtardigi kita (1'den). Sonraki kita: hayvan romorka biner, hep birlikte
+  surerek kutlama; sayma kullan ("one friend riding", "two friends riding" ...; durak sirasi kadar).
+- ending: kisa sevinc cumlesi. next: siradaki duraga merak (or. "What is that over there?").
+- Noel bolumunde: traktor arkadaslara Noel hediyesi goturuyor; Jingle Bells ilk durakta.
+"""
+OUTDOOR = ("farm", "meadow", "pond", "snow", "forest")
+TRIP_TEST_IDEA = {"working_title": "Dino's Christmas Tractor", "format": "story",
+                  "theme": "Dino drives his little red tractor through the snowy countryside to bring Christmas "
+                           "gifts; at each stop a friend is in trouble, the tractor helps and the friend hops on.",
+                  "cast": ["chick", "puppy", "lamb", "duck"]}
+
+
+def generate_trip_script(idea: dict) -> dict:
+    """H14: traktor yolculugu bolumu (tripshow.py). Hikaye senaryosu + yolculuk kurallari; normalize sonrasi
+    mekan disarida, her durakta farkli sorundaki hayvan."""
+    raw = _ask(STORY_SCRIPT_PROMPT.format(idea=json.dumps(idea, ensure_ascii=False), library=_story_library(),
+                                          safety=STORY_SAFETY + TRIP_RULES, n=N_STORIES,
+                                          langs=", ".join(LANGS.values())),
+               max_tokens=16000)
+    ep = normalize_story_episode(raw, cast_hint=[c for c in idea.get("cast", []) if c in critters.SPEC])
+    ep["format"] = "trip"
+    used = set()
+    for k, st in enumerate(ep["stories"]):
+        if st["place"] not in OUTDOOR:
+            st["place"] = ("farm", "meadow", "forest", "pond")[k % 4]
+        tr = story_engine.trouble_of(st, ["dino"] + st["cast"])
+        who, look, until = tr if tr else (st["cast"][0], "scared", len(st["verses"]))
+        if who in used:                                # her durakta farkli hayvan
+            who = next((c for c in st["cast"] + list(critters.SPEC) if c not in used and c in critters.SPEC), who)
+            if who not in st["cast"]:
+                st["cast"] = [who] + st["cast"][:2]
+        used.add(who)
+        st["trouble"] = {"who": who, "look": look, "until": until}
+    issues = story_song_issues(ep)
+    for _ in range(2):
+        if not issues:
+            break
+        try:
+            _fix_story_songs(ep, issues)
+        except Exception as exc:
+            print(f"Sarki duzeltme turu basarisiz: {exc}", flush=True)
+            break
+        issues = story_song_issues(ep)
+    _drop_unknown_story_words(ep)
+    ep["song_issues"] = story_song_issues(ep)
+    return ep
+
+
 def remember_story_episode(ep: dict) -> None:
     """Tekrar onleme hafizasi: hikaye adlari (son 120)."""
     STATE_DIR.mkdir(parents=True, exist_ok=True)

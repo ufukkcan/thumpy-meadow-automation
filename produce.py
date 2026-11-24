@@ -6,6 +6,9 @@ from pathlib import Path
 
 
 def _engine(ep: dict):
+    if ep.get("format") == "trip":                     # H14: traktor yolculugu (ayni "stories" bicimi)
+        import tripshow
+        return tripshow
     if ep.get("stories"):
         import story
         return story

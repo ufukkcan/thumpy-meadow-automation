@@ -52,6 +52,8 @@ jobs:
           TTS_VOICE: "en-US-AnaNeural"
           # H8 uctan uca (todo 7h): gercek Claude fikir + senaryo + baslik olcumu + render, yukleme YOK
           SHOW_JSON: ""
+          # H14: "trip" = traktor yolculugu deneme bolumu (gercek Claude senaryosu); "" = hikaye-sarki
+          EPISODE_TEST_FORMAT: "trip"
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}

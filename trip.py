@@ -1,25 +1,24 @@
 """
-Yolculuk motoru (H14 T2): Dino'nun kirmizi traktoru mekandan mekana surer.
+Yolculuk kinematigi (H14 T2): Dino'nun kirmizi traktoru mekandan mekana surer.
 
-Ayak (leg) = bir mekanda gecen sure. Her ayak: GIRIS (traktor soldan girer, yavaslar) -> SEYIR (kamera
-traktoru izler, paralaks arka plan kayar) -> CIKIS (kamera durur, traktor saga cikar) ya da DURAK (yavaslayip
-arkadasin yaninda durur). Mekan degisimi: traktor ekrandan cikinca kesme, yeni mekanda soldan girer
-(rakip olcumu: "10 Little Tractors" yan gorunus; LBB 2-4 sn'de bir cekim).
-Cekimler (seyirde ~4 sn'de bir): genis, Dino yakin, tekerlek yakin, romork yakin.
+Ayak (leg) = bir zaman araliginda tek mekan + tek hareket kipi:
+  in   : traktor soldan girer (kamera sabit), seyreder (kamera izler, paralaks kayar), yavaslayip durur
+  hold : durur (kamera sabit)
+  out  : kalkar, seyreder, sonunda kamera durur ve traktor saga cikar
+Mekan degisimi: traktor ekrandan cikinca kesme, yeni mekanda soldan girer (rakip olcumu: "10 Little Tractors"
+yan gorunus; LBB 2-4 sn'de bir cekim). Kamera x'i paralaks arka planin kaymasidir; dunyaya bagli karakterler
+ekranda (dunya_x - kamera_x) noktasinda cizilir.
 """
-import math
 from types import SimpleNamespace
 
 import render2 as r
-import vehicles as v
 
 S = 0.9                         # traktor olcegi
 GROUND = 900                    # yer cizgisi (ekran)
 CRUISE_X = 1060                 # seyirde traktorun ekrandaki yeri (arka teker)
 SPEED = 430                     # px/sn
-ENTER, EXIT = 2.0, 1.6          # sn
-SHOT_EVERY = 4.0
-SHOT_CYCLE = ("wide", "dino", "wheel", "wide", "trailer")
+ENTER, EXIT, ACCEL, DECEL = 2.0, 1.6, 1.5, 3.0     # sn
+X_IN, X_OUT = -900.0, 2700.0    # ekran disi sol / sag
 
 
 def _ease_out(x):
@@ -32,15 +31,11 @@ def _ease_in(x):
     return x ** 3
 
 
-def plan(legs):
-    """legs: [{"place", "dur", "stop": bool}] -> zaman cizelgesi (her ayagin t0/t1)."""
-    t = 0.0
-    out = []
-    for g in legs:
-        out.append(SimpleNamespace(place=g["place"], t0=t, t1=t + g["dur"], dur=g["dur"], stop=g.get("stop", False),
-                                   weather=g.get("weather")))
-        t += g["dur"]
-    return out, t
+def leg(place, t0, t1, mode, cam0=0.0, weather=None, x_from=None):
+    """x_from (yalnizca "in"): traktor bu ekran x'inden baslar ve kamera sabit kalir -> bolumun ilk karesinde
+    traktor de duraktaki arkadas da ekranda (H13: ilk kare dolu)."""
+    return SimpleNamespace(place=place, t0=t0, t1=t1, dur=t1 - t0, mode=mode, cam0=cam0, weather=weather,
+                           x_from=x_from)
 
 
 def leg_at(legs, t):
@@ -51,83 +46,35 @@ def leg_at(legs, t):
 
 
 def kin(g, t):
-    """(traktorun ekran x'i, kamera x'i, hiz 0..1) -- ayak icindeki zamana gore."""
-    a = t - g.t0
-    cruise_end = g.dur - (0.0 if g.stop else EXIT)
-    x_in = -900.0                                   # ekran disi (sol)
-    if a < ENTER:                                   # giris: kamera sabit, traktor yavaslayarak gelir
-        return x_in + (CRUISE_X - x_in) * _ease_out(a / ENTER), 0.0, 1.0
-    if g.stop:                                      # durak: seyir sonra yavaslayip durma (son 2 sn duruyor)
-        slow0 = max(ENTER, g.dur - 4.0)
-        if a < slow0:
-            return CRUISE_X, (a - ENTER) * SPEED, 1.0
-        b = min(a, g.dur - 1.5) - slow0
-        span = max(0.01, (g.dur - 1.5) - slow0)
-        k = r.clamp01(b / span)
-        cam = (slow0 - ENTER) * SPEED + SPEED * span * (k - k * k / 2)       # hiz dogrusal azalir
-        return CRUISE_X, cam, max(0.0, 1 - k)
-    if a < cruise_end:                              # seyir: kamera izler
-        return CRUISE_X, (a - ENTER) * SPEED, 1.0
-    cam = (cruise_end - ENTER) * SPEED              # cikis: kamera durur, traktor hizlanarak cikar
-    k = _ease_in((a - cruise_end) / EXIT)
-    return CRUISE_X + (2700 - CRUISE_X) * k, cam, 1.0
+    """(traktorun ekran x'i, kamera x'i, hiz 0..1)."""
+    a = min(max(t - g.t0, 0.0), g.dur)
+    if g.mode == "hold":
+        return CRUISE_X, g.cam0, 0.0
+    if g.mode == "in" and g.x_from is not None:
+        k = a / max(g.dur, 1e-3)
+        return g.x_from + (CRUISE_X - g.x_from) * _ease_out(k), g.cam0, 1.0 - k
+    if g.mode == "in":
+        enter = min(ENTER, g.dur * 0.45)
+        dec = min(DECEL, max(0.6, g.dur - enter))
+        if a < enter:
+            return X_IN + (CRUISE_X - X_IN) * _ease_out(a / enter), g.cam0, 1.0
+        cruise = max(0.0, g.dur - enter - dec)
+        if a < enter + cruise:
+            return CRUISE_X, g.cam0 + (a - enter) * SPEED, 1.0
+        b = r.clamp01((a - enter - cruise) / dec)
+        return CRUISE_X, g.cam0 + cruise * SPEED + SPEED * dec * (b - b * b / 2), 1.0 - b
+    # out: kalkis (hiz dogrusal artar) -> seyir -> cikis
+    acc = min(ACCEL, g.dur * 0.3)
+    ex = min(EXIT, g.dur * 0.35)
+    if a < acc:
+        k = a / acc
+        return CRUISE_X, g.cam0 + SPEED * acc * k * k / 2, k
+    cruise_end = g.dur - ex
+    if a < cruise_end:
+        return CRUISE_X, g.cam0 + SPEED * acc / 2 + (a - acc) * SPEED, 1.0
+    cam = g.cam0 + SPEED * acc / 2 + (cruise_end - acc) * SPEED
+    return CRUISE_X + (X_OUT - CRUISE_X) * _ease_in((a - cruise_end) / ex), cam, 1.0
 
 
-def stop_cam(g):
-    """Durak ayaginin son kamera x'i: duraktaki karakterin dunya x'i = stop_cam + ekran x'i."""
+def cam_end(g):
     return kin(g, g.t1 - 1e-3)[1]
-
-
-def shot(g, t):
-    a = t - g.t0
-    if a < ENTER or (not g.stop and a > g.dur - EXIT) or (g.stop and a > g.dur - 4.0):
-        return "wide"
-    return SHOT_CYCLE[int((a - ENTER) / SHOT_EVERY) % len(SHOT_CYCLE)]
-
-
-def cam_for(spec, sx):
-    """(merkez x, merkez y, zum) ekran koordinatinda."""
-    if spec == "dino":
-        return sx + v.SEAT[0] * S + 60, GROUND + v.SEAT[1] * S + 40, 2.1
-    if spec == "wheel":
-        return sx + 60, GROUND - 170, 2.3
-    if spec == "trailer":
-        return sx + v.HITCH * S - 330, GROUND - 260, 1.8
-    return r.W / 2, r.H / 2, 1.0
-
-
-class Scene:
-    def __init__(self):
-        self._m = {}
-
-    def bg(self, kind):
-        if kind not in self._m:
-            self._m[kind] = r.Meadow(kind=kind)
-        return self._m[kind]
-
-
-def draw(c, t, legs, scene, driver, riders=(), gifts=0, hat=False, expr="happy", honk=0.0, extra=None):
-    """Bir kare. extra(c, g, t, cam_x): durak karakterleri gibi dunyaya bagli cizimler."""
-    g = leg_at(legs, t)
-    sx, cam, sp = kin(g, t)
-    dist = cam + sx                                 # dunya yolu (tekerlek donusu)
-    spec = shot(g, t)
-    cx, cy, z = cam_for(spec, sx)
-    hw, hh = r.W / 2 / z, r.H / 2 / z
-    cx, cy = min(max(cx, hw), r.W - hw), min(max(cy, hh), r.H - hh)
-    c.save()
-    c.translate(r.W / 2, r.H / 2)
-    c.scale(z, z)
-    c.translate(-cx, -cy)
-    scene.bg(g.place).draw(c, t, cam)
-    if extra:
-        extra(c, g, t, cam)
-    bounce = (5 + 4 * sp) * abs(math.sin(dist / 55.0)) * (0.4 + 0.6 * sp)
-    v.trailer(c, sx + v.HITCH * S, GROUND, s=S, dist=dist, seats=4, riders=list(riders), gifts=gifts,
-              bounce=bounce * 0.6)
-    v.tractor(c, sx, GROUND, s=S, t=t, dist=dist, bounce=bounce, expr=expr, honk=honk, driver=driver, hat=hat,
-              puff=0.35 + 0.65 * sp)
-    c.restore()
-    if g.weather == "snow" or g.place in ("snowx",):
-        r.snowfall(c, t)
-    return spec

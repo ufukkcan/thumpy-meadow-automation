@@ -60,6 +60,16 @@ def main():
     if os.environ.get("SHOW_JSON") and Path(os.environ["SHOW_JSON"]).exists():
         ep = json.loads(Path(os.environ["SHOW_JSON"]).read_text(encoding="utf-8"))
         rep.append(f"Senaryo dosyadan: {os.environ['SHOW_JSON']}")
+    elif os.environ.get("EPISODE_TEST_FORMAT") == "trip":   # H14: traktor yolculugu, sabit fikir
+        t0 = time.time()
+        ep = gen.generate_trip_script(gen.TRIP_TEST_IDEA)
+        rep.append(f"Yolculuk senaryosu ({time.time() - t0:.0f} sn); sarki sorunlari: {ep.get('song_issues')}")
+        try:
+            import seo
+            seo.apply_title(ep)
+            rep += [f"Baslik: {ep['title']}"] + ep.get("title_report", [])
+        except Exception as exc:
+            rep.append(f"Baslik olcumu hatasi: {exc}")
     else:
         t0 = time.time()
         ideas = gen.generate_ideas()

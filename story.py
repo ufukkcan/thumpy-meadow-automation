@@ -225,8 +225,14 @@ def build(ep, work, estimate=False):
     P.segs, P.total, P.chapters = tl.segs, total, tl.chapters
     if estimate:
         return P
+    mix(tl, P, total)
+    return P
 
-    # ---- miks ----
+
+def mix(tl, P, total):
+    """Konusma (kisi basina esitlenmis) + sarkilar + efektler + fon muzigi (sarkida susar) -> P.audio, P.mouth.
+    Yolculuk bolumu (tripshow.py) de kullanir."""
+    import music
     n = int(total * SR) + SR
     speech = {}
     songs_b, sfx = np.zeros(n), np.zeros(n)
@@ -253,7 +259,6 @@ def build(ep, work, estimate=False):
     nf = int(total * FPS)
     P.audio = buf[: int(total * SR)]
     P.mouth = {who: show.mouth_track(sig, nf) for who, sig in speech.items()}
-    return P
 
 
 # ---------------- cizim ----------------
