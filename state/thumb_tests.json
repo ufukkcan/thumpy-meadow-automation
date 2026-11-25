@@ -68,5 +68,15 @@
     "current": "A",
     "publish_at": "2026-11-24T18:00:00Z",
     "status": "waiting_scope"
+  },
+  "RaBz0aqshHw": {
+    "files": [
+      "state/thumbs/RaBz0aqshHw_A.jpg",
+      "state/thumbs/RaBz0aqshHw_B.jpg",
+      "state/thumbs/RaBz0aqshHw_C.jpg"
+    ],
+    "current": "A",
+    "publish_at": "2026-11-25T18:00:00Z",
+    "status": "waiting_scope"
   }
 }
